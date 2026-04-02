@@ -1,4 +1,4 @@
-name: Deploy Web To Cloudflare
+name: Deploy API To Cloudflare Workers
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
       - main
     paths:
       - ".node-version"
-      - ".github/workflows/deploy-web-cloudflare.yml"
-      - "apps/web/**"
+      - ".github/workflows/deploy-api-cloudflare.yml"
+      - "apps/api/**"
       - "package.json"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: deploy-web-cloudflare-${{ github.ref }}
+  group: deploy-api-cloudflare-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -42,17 +42,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build web app
-        run: pnpm build:web
-        env:
-          VITE_API_URL: ${{ vars.PUBLIC_API_URL }}
+      - name: Build API worker
+        run: pnpm build:api
 
-      - name: Deploy to Cloudflare Pages
+      - name: Deploy API worker
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          workingDirectory: apps/web
+          workingDirectory: apps/api
           wranglerVersion: 4.80.0
-          command: "pages deploy dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT != '' && vars.CLOUDFLARE_PAGES_PROJECT || 'mountain-race-web' }}"
+          command: deploy

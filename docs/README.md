@@ -4,7 +4,7 @@
 
 현재 포함 문서:
 
-- `deployment.md`: Cloudflare Pages + Render 배포 전략 템플릿
+- `deployment.md`: Cloudflare Pages + Cloudflare Workers 배포 전략 템플릿
 
 추천 추가 문서:
 

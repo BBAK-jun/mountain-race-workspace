@@ -9,7 +9,7 @@
       "webRoot": "${workspaceFolder}/apps/web/src"
     },
     {
-      "name": "API: Node",
+      "name": "API: Wrangler Dev",
       "type": "node",
       "request": "launch",
       "cwd": "${workspaceFolder}/apps/api",

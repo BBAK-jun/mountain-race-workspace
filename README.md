@@ -2,7 +2,7 @@
 
 Cursor와 VS Code에서 바로 열어 작업할 수 있도록 정리한 AI-native TypeScript `pnpm workspace` 초기 템플릿이다.
 
-현재 이 레포는 구현 코드를 비워둔 시작 상태다. 워크스페이스 구조, 배포 전략, CI, 에디터 설정, Cursor 설정, 앱 디렉토리 문서만 남겨두고 실제 애플리케이션 내부 코드는 제거했다.
+현재 이 레포는 웹은 비워두고, API는 최소 Worker 스타터만 남겨둔 시작 상태다. 워크스페이스 구조, 배포 전략, CI, 에디터 설정, Cursor 설정, 앱 디렉토리 문서는 먼저 고정해두고 있다.
 
 ## 포함된 기본값
 
@@ -20,16 +20,17 @@ Cursor와 VS Code에서 바로 열어 작업할 수 있도록 정리한 AI-nativ
 - `.cursorignore` 와 `.cursorindexingignore` 기반 AI 컨텍스트 축소
 - GitHub Actions CI
 - `apps/web` Cloudflare Pages용 빈 정적 플레이스홀더 앱
-- `apps/api` Render Docker용 빈 서버 플레이스홀더 앱
+- `apps/api` Cloudflare Workers용 Hono API 스타터
 
 ## 시작하기
 
 ```bash
 pnpm install
 pnpm dev:web
+pnpm dev:api
 ```
 
-웹은 빈 플레이스홀더 페이지를 `http://localhost:4173`에서 띄울 수 있다. API는 현재 실제 구현이 없으며, 배포 템플릿만 준비된 상태다.
+웹은 빈 플레이스홀더 페이지를 `http://localhost:4173`에서 띄울 수 있다. API는 `http://localhost:8787`에서 최소 Hono Worker 엔드포인트를 띄울 수 있다.
 
 ## 주요 스크립트
 
@@ -53,23 +54,24 @@ pnpm ci:check
 
 ## Deployment
 
-배포 전략도 같이 넣어뒀지만, 현재는 구현 없는 초기 상태를 기준으로 템플릿만 준비된 상태다.
+배포 전략도 같이 넣어뒀지만, 현재는 웹 플레이스홀더와 최소 API 스타터만 있는 상태를 기준으로 템플릿을 준비해둔 것이다.
 
 - 클라이언트: Cloudflare Pages 정적 호스팅
-- 서버: Render Docker web service
+- 서버: Cloudflare Workers
 
 핵심 파일:
 
 - [apps/web/wrangler.jsonc](/Users/sondi/Documents/github/mountain-race-workspace/apps/web/wrangler.jsonc)
 - [.github/workflows/deploy-web-cloudflare.yml](/Users/sondi/Documents/github/mountain-race-workspace/.github/workflows/deploy-web-cloudflare.yml)
-- [render.yaml](/Users/sondi/Documents/github/mountain-race-workspace/render.yaml)
-- [apps/api/Dockerfile](/Users/sondi/Documents/github/mountain-race-workspace/apps/api/Dockerfile)
+- [apps/api/wrangler.jsonc](/Users/sondi/Documents/github/mountain-race-workspace/apps/api/wrangler.jsonc)
+- [apps/api/src/index.ts](/Users/sondi/Documents/github/mountain-race-workspace/apps/api/src/index.ts)
+- [.github/workflows/deploy-api-cloudflare.yml](/Users/sondi/Documents/github/mountain-race-workspace/.github/workflows/deploy-api-cloudflare.yml)
 - [docs/deployment.md](/Users/sondi/Documents/github/mountain-race-workspace/docs/deployment.md)
 
-앱 구현이 없으므로:
+앱 구현이 거의 없으므로:
 
 - Cloudflare Pages는 빈 플레이스홀더 정적 페이지를 배포할 수 있다.
-- Render는 플레이스홀더 컨테이너를 띄울 수 있다.
+- Cloudflare Workers는 최소 Hono API 스타터를 배포할 수 있다.
 - 실제 서비스 배포 전에 각 앱 구현을 먼저 채워야 한다.
 
 ## Cursor Layout

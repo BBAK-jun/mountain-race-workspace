@@ -3,16 +3,23 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "files": [],
+  "files": [
+    "src",
+    "wrangler.jsonc"
+  ],
   "scripts": {
-    "dev": "node --eval \"console.log('apps/api is intentionally empty. Read apps/api/README.md before adding code.')\"",
-    "build": "node --eval \"console.log('apps/api has no implementation yet. Nothing to build.')\"",
-    "start": "node --eval \"console.log('apps/api has no runtime yet. Add server code first.')\"",
-    "typecheck": "node --eval \"console.log('apps/api has no TypeScript application code yet.')\""
+    "dev": "wrangler dev --port 8787",
+    "build": "wrangler deploy --dry-run",
+    "start": "wrangler dev --port 8787",
+    "typecheck": "tsc --noEmit",
+    "deploy": "wrangler deploy"
   },
-  "dependencies": {},
+  "dependencies": {
+    "hono": "catalog:"
+  },
   "devDependencies": {
-    "@types/node": "catalog:",
-    "typescript": "catalog:"
+    "@cloudflare/workers-types": "catalog:",
+    "typescript": "catalog:",
+    "wrangler": "catalog:"
   }
 }
