@@ -9,9 +9,6 @@ catalogs:
     '@biomejs/biome':
       specifier: 1.9.4
       version: 1.9.4
-    '@hono/node-server':
-      specifier: ^1.19.12
-      version: 1.19.12
     '@types/node':
       specifier: ^25.5.0
       version: 25.5.0
@@ -24,9 +21,6 @@ catalogs:
     '@vitejs/plugin-react':
       specifier: ^6.0.1
       version: 6.0.1
-    hono:
-      specifier: ^4.12.10
-      version: 4.12.10
     prettier:
       specifier: ^3.5.3
       version: 3.5.3
@@ -36,9 +30,6 @@ catalogs:
     react-dom:
       specifier: ^19.2.4
       version: 19.2.4
-    tsx:
-      specifier: ^4.21.0
-      version: 4.21.0
     typescript:
       specifier: ^6.0.2
       version: 6.0.2
@@ -64,20 +55,10 @@ importers:
         version: 6.0.2
 
   apps/api:
-    dependencies:
-      '@hono/node-server':
-        specifier: 'catalog:'
-        version: 1.19.12(hono@4.12.10)
-      hono:
-        specifier: 'catalog:'
-        version: 4.12.10
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
         version: 25.5.0
-      tsx:
-        specifier: 'catalog:'
-        version: 4.21.0
       typescript:
         specifier: 'catalog:'
         version: 6.0.2
@@ -533,12 +514,6 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@hono/node-server@1.19.12':
-    resolution: {integrity: sha512-txsUW4SQ1iilgE0l9/e9VQWmELXifEFvmdA1j6WFh/aFPj99hIntrSsq/if0UWyGVkmrRPKA1wCeP+UCr1B9Uw==}
-    engines: {node: '>=18.14.1'}
-    peerDependencies:
-      hono: ^4
-
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
     engines: {node: '>=18'}
@@ -876,10 +851,6 @@ packages:
 
   get-tsconfig@4.13.7:
     resolution: {integrity: sha512-7tN6rFgBlMgpBML5j8typ92BKFi2sFQvIdpAqLA2beia5avZDrMs0FLZiM5etShWq5irVyGcGMEA1jcDaK7A/Q==}
-
-  hono@4.12.10:
-    resolution: {integrity: sha512-mx/p18PLy5og9ufies2GOSUqep98Td9q4i/EF6X7yJgAiIopxqdfIO3jbqsi3jRgTgw88jMDEzVKi+V2EF+27w==}
-    engines: {node: '>=16.9.0'}
 
   kleur@4.1.5:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
@@ -1363,10 +1334,6 @@ snapshots:
   '@esbuild/win32-x64@0.27.5':
     optional: true
 
-  '@hono/node-server@1.19.12(hono@4.12.10)':
-    dependencies:
-      hono: 4.12.10
-
   '@img/colour@1.1.0': {}
 
   '@img/sharp-darwin-arm64@0.34.5':
@@ -1640,6 +1607,7 @@ snapshots:
       '@esbuild/win32-arm64': 0.27.5
       '@esbuild/win32-ia32': 0.27.5
       '@esbuild/win32-x64': 0.27.5
+    optional: true
 
   fdir@6.5.0(picomatch@4.0.4):
     optionalDependencies:
@@ -1651,8 +1619,7 @@ snapshots:
   get-tsconfig@4.13.7:
     dependencies:
       resolve-pkg-maps: 1.0.0
-
-  hono@4.12.10: {}
+    optional: true
 
   kleur@4.1.5: {}
 
@@ -1742,7 +1709,8 @@ snapshots:
 
   react@19.2.4: {}
 
-  resolve-pkg-maps@1.0.0: {}
+  resolve-pkg-maps@1.0.0:
+    optional: true
 
   rolldown@1.0.0-rc.12(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2):
     dependencies:
@@ -1821,6 +1789,7 @@ snapshots:
       get-tsconfig: 4.13.7
     optionalDependencies:
       fsevents: 2.3.3
+    optional: true
 
   typescript@6.0.2: {}
 
