@@ -7,6 +7,7 @@ Cursor와 VS Code에서 바로 열어 작업할 수 있도록 정리한 AI-nativ
 ## 포함된 기본값
 
 - `pnpm workspace` 기반 루트 스크립트
+- Node.js 24 기준 런타임
 - `pnpm catalog` 기반 공용 버전 관리
 - 루트 `tsconfig.base.json` 기반 TypeScript 표준화
 - `Biome` 기반 린트와 import 정리
@@ -47,7 +48,7 @@ pnpm ci:check
 
 ## TypeScript And Catalog
 
-버전은 루트 [pnpm-workspace.yaml](/Users/sondi/Documents/github/mountain-race-workspace/pnpm-workspace.yaml)에 catalog로 모아두고, 각 앱의 `package.json`에서는 `catalog:` 프로토콜로 참조한다. `pnpm` 공식 문서 기준으로 catalog는 재사용 가능한 버전 상수이며 publish 시 실제 semver로 치환된다.
+버전은 루트 [pnpm-workspace.yaml](./pnpm-workspace.yaml)에 catalog로 모아두고, 각 앱의 `package.json`에서는 `catalog:` 프로토콜로 참조한다. `pnpm` 공식 문서 기준으로 catalog는 재사용 가능한 버전 상수이며 publish 시 실제 semver로 치환된다.
 
 - pnpm catalogs: [Catalogs](https://pnpm.io/catalogs)
 - pnpm workspace settings: [pnpm-workspace.yaml](https://pnpm.io/pnpm-workspace_yaml)
@@ -61,12 +62,12 @@ pnpm ci:check
 
 핵심 파일:
 
-- [apps/web/wrangler.jsonc](/Users/sondi/Documents/github/mountain-race-workspace/apps/web/wrangler.jsonc)
-- [.github/workflows/deploy-web-cloudflare.yml](/Users/sondi/Documents/github/mountain-race-workspace/.github/workflows/deploy-web-cloudflare.yml)
-- [apps/api/wrangler.jsonc](/Users/sondi/Documents/github/mountain-race-workspace/apps/api/wrangler.jsonc)
-- [apps/api/src/index.ts](/Users/sondi/Documents/github/mountain-race-workspace/apps/api/src/index.ts)
-- [.github/workflows/deploy-api-cloudflare.yml](/Users/sondi/Documents/github/mountain-race-workspace/.github/workflows/deploy-api-cloudflare.yml)
-- [docs/deployment.md](/Users/sondi/Documents/github/mountain-race-workspace/docs/deployment.md)
+- [apps/web/wrangler.jsonc](./apps/web/wrangler.jsonc)
+- [.github/workflows/deploy-web-cloudflare.yml](./.github/workflows/deploy-web-cloudflare.yml)
+- [apps/api/wrangler.jsonc](./apps/api/wrangler.jsonc)
+- [apps/api/src/index.ts](./apps/api/src/index.ts)
+- [.github/workflows/deploy-api-cloudflare.yml](./.github/workflows/deploy-api-cloudflare.yml)
+- [docs/deployment.md](./docs/deployment.md)
 
 앱 구현이 거의 없으므로:
 

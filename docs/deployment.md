@@ -9,15 +9,15 @@
 
 ## 1. Cloudflare Pages
 
-클라이언트 설정 파일은 [apps/web/wrangler.jsonc](/Users/sondi/Documents/github/mountain-race-workspace/apps/web/wrangler.jsonc)에 있다.
+클라이언트 설정 파일은 [apps/web/wrangler.jsonc](./apps/web/wrangler.jsonc)에 있다.
 
-- 프로젝트 이름: `mountain-race-web`
+- 프로젝트 이름: `mountain-race-workspace`
 - 빌드 산출물: `apps/web/dist`
-- Node 버전 기준: [.node-version](/Users/sondi/Documents/github/mountain-race-workspace/.node-version)
+- Node 버전 기준: [`.node-version`](./.node-version) = `24.11.1`
 
 레포에는 GitHub Actions 배포 워크플로우도 포함되어 있다.
 
-- 워크플로우: [.github/workflows/deploy-web-cloudflare.yml](/Users/sondi/Documents/github/mountain-race-workspace/.github/workflows/deploy-web-cloudflare.yml)
+- 워크플로우: [.github/workflows/deploy-web-cloudflare.yml](./.github/workflows/deploy-web-cloudflare.yml)
 - 기본 배포 대상 프로젝트명: `mountain-race-web`
 - 빌드 시 주입되는 API URL: `PUBLIC_API_URL` repository variable
 
@@ -45,7 +45,7 @@ pnpm --filter @mountain-race/web pages:dev
 
 ## 2. Cloudflare Workers API
 
-서버 설정은 [apps/api/wrangler.jsonc](/Users/sondi/Documents/github/mountain-race-workspace/apps/api/wrangler.jsonc), [apps/api/src/index.ts](/Users/sondi/Documents/github/mountain-race-workspace/apps/api/src/index.ts), [.github/workflows/deploy-api-cloudflare.yml](/Users/sondi/Documents/github/mountain-race-workspace/.github/workflows/deploy-api-cloudflare.yml)에 있다.
+서버 설정은 [apps/api/wrangler.jsonc](./apps/api/wrangler.jsonc), [apps/api/src/index.ts](./apps/api/src/index.ts), [.github/workflows/deploy-api-cloudflare.yml](./.github/workflows/deploy-api-cloudflare.yml)에 있다.
 
 현재는 실제 API 전체가 아니라 최소 Hono Worker 스타터만 떠 있도록 만들어져 있다.
 
