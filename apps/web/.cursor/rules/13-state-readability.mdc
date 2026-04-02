@@ -1,0 +1,13 @@
+---
+description: State and interaction clarity for race setup, live simulation, and result views
+globs:
+  - "src/**/*.{ts,tsx}"
+---
+
+# State Readability
+
+- Keep setup state, live race state, and result state clearly separated in code.
+- Make countdown, running, paused, and finished transitions explicit.
+- Derived display labels should not mutate authoritative simulation state.
+- When randomness exists, keep the selection path inspectable and easy to trace.
+- Keep API payload types and UI state types adjacent when that improves traceability.

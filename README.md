@@ -1,0 +1,127 @@
+# Mountain Race Workspace
+
+Cursor와 VS Code에서 바로 열어 작업할 수 있도록 정리한 AI-native TypeScript `pnpm workspace` 초기 템플릿이다.
+
+현재 이 레포는 구현 코드를 비워둔 시작 상태다. 워크스페이스 구조, 배포 전략, CI, 에디터 설정, Cursor 설정, 앱 디렉토리 문서만 남겨두고 실제 애플리케이션 내부 코드는 제거했다.
+
+## 포함된 기본값
+
+- `pnpm workspace` 기반 루트 스크립트
+- `pnpm catalog` 기반 공용 버전 관리
+- 루트 `tsconfig.base.json` 기반 TypeScript 표준화
+- `Biome` 기반 린트와 import 정리
+- `Prettier` 기반 포맷팅
+- `.vscode` 공유 설정과 추천 확장
+- `.cursor/rules` 기반 Cursor rules
+- `.cursor/skills` 기반 Cursor skills
+- `.cursor/agents` 기반 Cursor subagents
+- `.cursor/hooks.json` 기반 Cursor hooks
+- `.cursor/mcp.json` 기반 project MCP 설정 자리
+- `.cursorignore` 와 `.cursorindexingignore` 기반 AI 컨텍스트 축소
+- GitHub Actions CI
+- `apps/web` Cloudflare Pages용 빈 정적 플레이스홀더 앱
+- `apps/api` Render Docker용 빈 서버 플레이스홀더 앱
+
+## 시작하기
+
+```bash
+pnpm install
+pnpm dev:web
+```
+
+웹은 빈 플레이스홀더 페이지를 `http://localhost:4173`에서 띄울 수 있다. API는 현재 실제 구현이 없으며, 배포 템플릿만 준비된 상태다.
+
+## 주요 스크립트
+
+```bash
+pnpm dev:web
+pnpm dev:api
+pnpm dev:all
+pnpm lint
+pnpm typecheck
+pnpm format
+pnpm build
+pnpm ci:check
+```
+
+## TypeScript And Catalog
+
+버전은 루트 [pnpm-workspace.yaml](/Users/sondi/Documents/github/mountain-race-workspace/pnpm-workspace.yaml)에 catalog로 모아두고, 각 앱의 `package.json`에서는 `catalog:` 프로토콜로 참조한다. `pnpm` 공식 문서 기준으로 catalog는 재사용 가능한 버전 상수이며 publish 시 실제 semver로 치환된다.
+
+- pnpm catalogs: [Catalogs](https://pnpm.io/catalogs)
+- pnpm workspace settings: [pnpm-workspace.yaml](https://pnpm.io/pnpm-workspace_yaml)
+
+## Deployment
+
+배포 전략도 같이 넣어뒀지만, 현재는 구현 없는 초기 상태를 기준으로 템플릿만 준비된 상태다.
+
+- 클라이언트: Cloudflare Pages 정적 호스팅
+- 서버: Render Docker web service
+
+핵심 파일:
+
+- [apps/web/wrangler.jsonc](/Users/sondi/Documents/github/mountain-race-workspace/apps/web/wrangler.jsonc)
+- [.github/workflows/deploy-web-cloudflare.yml](/Users/sondi/Documents/github/mountain-race-workspace/.github/workflows/deploy-web-cloudflare.yml)
+- [render.yaml](/Users/sondi/Documents/github/mountain-race-workspace/render.yaml)
+- [apps/api/Dockerfile](/Users/sondi/Documents/github/mountain-race-workspace/apps/api/Dockerfile)
+- [docs/deployment.md](/Users/sondi/Documents/github/mountain-race-workspace/docs/deployment.md)
+
+앱 구현이 없으므로:
+
+- Cloudflare Pages는 빈 플레이스홀더 정적 페이지를 배포할 수 있다.
+- Render는 플레이스홀더 컨테이너를 띄울 수 있다.
+- 실제 서비스 배포 전에 각 앱 구현을 먼저 채워야 한다.
+
+## Cursor Layout
+
+Cursor 문서의 구분에 맞춰 컨텍스트를 계층화했다.
+
+- `AGENTS.md`: 레포 전체에 항상 적용되는 기본 운영 규칙
+- `.cursor/rules`: 프로젝트 전반 또는 특정 디렉토리에 자동 적용되는 규칙
+- `.cursor/skills`: 길고 전문화된 작업 절차를 필요할 때만 로드하는 스킬
+- `.cursor/agents`: 병렬 위임에 쓰는 전문 서브에이전트
+- `.cursor/hooks.json`: 세션 또는 작업 이벤트에 반응하는 훅
+- `.cursor/mcp.json`: 프로젝트 전용 MCP 서버 연결 지점
+- `.cursorignore`, `.cursorindexingignore`: Cursor가 굳이 읽지 않아도 되는 파일 제외
+
+## Cursor Skills
+
+포함된 스킬:
+
+- `mountain-race-ui-flow`: 로비, HUD, 결과 화면, 반응형 UI 작업
+- `mountain-race-gameplay-loop`: 레이스 상태 전이, 순위 계산, 밸런싱 작업
+- `mountain-race-api-surface`: 백엔드 라우트, 계약, 서버 연결 작업
+- `mountain-race-three-scene`: Three.js 씬 수명주기와 성능 작업
+- `mountain-race-release-check`: 머지 전 검증과 릴리즈 점검
+
+## Cursor Subagents
+
+- `ui-builder`: React UI와 CSS 작업 전담
+- `api-builder`: Hono 라우트와 계약 작업 전담
+- `gameplay-architect`: 게임 규칙과 상태 설계 전담
+- `scene-optimizer`: Three.js 렌더링과 성능 점검 전담
+- `release-auditor`: 출고 전 검증과 위험 정리 전담
+
+## 구조
+
+```text
+.
+├── apps/
+│   ├── api/
+│   │   └── .cursor/rules/
+│   └── web/
+│       └── .cursor/rules/
+├── docs/
+├── .cursor/rules/
+├── .cursor/skills/
+├── .cursor/agents/
+├── .cursor/hooks.json
+├── .cursor/mcp.json
+├── .github/workflows/
+├── .vscode/
+├── AGENTS.md
+├── biome.json
+├── package.json
+├── tsconfig.base.json
+└── pnpm-workspace.yaml
+```

@@ -1,0 +1,13 @@
+---
+description: Visual direction for the mountain race web app
+globs:
+  - "src/**/*.css"
+  - "src/**/*.{ts,tsx}"
+---
+
+# Visual System
+
+- Aim for a game-like viewing surface with intentional typography, color, and motion.
+- Decorative effects must not reduce legibility of rankings, progress, or alerts.
+- Use spacing and contrast to make race state changes readable faster than body copy.
+- Prefer a coherent visual direction over one-off flourishes.

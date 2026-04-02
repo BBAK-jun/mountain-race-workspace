@@ -1,0 +1,12 @@
+---
+description: React structure rules for the mountain race web app
+globs:
+  - "src/**/*.{ts,tsx}"
+---
+
+# React Composition
+
+- Split screens by responsibility when a file starts mixing lobby, live race, and result concerns.
+- Keep authoritative game state separate from display-only formatting.
+- Prefer explicit props and small components over opaque utility layers.
+- If the UI needs repeated variants, use composable sections before adding many boolean props.

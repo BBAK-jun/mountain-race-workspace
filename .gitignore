@@ -1,0 +1,12 @@
+node_modules
+dist
+coverage
+.DS_Store
+.omx
+.pnpm-store
+.vite
+.wrangler
+pnpm-debug.log*
+.env
+.env.*
+!.env.example

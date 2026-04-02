@@ -1,0 +1,12 @@
+---
+description: Contract and runtime safety rules for the mountain race API app
+globs:
+  - "src/**/*.ts"
+---
+
+# Contract Safety
+
+- Keep route contracts readable from the handler itself.
+- Use named types when response payloads stop fitting in one glance.
+- Avoid hidden environment requirements for the base starter API.
+- If the frontend depends on a route, mention the integration assumption in code or docs.
