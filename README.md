@@ -9,8 +9,8 @@ Cursor와 VS Code에서 바로 열어 작업할 수 있도록 정리한 AI-nativ
 팀이 바로 구현을 시작할 수 있도록 게임 문서를 `docs/` 아래에 정리해두었다.
 
 - [docs/mountain-race-product-prd.md](./docs/mountain-race-product-prd.md)
-- [docs/mountain-race-technical-prd.md](./docs/mountain-race-technical-prd.md)
 - [docs/mountain-race-mvp-guide.md](./docs/mountain-race-mvp-guide.md)
+- [docs/mountain-race-technical-prd.md](./docs/mountain-race-technical-prd.md)
 - [docs/README.md](./docs/README.md)
 
 ## 포함된 기본값

@@ -11,8 +11,8 @@
 구현 시작 전 권장 문서 순서:
 
 1. `../../docs/mountain-race-product-prd.md`
-2. `../../docs/mountain-race-technical-prd.md`
-3. `../../docs/mountain-race-mvp-guide.md`
+2. `../../docs/mountain-race-mvp-guide.md`
+3. `../../docs/mountain-race-technical-prd.md`
 
 남아 있는 파일의 역할:
 
@@ -26,5 +26,6 @@
 다음 구현 시작점:
 
 1. `src/README.md`를 읽는다.
-2. 현재 루트 페이지를 원하는 첫 화면으로 바꾼다.
-3. 필요해질 때만 `src/routes` 아래에 새 route 파일을 추가한다.
+2. `src/routes/__root.tsx`의 스타터 레이아웃을 게임용 최소 셸로 단순화한다.
+3. `src/routes/index.tsx`를 실제 게임 앱 진입점으로 바꾼다.
+4. 필요해질 때만 `src/routes` 아래에 새 route 파일을 추가한다.

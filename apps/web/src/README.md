@@ -13,6 +13,7 @@
 
 - 당분간은 루트 페이지 하나로 유지한다.
 - 새 화면이 정말 필요할 때만 `src/routes`에 route 파일을 추가한다.
-- 공통 레이아웃은 `__root.tsx`에서 유지한다.
-- 게임 상태는 실제 필요가 생길 때만 별도 feature로 분리한다.
+- `__root.tsx`는 필요 최소한의 앱 셸만 두고, 풀스크린 게임 레이아웃을 막는 고정 UI는 넣지 않는다.
+- Mountain Race 구현은 `src/features/mountain-race/*` 아래로 분리한다.
+- 게임 상태는 feature 내부 `store`로 분리한다.
 - 정적 호스팅 전제를 유지한다.

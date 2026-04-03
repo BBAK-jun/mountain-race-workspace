@@ -1,6 +1,8 @@
 # 🏔️ 등산복 입고 뛰어 — 기술 구현 PRD
 
 > 제품 PRD: `docs/mountain-race-product-prd.md` 참조
+>
+> 실제 구현 루트: `apps/web/src`
 
 ---
 
@@ -19,42 +21,61 @@
 
 ## 2. 프로젝트 구조
 
+이 문서의 경로 기준은 워크스페이스 루트다.
+
+- 게임은 독립 앱이 아니라 `apps/web` 안에 구현한다.
+- TanStack Router는 유지하되 route는 `/` 하나만 사용한다.
+- 게임 코드는 `apps/web/src/features/mountain-race/*` 아래에 모은다.
+- `apps/web/src/routes/__root.tsx`는 스타터 topbar를 제거하고 풀스크린 게임을 허용하는 최소 레이아웃으로 단순화한다.
+
 ```text
-mountain-race-game/
-├── index.html
+apps/web/
 ├── package.json
 ├── tsconfig.json
 ├── vite.config.ts
-├── src/
-│   ├── main.tsx
-│   ├── App.tsx
-│   ├── types/
-│   │   └── index.ts
-│   ├── constants/
-│   │   └── balance.ts
-│   ├── store/
-│   │   └── useGameStore.ts
-│   ├── screens/
-│   │   ├── LandingScreen.tsx
-│   │   ├── SetupScreen.tsx
-│   │   ├── BettingScreen.tsx
-│   │   ├── RaceScreen.tsx
-│   │   └── ResultScreen.tsx
-│   ├── components/
-│   │   ├── Track.tsx
-│   │   ├── Character.tsx
-│   │   ├── Environment.tsx
-│   │   ├── HUD.tsx
-│   │   ├── EventLog.tsx
-│   │   └── SpeechBubble.tsx
-│   ├── systems/
-│   │   ├── EventSystem.ts
-│   │   ├── DialogueSystem.ts
-│   │   └── CameraSystem.tsx
-│   └── data/
-│       ├── dialogues.ts
-│       └── eventMessages.ts
+└── src/
+    ├── main.tsx
+    ├── router.tsx
+    ├── styles.css
+    ├── components/
+    │   └── ui/
+    ├── routes/
+    │   ├── __root.tsx
+    │   └── index.tsx
+    └── features/
+        └── mountain-race/
+            ├── app/
+            │   └── MountainRaceApp.tsx
+            ├── types/
+            │   └── index.ts
+            ├── constants/
+            │   └── balance.ts
+            ├── store/
+            │   └── useGameStore.ts
+            ├── screens/
+            │   ├── LandingScreen.tsx
+            │   ├── SetupScreen.tsx
+            │   ├── BettingScreen.tsx
+            │   ├── RaceScreen.tsx
+            │   └── ResultScreen.tsx
+            ├── components/
+            │   ├── Track.tsx
+            │   ├── Character.tsx
+            │   ├── Environment.tsx
+            │   ├── HUD.tsx
+            │   ├── EventAlert.tsx
+            │   ├── EventLog.tsx
+            │   └── SpeechBubble.tsx
+            ├── systems/
+            │   ├── EventSystem.ts
+            │   ├── DialogueSystem.ts
+            │   └── CameraSystem.tsx
+            └── data/
+                ├── dialogues.ts
+                └── eventMessages.ts
 ```
+
+이 문서에서 언급하는 `RaceScreen.tsx`, `Track.tsx`, `useGameStore.ts` 등은 별도 언급이 없으면 모두 `apps/web/src/features/mountain-race/` 아래 파일을 뜻한다.
 
 ---
 

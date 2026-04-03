@@ -20,10 +20,10 @@
 문서가 충돌하면 다음 순서를 따른다.
 
 1. 이 문서의 `MVP 고정 결정`
-2. `docs/mountain-race-technical-prd.md`
-3. `docs/mountain-race-product-prd.md`
+2. `docs/mountain-race-product-prd.md`
+3. `docs/mountain-race-technical-prd.md`
 
-제품 아이디어를 바꾸는 결정은 제품 PRD 기준으로 합의하고, 구현 세부는 기술 PRD와 이 문서 기준으로 진행한다.
+제품 아이디어를 바꾸는 결정은 제품 PRD 기준으로 합의하고, 현재 레포에 어떻게 얹을지는 이 문서를 우선한다.
 
 ---
 
@@ -34,6 +34,8 @@
 - 앱은 당분간 `apps/web/src/routes/index.tsx` 단일 route에서 동작한다.
 - 화면 전환은 라우팅이 아니라 `screen` 상태값으로 처리한다.
 - 화면 순서는 `landing → setup → betting → race → result`다.
+- `apps/web/src/routes/__root.tsx`는 스타터용 topbar, status chip, centered panel shell을 제거하고 게임용 최소 레이아웃으로 바꾼다.
+- 풀스크린 Canvas와 HUD 기준 레이아웃은 `index.tsx` 또는 `MountainRaceApp.tsx`가 소유한다.
 
 ### 3.2 맵 범위
 
@@ -158,6 +160,8 @@ apps/web/src/
 적용 방식:
 
 - `apps/web/src/routes/index.tsx`는 `MountainRaceApp`만 렌더링한다.
+- `apps/web/src/routes/__root.tsx`는 `<Outlet />` 중심의 최소 셸만 남기고 게임 화면 폭/높이를 제한하지 않는다.
+- 현재 `app-shell`, `topbar`, `page-shell`, `page-grid`, `panel` 중심 스타터 구조에는 게임 UI를 얹지 않는다.
 - PRD의 `src/*` 구조는 실제로는 `apps/web/src/features/mountain-race/*` 아래에 배치한다.
 - 공용 UI 컴포넌트는 기존 `apps/web/src/components/ui/*`를 그대로 사용한다.
 
@@ -180,6 +184,7 @@ apps/web/src/
 - 새 의존성은 `apps/web` 범위로만 추가한다.
 - 정적 호스팅 전제를 유지한다.
 - 첫 구현은 목업이 아니라 실제 흐름이 연결된 플레이어블 상태를 목표로 한다.
+- 스타터용 글로벌 CSS는 필요한 것만 남기고, 게임 레이아웃을 가로막는 `max-width`, `sticky header`, `panel grid` 제약은 제거하거나 격리한다.
 
 ### 5.3 초기 성공 기준
 
@@ -199,6 +204,8 @@ apps/web/src/
 ### Phase 0. 부트스트랩
 
 - R3F, Zustand 의존성 추가
+- `apps/web/src/routes/__root.tsx`를 게임용 최소 레이아웃으로 교체
+- `apps/web/src/styles.css`에서 스타터 셸 제약을 제거하거나 게임 전용 스타일로 교체
 - `features/mountain-race` 디렉토리 생성
 - `types`, `balance`, `useGameStore` 뼈대 추가
 - `index.tsx`를 `MountainRaceApp` 렌더링 형태로 교체
@@ -324,6 +331,7 @@ apps/web/src/
 ## 8. 충돌 방지 규칙
 
 - `store`, `systems`, `types`, `data`는 한 명이 우선 소유한다.
+- `routes/__root.tsx`와 글로벌 `styles.css`는 한 명이 같이 소유해서 레이아웃 충돌을 막는다.
 - `RaceScreen.tsx`는 씬 구조만 담당하고, 게임 룰 로직은 `systems`에 둔다.
 - 화면 컴포넌트에서 확률 계산이나 이벤트 처리 로직을 직접 작성하지 않는다.
 - UI 텍스트 원문은 되도록 `data`에 모아두고 컴포넌트에서는 참조만 한다.
