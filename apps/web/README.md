@@ -4,7 +4,7 @@
 
 현재 상태:
 
-- TanStack Router file-based routing 기반 루트 단일 페이지 스타터가 들어 있는 상태
+- TanStack Router file-based routing 기반 스타터가 들어 있는 상태
 - TypeScript, Vite, Wrangler, Cursor rules는 연결된 상태
 - 실제 화면과 게임 로직은 아직 없음
 
@@ -27,5 +27,4 @@
 
 1. `src/README.md`를 읽는다.
 2. `src/routes/__root.tsx`의 스타터 레이아웃을 게임용 최소 셸로 단순화한다.
-3. `src/routes/index.tsx`를 실제 게임 앱 진입점으로 바꾼다.
-4. 필요해질 때만 `src/routes` 아래에 새 route 파일을 추가한다.
+3. `src/routes/index.tsx`, `setup.tsx`, `race.tsx`, `result.tsx`를 실제 플로우 route로 만든다.

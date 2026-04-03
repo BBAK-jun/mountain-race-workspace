@@ -24,9 +24,10 @@
 이 문서의 경로 기준은 워크스페이스 루트다.
 
 - 게임은 독립 앱이 아니라 `apps/web` 안에 구현한다.
-- TanStack Router는 유지하되 route는 `/` 하나만 사용한다.
+- TanStack Router는 유지하되 화면마다 별도 route를 둔다.
 - 게임 코드는 `apps/web/src/features/mountain-race/*` 아래에 모은다.
 - `apps/web/src/routes/__root.tsx`는 스타터 topbar를 제거하고 풀스크린 게임을 허용하는 최소 레이아웃으로 단순화한다.
+- route 흐름은 `/` → `/setup` → `/race` → `/result` 기준으로 잡는다.
 
 ```text
 apps/web/
@@ -41,11 +42,12 @@ apps/web/
     │   └── ui/
     ├── routes/
     │   ├── __root.tsx
-    │   └── index.tsx
+    │   ├── index.tsx
+    │   ├── setup.tsx
+    │   ├── race.tsx
+    │   └── result.tsx
     └── features/
         └── mountain-race/
-            ├── app/
-            │   └── MountainRaceApp.tsx
             ├── types/
             │   └── index.ts
             ├── constants/
@@ -55,7 +57,6 @@ apps/web/
             ├── screens/
             │   ├── LandingScreen.tsx
             │   ├── SetupScreen.tsx
-            │   ├── BettingScreen.tsx
             │   ├── RaceScreen.tsx
             │   └── ResultScreen.tsx
             ├── components/
@@ -82,8 +83,6 @@ apps/web/
 ## 3. 핵심 타입 정의
 
 ```ts
-type Screen = "landing" | "setup" | "betting" | "race" | "result";
-
 interface Character {
   id: string;
   name: string;
@@ -128,11 +127,6 @@ interface GameEvent {
   duration: number;
 }
 
-interface BettingInfo {
-  selectedCharacterId: string | null;
-  isCorrect: boolean | null;
-}
-
 type CameraMode = "follow" | "event_zoom" | "slowmo" | "shake" | "finish";
 ```
 
@@ -142,13 +136,14 @@ type CameraMode = "follow" | "event_zoom" | "slowmo" | "shake" | "finish";
 
 ```ts
 interface GameState {
-  screen: Screen;
-  setScreen: (screen: Screen) => void;
-
   characters: Character[];
   addCharacter: () => void;
   removeCharacter: (id: string) => void;
   updateCharacter: (id: string, partial: Partial<Character>) => void;
+
+  setupComplete: boolean;
+  hasResult: boolean;
+  finalizeSetup: () => void;
 
   isRacing: boolean;
   isPaused: boolean;
@@ -168,13 +163,11 @@ interface GameState {
 
   activeBubble: { characterId: string; text: string; endTime: number } | null;
 
-  betting: BettingInfo;
-  setBetting: (characterId: string | null) => void;
-
   cameraMode: CameraMode;
   cameraTarget: string | null;
 
   startRace: () => void;
+  finishRace: () => void;
   resetGame: () => void;
   tick: (deltaTime: number) => void;
 }
@@ -209,6 +202,14 @@ interface EventLog {
 - `slowed` 상태면 `SLOW_MULTIPLIER`
 - `running` 상태면 기본 속도 사용
 - 프레임마다 `JITTER_RANGE` 기반 흔들림 적용
+
+### route 전환 규칙
+
+- `/`는 랜딩 화면만 담당한다.
+- `/setup`은 캐릭터 구성과 얼굴 업로드를 담당한다.
+- `/race`는 `setupComplete === true`일 때만 진입한다.
+- `/result`는 `hasResult === true`일 때만 진입한다.
+- 잘못된 route 진입은 이전 단계 route로 redirect 한다.
 
 ---
 
@@ -494,7 +495,7 @@ export const BALANCE = {
 
 ### 병렬 개발 권장 분배
 
-- A: `LandingScreen + RaceScreen + CameraSystem`
-- B: `SetupScreen + BettingScreen`
+- A: `route wiring + LandingScreen + SetupScreen`
+- B: `RaceScreen + Track + Character + CameraSystem`
 - C: `EventSystem + 확률 테이블 + 게임 루프`
 - D: `HUD + EventLog + ResultScreen + SpeechBubble`

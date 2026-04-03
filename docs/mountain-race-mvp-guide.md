@@ -10,7 +10,7 @@
 
 - 제품 의도는 유지한다.
 - MVP 범위를 줄여 구현 리스크를 통제한다.
-- 현재 `apps/web`의 단일 route 구조를 깨지 않는다.
+- 현재 `apps/web`의 file-based route 구조를 활용한다.
 - 작업 충돌을 줄이기 위해 파일 책임 범위를 선명하게 나눈다.
 
 ---
@@ -31,28 +31,22 @@
 
 ### 3.1 화면 구조
 
-- 앱은 당분간 `apps/web/src/routes/index.tsx` 단일 route에서 동작한다.
-- 화면 전환은 라우팅이 아니라 `screen` 상태값으로 처리한다.
-- 화면 순서는 `landing → setup → betting → race → result`다.
+- 화면은 route 기준으로 분리한다.
+- route 흐름은 `/` → `/setup` → `/race` → `/result`다.
 - `apps/web/src/routes/__root.tsx`는 스타터용 topbar, status chip, centered panel shell을 제거하고 게임용 최소 레이아웃으로 바꾼다.
-- 풀스크린 Canvas와 HUD 기준 레이아웃은 `index.tsx` 또는 `MountainRaceApp.tsx`가 소유한다.
+- 풀스크린 Canvas와 HUD 기준 레이아웃은 각 route 화면과 feature screen이 소유한다.
 
 ### 3.2 맵 범위
 
 - 맵은 `기본 산길` 1종만 구현한다.
 - 설정 화면의 맵 선택 UI는 보여주되, 실제 선택지는 1개만 제공한다.
 
-### 3.3 베팅 범위
-
-- 베팅은 한 기기에서 한 번 고르는 단일 로컬 선택이다.
-- 멀티 유저별 베팅이나 서버 저장은 MVP 범위 밖이다.
-
-### 3.4 레이스 종료 규칙
+### 3.3 레이스 종료 규칙
 
 - 레이스는 `전원 완주` 또는 `첫 골인 후 10초 경과` 중 먼저 만족한 시점에 종료한다.
 - 이 규칙으로 1등 골인 직후 화면이 너무 빨리 끊기는 문제를 막는다.
 
-### 3.5 순위 기반 확률 매핑
+### 3.4 순위 기반 확률 매핑
 
 - 제품 PRD의 4단계 확률표는 `2~8명` 전체 인원에 대해 선형 보간으로 적용한다.
 - 즉, 현재 순위를 `0~1` 구간으로 정규화한 뒤 `좋은 이벤트`, `나쁜 이벤트`, `피살기` 확률을 계산한다.
@@ -80,25 +74,25 @@ function getRankChances(rankIndex: number, total: number) {
 }
 ```
 
-### 3.6 이벤트 스케줄링
+### 3.5 이벤트 스케줄링
 
 - 매 프레임마다 `randomInterval`을 새로 비교하지 않는다.
 - 각 시스템은 `nextSkillAt`, `nextUltimateAt`, `nextGlobalAt`, `nextDialogueAt` 값을 저장한다.
 - 이벤트가 발동되거나 체크가 끝날 때마다 다음 시각을 다시 계산한다.
 
-### 3.7 대사 우선순위
+### 3.6 대사 우선순위
 
 - 동시에 보이는 말풍선은 1개로 제한한다.
 - 다만 `피살기/전역 이벤트 반응`은 `평시 대사`를 덮어쓸 수 있어야 한다.
 - 구현은 `idle`, `situation`, `event` 우선순위 큐로 처리한다.
 
-### 3.8 연출 범위
+### 3.7 연출 범위
 
 - MVP에서 구현할 카메라 모드는 `follow`, `event_zoom`, `finish`, `shake`만 필수다.
 - `slowmo`는 여유가 있으면 넣고, Phase 2 카메라 시점 전환은 제외한다.
 - 결과 화면의 포디엄은 새 연출 시스템을 만들기보다 기존 `Character` 메쉬를 재사용한다.
 
-### 3.9 제외 범위
+### 3.8 제외 범위
 
 다음은 MVP 범위 밖이다.
 
@@ -107,7 +101,6 @@ function getRankChances(rankIndex: number, total: number) {
 - 리플레이 시스템
 - 스크린샷 공유
 - URL 프리셋 공유
-- 포인트 보상 베팅
 - 복수 말풍선 동시 노출
 - 별도 API 연동
 
@@ -115,7 +108,7 @@ function getRankChances(rankIndex: number, total: number) {
 
 ## 4. 현재 레포에 맞는 구현 위치
 
-현재 `apps/web`는 TanStack Router 기반 단일 route 스타터다. MVP는 이 구조를 유지한 채 게임 내부 구조만 확장한다.
+현재 `apps/web`는 TanStack Router file-based routing 스타터다. MVP는 이 구조를 유지한 채 화면별 route를 추가한다.
 
 권장 파일 구조:
 
@@ -123,11 +116,12 @@ function getRankChances(rankIndex: number, total: number) {
 apps/web/src/
 ├── routes/
 │   ├── __root.tsx
-│   └── index.tsx
+│   ├── index.tsx
+│   ├── setup.tsx
+│   ├── race.tsx
+│   └── result.tsx
 ├── features/
 │   └── mountain-race/
-│       ├── app/
-│       │   └── MountainRaceApp.tsx
 │       ├── components/
 │       │   ├── Character.tsx
 │       │   ├── Environment.tsx
@@ -142,7 +136,6 @@ apps/web/src/
 │       │   ├── dialogues.ts
 │       │   └── eventMessages.ts
 │       ├── screens/
-│       │   ├── BettingScreen.tsx
 │       │   ├── LandingScreen.tsx
 │       │   ├── RaceScreen.tsx
 │       │   ├── ResultScreen.tsx
@@ -159,7 +152,10 @@ apps/web/src/
 
 적용 방식:
 
-- `apps/web/src/routes/index.tsx`는 `MountainRaceApp`만 렌더링한다.
+- `apps/web/src/routes/index.tsx`는 `LandingScreen`을 렌더링한다.
+- `apps/web/src/routes/setup.tsx`는 `SetupScreen`을 렌더링한다.
+- `apps/web/src/routes/race.tsx`는 `RaceScreen`을 렌더링한다.
+- `apps/web/src/routes/result.tsx`는 `ResultScreen`을 렌더링한다.
 - `apps/web/src/routes/__root.tsx`는 `<Outlet />` 중심의 최소 셸만 남기고 게임 화면 폭/높이를 제한하지 않는다.
 - 현재 `app-shell`, `topbar`, `page-shell`, `page-grid`, `panel` 중심 스타터 구조에는 게임 UI를 얹지 않는다.
 - PRD의 `src/*` 구조는 실제로는 `apps/web/src/features/mountain-race/*` 아래에 배치한다.
@@ -185,17 +181,18 @@ apps/web/src/
 - 정적 호스팅 전제를 유지한다.
 - 첫 구현은 목업이 아니라 실제 흐름이 연결된 플레이어블 상태를 목표로 한다.
 - 스타터용 글로벌 CSS는 필요한 것만 남기고, 게임 레이아웃을 가로막는 `max-width`, `sticky header`, `panel grid` 제약은 제거하거나 격리한다.
+- route 이동은 TanStack Router로 처리하고, 잘못된 직접 진입은 redirect 한다.
 
 ### 5.3 초기 성공 기준
 
 다음이 되면 `MVP 뼈대 완료`로 본다.
 
 - 랜딩에서 설정 화면으로 이동 가능
-- 최소 2명 설정 후 레이스 시작 가능
+- 최소 2명 설정 후 `/race`로 이동 가능
 - 캐릭터가 트랙 위를 자동으로 이동
 - 일반 스킬 또는 전역 이벤트가 최소 1개 이상 발동
 - 순위 리스트와 진행률 바가 동기화
-- 결과 화면에서 최종 순위와 베팅 결과 표시
+- 결과 화면에서 최종 순위와 MVP 표시
 
 ---
 
@@ -208,19 +205,18 @@ apps/web/src/
 - `apps/web/src/styles.css`에서 스타터 셸 제약을 제거하거나 게임 전용 스타일로 교체
 - `features/mountain-race` 디렉토리 생성
 - `types`, `balance`, `useGameStore` 뼈대 추가
-- `index.tsx`를 `MountainRaceApp` 렌더링 형태로 교체
+- `index.tsx`, `setup.tsx`, `race.tsx`, `result.tsx` route 파일 생성
 
 ### Phase 1. 화면 껍데기
 
 - `LandingScreen`
 - `SetupScreen`
-- `BettingScreen`
 - `ResultScreen`
-- `screen` 상태 전환
+- route 이동 연결
 
 완료 기준:
 
-- 5개 화면이 상태 전환으로 오간다.
+- 4개 route가 정상 이동한다.
 - 캐릭터 추가/삭제/이름 수정/얼굴 업로드가 store에 반영된다.
 
 ### Phase 2. 레이스 씬 뼈대
@@ -253,7 +249,6 @@ apps/web/src/
 
 - 중앙 이벤트 알림
 - 결과 화면 MVP 통계
-- 베팅 적중 판정
 - 포디엄 간소 연출
 - 카메라 줌인/셰이크 보강
 
@@ -286,10 +281,12 @@ apps/web/src/
 
 책임 파일:
 
-- `features/mountain-race/app/MountainRaceApp.tsx`
+- `routes/index.tsx`
+- `routes/setup.tsx`
+- `routes/race.tsx`
+- `routes/result.tsx`
 - `features/mountain-race/screens/LandingScreen.tsx`
 - `features/mountain-race/screens/SetupScreen.tsx`
-- `features/mountain-race/screens/BettingScreen.tsx`
 - `features/mountain-race/screens/ResultScreen.tsx`
 
 목표:
@@ -345,7 +342,7 @@ apps/web/src/
 - 얼굴 이미지를 업로드하지 않아도 기본 캐릭터가 보인다.
 - 첫 골인 직후 바로 결과로 튀지 않는다.
 - 안개 이벤트 중 순위표가 의도대로 가려진다.
-- `다시 하기` 시 이전 이벤트 로그와 베팅 결과가 초기화된다.
+- `다시 하기` 시 이전 이벤트 로그와 결과 상태가 초기화된다.
 - 모바일 뷰포트에서 주요 버튼과 HUD가 화면 밖으로 나가지 않는다.
 
 ---
