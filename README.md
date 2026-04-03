@@ -4,6 +4,15 @@ Cursor와 VS Code에서 바로 열어 작업할 수 있도록 정리한 AI-nativ
 
 현재 이 레포는 웹은 비워두고, API는 최소 Worker 스타터만 남겨둔 시작 상태다. 워크스페이스 구조, 배포 전략, CI, 에디터 설정, Cursor 설정, 앱 디렉토리 문서는 먼저 고정해두고 있다.
 
+## Mountain Race Docs
+
+팀이 바로 구현을 시작할 수 있도록 게임 문서를 `docs/` 아래에 정리해두었다.
+
+- [docs/mountain-race-product-prd.md](./docs/mountain-race-product-prd.md)
+- [docs/mountain-race-technical-prd.md](./docs/mountain-race-technical-prd.md)
+- [docs/mountain-race-mvp-guide.md](./docs/mountain-race-mvp-guide.md)
+- [docs/README.md](./docs/README.md)
+
 ## 포함된 기본값
 
 - `pnpm workspace` 기반 루트 스크립트

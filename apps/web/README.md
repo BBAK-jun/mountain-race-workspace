@@ -8,6 +8,12 @@
 - TypeScript, Vite, Wrangler, Cursor rules는 연결된 상태
 - 실제 화면과 게임 로직은 아직 없음
 
+구현 시작 전 권장 문서 순서:
+
+1. `../../docs/mountain-race-product-prd.md`
+2. `../../docs/mountain-race-technical-prd.md`
+3. `../../docs/mountain-race-mvp-guide.md`
+
 남아 있는 파일의 역할:
 
 - `package.json`: TanStack Router + Vite + Wrangler 스크립트 자리
