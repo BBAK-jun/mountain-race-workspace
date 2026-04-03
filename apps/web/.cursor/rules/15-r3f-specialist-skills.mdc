@@ -1,0 +1,19 @@
+---
+description: Load the matching specialist R3F skill when scene work narrows into a specific 3D domain
+globs:
+  - "src/**/*.{ts,tsx}"
+---
+
+# R3F Specialist Skills
+
+- Load `.cursor/skills/web-r3f-fundamentals/SKILL.md` for broad scene setup, `Canvas`, JSX object mapping, `useThree`, or `useFrame` ownership.
+- Load `.cursor/skills/web-r3f-animation/SKILL.md` for procedural motion, `useAnimations`, springs, or clip blending.
+- Load `.cursor/skills/web-r3f-interaction/SKILL.md` for pointer events, raycasting, selection, dragging, or camera controls.
+- Load `.cursor/skills/web-r3f-loaders/SKILL.md` for `useGLTF`, `useLoader`, `Suspense`, preload, or asset lifecycle work.
+- Load `.cursor/skills/web-r3f-textures/SKILL.md` for texture maps, env maps, repeat/wrap/filter setup, or color-space fixes.
+- Load `.cursor/skills/web-r3f-lighting/SKILL.md` for light rigs, shadows, environment lighting, or lighting performance.
+- Load `.cursor/skills/web-r3f-materials/SKILL.md` for PBR tuning, material selection, or mesh styling cleanup.
+- Load `.cursor/skills/web-r3f-geometry/SKILL.md` for shape generation, BufferGeometry, path geometry, or instancing.
+- Load `.cursor/skills/web-r3f-postprocessing/SKILL.md` for EffectComposer passes and screen-space effects.
+- Load `.cursor/skills/web-r3f-shaders/SKILL.md` for GLSL, uniforms, `shaderMaterial`, or custom material integration.
+- Load `.cursor/skills/web-r3f-physics/SKILL.md` for `@react-three/rapier`, rigid bodies, colliders, or collision-driven behavior.

@@ -1,0 +1,13 @@
+---
+description: Load the R3F fundamentals and specialist skills when working on 3D scene code in the mountain race web app
+globs:
+  - "src/**/*.{ts,tsx}"
+---
+
+# R3F Scene Skills
+
+- When a task touches `@react-three/fiber`, `three`, `Canvas`, `useFrame`, mesh events, camera rigs, scene composition, or 3D performance, load `.cursor/skills/web-r3f-fundamentals/SKILL.md` first.
+- Also load the matching `.cursor/skills/web-r3f-*/SKILL.md` specialist skill when the task narrows into animation, interaction, loaders, textures, lighting, materials, geometry, postprocessing, shaders, or physics.
+- Use `.cursor/skills/web-r3f-fundamentals/references/llm.txt` for the official R3F route map and `.cursor/skills/web-r3f-fundamentals/assets/r3f-scene-starter.tsx` when bootstrapping a new scene.
+- Prefer declarative R3F components before imperative `THREE.*` setup.
+- Keep raw Three.js escape hatches isolated and explain why they are still needed.

@@ -1,0 +1,137 @@
+# React Three Fiber
+
+> Route-aware reference for AI agents working in React Three Fiber codebases. This file is modeled after `llms.txt` style documentation indexes: it tells you which official docs route to open, why that route exists, and when it should be read first.
+
+Snapshot date: 2026-04-03
+Primary docs: https://r3f.docs.pmnd.rs
+Primary docs source: https://github.com/pmndrs/react-three-fiber/tree/master/docs
+
+## Overview
+
+- React Three Fiber (R3F) is a React renderer for three.js.
+- The core mental model is declarative scene authoring with JSX, not manual renderer-first bootstrapping.
+- `Canvas` owns the default scene root, camera, render loop, raycaster, and event layer.
+- `useFrame` is the per-frame hook for transient updates. It should usually mutate refs, not drive hot paths through React state.
+- The docs are organized into four route families:
+  - `getting-started`: mental model, install, first scene, examples, ecosystem
+  - `api`: canonical behavior of Canvas, hooks, objects, events, types, testing, low-level exports
+  - `advanced`: performance scaling and common performance mistakes
+  - `tutorials`: guided, task-shaped walkthroughs such as animation, interaction, asset loading, internals, and migration
+
+## Recommended Reading Paths
+
+- New project or first R3F scene:
+  - `getting-started/introduction`
+  - `getting-started/installation`
+  - `getting-started/your-first-scene`
+  - `api/objects`
+  - `api/canvas`
+  - `api/hooks`
+- Interactive game object or hover/click mesh behavior:
+  - `tutorials/events-and-interaction`
+  - `api/events`
+  - `api/hooks`
+  - `advanced/pitfalls`
+- Animation and frame-loop work:
+  - `tutorials/basic-animations`
+  - `api/hooks`
+  - `advanced/pitfalls`
+  - `advanced/scaling-performance`
+- Model or texture loading:
+  - `tutorials/loading-models`
+  - `tutorials/loading-textures`
+  - `api/hooks`
+  - `api/objects`
+- Performance tuning:
+  - `advanced/scaling-performance`
+  - `advanced/pitfalls`
+  - `api/canvas`
+  - `api/hooks`
+- Custom elements, third-party objects, low-level integration:
+  - `api/objects`
+  - `api/additional-exports`
+  - `api/typescript`
+  - `tutorials/how-it-works`
+- React 19 or R3F v9 upgrade work:
+  - `tutorials/v9-migration-guide`
+  - `api/canvas`
+  - `api/typescript`
+  - `api/testing`
+
+## Official Route Map
+
+### Getting Started
+
+- [Introduction](https://r3f.docs.pmnd.rs/getting-started/introduction): Defines what R3F is, clarifies that it tracks three.js features without a separate abstraction gap, explains React major-version compatibility, shows the canonical interactive box example, and gives the official learning path plus ecosystem survey. Read this first when deciding whether a task should stay declarative or drop into raw three.js.
+- [Installation](https://r3f.docs.pmnd.rs/getting-started/installation): Covers the base install and the framework-specific bootstrapping path for Vite, Next.js, build-tool-free ESM usage, and React Native. Open this route when environment setup, bundler compatibility, or framework-specific package behavior is the blocker.
+- [Your first scene](https://r3f.docs.pmnd.rs/getting-started/your-first-scene): Explains how `Canvas` works, how JSX maps to `THREE.Mesh`, how constructor arguments move into `args`, and how lights and props are expressed declaratively. This is the best route for converting imperative three.js snippets into idiomatic R3F.
+- [Examples](https://r3f.docs.pmnd.rs/getting-started/examples): A showcase route containing demos, game prototypes, and basic examples. This route is for pattern discovery and visual inspiration, not for core API semantics.
+- [Community R3F Components](https://r3f.docs.pmnd.rs/getting-started/community-r3f-components): Curated ecosystem page for community packages that are not part of drei or other pmndrs projects. Use this when the built-in docs are not enough and you need to discover adjacent tooling before writing custom infrastructure.
+
+### API
+
+- [Objects, Properties and Constructor Arguments](https://r3f.docs.pmnd.rs/api/objects): The canonical route for JSX-to-three object mapping. It explains declarative object declaration, `args`, property shortcuts, dash-case access into nested properties, `attach`, primitives, integrating pre-existing objects, third-party object usage, and disposal behavior. Open this page whenever you are unsure how a three.js object should be represented in JSX.
+- [Canvas](https://r3f.docs.pmnd.rs/api/canvas): The root configuration reference. It documents `Canvas` props like `gl`, `camera`, `scene`, `shadows`, `frameloop`, `dpr`, `events`, and fallbacks; explains default renderer/camera/color-management behavior; covers WebGPU setup; and introduces custom roots with `createRoot`. This is the route for renderer ownership, root lifecycle, and rendering-mode decisions.
+- [Hooks](https://r3f.docs.pmnd.rs/api/hooks): The main hook reference for `useThree`, `useFrame`, `useLoader`, and `useGraph`. It covers root state access, selectors, non-reactive reads, default replacement, render-loop takeover, loader extensions, multi-asset loading, loading state, GLTF special cases, asset preloading, and scene-graph extraction. This route should be opened for any hook-heavy scene logic.
+- [Events](https://r3f.docs.pmnd.rs/api/events): The definitive event-system reference. It lists supported pointer and click events, describes event payload shape, explains 3D bubbling and occlusion behavior, documents pointer capture, and shows how to customize the event manager, target element, coordinate prefix, and raycasting behavior. Read this whenever pointer behavior feels "different from the DOM", because it is.
+- [Additional Exports](https://r3f.docs.pmnd.rs/api/additional-exports): Low-level utilities and escape hatches such as `addEffect`, `addAfterEffect`, `addTail`, `invalidate`, `advance`, `extend`, `createPortal`, `createRoot`, `events`, and `applyProps`. This route matters when you are integrating deeply with the renderer or building infrastructure around R3F rather than just authoring scene components.
+- [TypeScript](https://r3f.docs.pmnd.rs/api/typescript): Covers ref typing, `ThreeElements`, extending the JSX catalog with `extend`, declaration merging for custom elements, and exported helper types. Use this when types break around refs, custom classes, intrinsic JSX tags, or prop spreading.
+- [Testing](https://r3f.docs.pmnd.rs/api/testing): Documents the `@react-three/test-renderer` path for unit tests, scene tree assertions, and interaction tests with `fireEvent`. This route is for test strategy when DOM-only testing patterns do not map cleanly to the scene graph.
+
+### Advanced
+
+- [Scaling Performance](https://r3f.docs.pmnd.rs/advanced/scaling-performance): The official performance playbook. It covers on-demand rendering with `frameloop="demand"`, manual invalidation, animation sync, resource reuse, `useLoader` caching, instancing, level of detail, nested loading, performance monitoring, adaptive regression, and concurrency. Open this route before attempting ad hoc optimization.
+- [Performance Pitfalls](https://r3f.docs.pmnd.rs/advanced/pitfalls): The anti-pattern page. It warns against `setState` in loops and fast events, explains why delta-based mutation inside `useFrame` is preferred, recommends `lerp` or animation libraries, discourages reactive binding to fast state, advises visibility over remounting, points to `startTransition` for expensive work, and emphasizes object reuse plus `useLoader` caching. Read this route when performance issues are caused by React habits leaking into render-loop code.
+
+### Tutorials
+
+- [Basic Animations](https://r3f.docs.pmnd.rs/tutorials/basic-animations): Guided introduction to `useFrame`, elapsed time, and ref-based mesh mutation. This is the fastest tutorial for learning how animation should actually be written in R3F.
+- [Events and Interaction](https://r3f.docs.pmnd.rs/tutorials/events-and-interaction): Tutorial for mesh clicks, pointer events, and simple state-driven visual changes such as scaling on click. Use this for onboarding-level interaction examples before dropping into the full API events reference.
+- [Loading Models](https://r3f.docs.pmnd.rs/tutorials/loading-models): Task-focused guide for `GLTF`, `OBJ`, and `FBX` loading, including `useLoader`, `primitive`, `Suspense`, loading indicators, and the `gltfjsx` workflow that turns models into reusable JSX components. This route is central when deciding whether to mount raw loaded scenes or convert them into real components.
+- [Loading Textures](https://r3f.docs.pmnd.rs/tutorials/loading-textures): Walkthrough for `TextureLoader`, multi-texture loading with `useLoader`, texture map assignment, and the `useTexture` helper path. Open this when material setup needs color, displacement, normal, roughness, or AO maps.
+- [How Does It Work?](https://r3f.docs.pmnd.rs/tutorials/how-it-works): Internals-oriented route that explains how JSX elements instantiate `THREE.*` classes, how `attach` composes non-Object3D children, how props map to object properties, and how pointer events plus the render loop are wired under the hood. This is the tutorial to read when the reconciler behavior itself is the source of confusion.
+- [v9 Migration Guide](https://r3f.docs.pmnd.rs/tutorials/v9-migration-guide): Upgrade reference for React 19 and R3F v9. It covers loader-instance support in `useLoader`, the new `extend` factory signature, async `gl` for WebGPU, texture color-management changes, stricter behavior surfaced by Strict Mode, JSX typing changes, renamed canvas prop types, and testing guidance. Read this route first for modern compatibility work.
+
+## Task-to-Route Lookup
+
+- "How do I set up the root scene?":
+  - `getting-started/your-first-scene`
+  - `api/canvas`
+- "How should this three.js object look in JSX?":
+  - `api/objects`
+  - `tutorials/how-it-works`
+- "Which hook should own this logic?":
+  - `api/hooks`
+- "Why does my pointer event bubble strangely through meshes?":
+  - `api/events`
+- "How do I animate without killing performance?":
+  - `tutorials/basic-animations`
+  - `advanced/pitfalls`
+  - `advanced/scaling-performance`
+- "How do I load and reuse models correctly?":
+  - `tutorials/loading-models`
+  - `api/hooks`
+  - `advanced/scaling-performance`
+- "How do I load texture sets and assign maps?":
+  - `tutorials/loading-textures`
+  - `api/objects`
+- "How do I reduce rerenders and battery drain?":
+  - `advanced/scaling-performance`
+  - `advanced/pitfalls`
+  - `api/canvas`
+- "How do I add a custom three.js class or library control?":
+  - `api/additional-exports`
+  - `api/typescript`
+  - `api/objects`
+- "How do I test R3F interactions?":
+  - `api/testing`
+- "How do I migrate to React 19 or R3F v9?":
+  - `tutorials/v9-migration-guide`
+
+## Cursor Notes
+
+- For AI-assisted editing, open the narrowest matching route set instead of reading the whole docs site.
+- Treat `api/objects`, `api/canvas`, and `api/hooks` as the primary operational reference for day-to-day scene work.
+- Treat `advanced/pitfalls` as the default review checklist for frame-loop code.
+- Treat `getting-started/examples` as inspiration only; do not use it as the source of truth for API semantics.
+- Treat `tutorials/how-it-works` as the best route for debugging reconciliation or attachment confusion.

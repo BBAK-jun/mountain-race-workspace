@@ -94,8 +94,18 @@ Cursor 문서의 구분에 맞춰 컨텍스트를 계층화했다.
 - `mountain-race-ui-flow`: 로비, HUD, 결과 화면, 반응형 UI 작업
 - `mountain-race-gameplay-loop`: 레이스 상태 전이, 순위 계산, 밸런싱 작업
 - `mountain-race-api-surface`: 백엔드 라우트, 계약, 서버 연결 작업
-- `mountain-race-three-scene`: React Three Fiber 씬 구성, 프레임 루프, 성능 작업
 - `mountain-race-release-check`: 머지 전 검증과 릴리즈 점검
+- `web-r3f-fundamentals`: Canvas, hooks, JSX scene graph, 기본 R3F 구조 작업
+- `web-r3f-animation`: `useFrame`, clip, spring 기반 애니메이션 작업
+- `web-r3f-interaction`: 포인터 이벤트, raycasting, controls, 선택 상호작용 작업
+- `web-r3f-loaders`: 모델, 텍스처, Suspense, preload 자산 로딩 작업
+- `web-r3f-textures`: PBR 텍스처 세트, env map, 필터링, 색공간 작업
+- `web-r3f-lighting`: 라이팅 리그, 그림자, 환경광 작업
+- `web-r3f-materials`: 재질 선택, PBR 튜닝, 시각 스타일링 작업
+- `web-r3f-geometry`: 기하 생성, BufferGeometry, 인스턴싱 작업
+- `web-r3f-postprocessing`: bloom, DOF, screen-space 효과 작업
+- `web-r3f-shaders`: GLSL, uniforms, `shaderMaterial` 작업
+- `web-r3f-physics`: `@react-three/rapier` 기반 물리 작업
 
 ## Cursor Subagents
 
