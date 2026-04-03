@@ -3,3 +3,4 @@ dist
 coverage
 .omx
 pnpm-lock.yaml
+apps/web/src/routeTree.gen.ts

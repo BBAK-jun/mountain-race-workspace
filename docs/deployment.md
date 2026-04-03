@@ -2,7 +2,7 @@
 
 이 레포는 프런트와 백엔드를 분리 배포하는 전략으로 맞춰져 있다.
 
-현재 상태는 웹 플레이스홀더와 최소 Hono Worker 스타터만 있는 초기 템플릿이다. 따라서 아래 설정은 바로 실서비스를 위한 완성본이 아니라, 배포 구조를 먼저 고정해둔 템플릿으로 이해하면 된다.
+현재 상태는 웹 TanStack Router 스타터와 최소 Hono Worker 스타터만 있는 초기 템플릿이다. 따라서 아래 설정은 바로 실서비스를 위한 완성본이 아니라, 배포 구조를 먼저 고정해둔 템플릿으로 이해하면 된다.
 
 - 클라이언트: Cloudflare Pages 정적 호스팅
 - 서버: Cloudflare Workers
@@ -76,7 +76,7 @@ pnpm --filter @mountain-race/web pages:dev
 ## 3. 실제 연결 흐름
 
 1. Cloudflare Workers가 `mountain-race-api` Hono Worker를 배포한다.
-2. Cloudflare Pages가 웹 플레이스홀더 정적 파일을 배포한다.
+2. Cloudflare Pages가 웹 TanStack Router 정적 빌드를 배포한다.
 3. 실제 구현을 추가한 뒤 웹 빌드 시 `VITE_API_URL`을 Worker URL로 주입한다.
 4. 실제 구현을 추가한 뒤 Worker 바인딩과 라우트를 확장한다.
 

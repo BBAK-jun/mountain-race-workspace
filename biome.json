@@ -14,7 +14,8 @@
       ".omx",
       ".cursor/README.md",
       ".github/README.md",
-      ".vscode/README.md"
+      ".vscode/README.md",
+      "apps/web/src/routeTree.gen.ts"
     ]
   },
   "formatter": {

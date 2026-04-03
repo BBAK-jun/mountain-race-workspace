@@ -20,7 +20,7 @@ Cursor와 VS Code에서 바로 열어 작업할 수 있도록 정리한 AI-nativ
 - `.cursor/mcp.json` 기반 project MCP 설정 자리
 - `.cursorignore` 와 `.cursorindexingignore` 기반 AI 컨텍스트 축소
 - GitHub Actions CI
-- `apps/web` Cloudflare Pages용 빈 정적 플레이스홀더 앱
+- `apps/web` Cloudflare Pages용 TanStack Router 파일 기반 웹 앱 스타터
 - `apps/api` Cloudflare Workers용 Hono API 스타터
 
 ## 시작하기
@@ -55,7 +55,7 @@ pnpm ci:check
 
 ## Deployment
 
-배포 전략도 같이 넣어뒀지만, 현재는 웹 플레이스홀더와 최소 API 스타터만 있는 상태를 기준으로 템플릿을 준비해둔 것이다.
+배포 전략도 같이 넣어뒀지만, 현재는 웹 TanStack Router 스타터와 최소 API 스타터를 기준으로 템플릿을 준비해둔 것이다.
 
 - 클라이언트: Cloudflare Pages 정적 호스팅
 - 서버: Cloudflare Workers
@@ -94,7 +94,7 @@ Cursor 문서의 구분에 맞춰 컨텍스트를 계층화했다.
 - `mountain-race-ui-flow`: 로비, HUD, 결과 화면, 반응형 UI 작업
 - `mountain-race-gameplay-loop`: 레이스 상태 전이, 순위 계산, 밸런싱 작업
 - `mountain-race-api-surface`: 백엔드 라우트, 계약, 서버 연결 작업
-- `mountain-race-three-scene`: Three.js 씬 수명주기와 성능 작업
+- `mountain-race-three-scene`: React Three Fiber 씬 구성, 프레임 루프, 성능 작업
 - `mountain-race-release-check`: 머지 전 검증과 릴리즈 점검
 
 ## Cursor Subagents
@@ -102,7 +102,7 @@ Cursor 문서의 구분에 맞춰 컨텍스트를 계층화했다.
 - `ui-builder`: React UI와 CSS 작업 전담
 - `api-builder`: Hono 라우트와 계약 작업 전담
 - `gameplay-architect`: 게임 규칙과 상태 설계 전담
-- `scene-optimizer`: Three.js 렌더링과 성능 점검 전담
+- `scene-optimizer`: React Three Fiber 렌더링과 성능 점검 전담
 - `release-auditor`: 출고 전 검증과 위험 정리 전담
 
 ## 구조
