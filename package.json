@@ -19,8 +19,7 @@
     "lint": "biome lint .",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "check": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm build",
-    "ci:check": "pnpm check"
+    "check": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm build"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",

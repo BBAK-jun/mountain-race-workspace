@@ -54,9 +54,9 @@
       "problemMatcher": []
     },
     {
-      "label": "pnpm: ci:check",
+      "label": "pnpm: check",
       "type": "shell",
-      "command": "pnpm ci:check",
+      "command": "pnpm check",
       "group": "test",
       "problemMatcher": []
     }

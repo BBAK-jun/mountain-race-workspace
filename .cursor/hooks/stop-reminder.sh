@@ -5,4 +5,4 @@ if git diff --quiet -- apps/web apps/api package.json pnpm-workspace.yaml tsconf
   exit 0
 fi
 
-printf '[cursor-hook] Workspace changed. Run pnpm ci:check before shipping.\n' >&2
+printf '[cursor-hook] Workspace changed. Run pnpm check before shipping.\n' >&2

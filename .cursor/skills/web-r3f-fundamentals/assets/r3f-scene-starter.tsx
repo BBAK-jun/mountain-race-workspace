@@ -1,15 +1,20 @@
-import * as THREE from "three";
-import { Canvas, ThreeElements, useFrame } from "@react-three/fiber";
+import { Canvas, type ThreeElements, useFrame } from "@react-three/fiber";
 import { useRef, useState } from "react";
+import type * as THREE from "three";
 
 function CourseMarker(props: ThreeElements["mesh"]) {
-  const meshRef = useRef<THREE.Mesh>(null!);
+  const meshRef = useRef<THREE.Mesh | null>(null);
   const [hovered, setHovered] = useState(false);
   const [selected, setSelected] = useState(false);
 
   useFrame((_, delta) => {
-    meshRef.current.rotation.x += delta * 0.4;
-    meshRef.current.rotation.y += delta * 0.7;
+    const mesh = meshRef.current;
+    if (!mesh) {
+      return;
+    }
+
+    mesh.rotation.x += delta * 0.4;
+    mesh.rotation.y += delta * 0.7;
   });
 
   return (

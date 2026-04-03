@@ -4,7 +4,7 @@ description: Use when wrapping up a broad change, preparing a demo, or reviewing
 
 # Release Checklist
 
-- Run the narrowest relevant checks first, then `pnpm ci:check` for broad changes.
+- Run the narrowest relevant checks first, then `pnpm check` for broad changes.
 - If UI changed, verify both mobile and desktop layouts.
 - If API changed, verify endpoint shape, port, and local integration assumptions.
 - If gameplay changed, verify state transitions, ordering, and finish behavior.

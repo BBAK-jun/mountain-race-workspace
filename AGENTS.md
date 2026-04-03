@@ -7,7 +7,7 @@
 - Formatting: `pnpm format` with Prettier
 - Lint and import cleanup: `pnpm lint` with Biome
 - Type checking: `pnpm typecheck`
-- CI gate: `pnpm ci:check`
+- CI gate: `pnpm check`
 
 ## Layout
 

@@ -10,6 +10,6 @@ alwaysApply: true
 - Keep app code in `apps/*` and shared code in `packages/*`.
 - Use Prettier for formatting and Biome for linting or import organization.
 - Prefer TypeScript for app and config code unless there is a strong reason not to.
-- Prefer root scripts: `pnpm dev`, `pnpm dev:web`, `pnpm dev:api`, `pnpm dev:all`, `pnpm lint`, `pnpm typecheck`, `pnpm ci:check`.
+- Prefer root scripts: `pnpm dev`, `pnpm dev:web`, `pnpm dev:api`, `pnpm dev:all`, `pnpm lint`, `pnpm typecheck`, `pnpm check`.
 - Do not bypass build, formatting, or lint failures; fix them in-repo.
 - Do not commit generated output, local logs, or ephemeral tool state.

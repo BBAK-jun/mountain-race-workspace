@@ -43,7 +43,7 @@ pnpm lint
 pnpm typecheck
 pnpm format
 pnpm build
-pnpm ci:check
+pnpm check
 ```
 
 ## TypeScript And Catalog

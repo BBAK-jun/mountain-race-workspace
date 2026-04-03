@@ -34,4 +34,4 @@ description: Build or refactor the mountain race web game's player-facing UI. Us
 
 - The screen reads clearly in one pass.
 - Setup, live race, and result views feel distinct.
-- The change is ready for `pnpm ci:check` if it affected more than a local visual detail.
+- The change is ready for `pnpm check` if it affected more than a local visual detail.

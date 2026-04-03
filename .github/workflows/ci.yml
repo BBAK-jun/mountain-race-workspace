@@ -39,4 +39,4 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Validate workspace
-        run: pnpm ci:check
+        run: pnpm check

@@ -9,7 +9,7 @@ description: Verify release readiness for the mountain race workspace. Use befor
 
 1. List the surfaces touched: UI, gameplay, API, tooling, Cursor config, CI.
 2. Run the narrowest relevant verification for each touched surface.
-3. Run `pnpm ci:check` for broad changes.
+3. Run `pnpm check` for broad changes.
 4. Call out anything not verified.
 
 ## Review areas

@@ -1,0 +1,7 @@
+#!/bin/sh
+
+echo "Running pnpm check before push..."
+pnpm check || {
+  echo "Push blocked: pnpm check failed."
+  exit 1
+}
