@@ -2,6 +2,7 @@
   "recommendations": [
     "biomejs.biome",
     "esbenp.prettier-vscode",
+    "antfu.pnpm-catalog-lens",
     "editorconfig.editorconfig",
     "eamodio.gitlens",
     "usernamehw.errorlens",
