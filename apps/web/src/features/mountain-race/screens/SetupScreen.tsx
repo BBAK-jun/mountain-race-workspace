@@ -142,11 +142,10 @@ export function SetupScreen() {
       />
 
       <div className="absolute inset-0 z-10 overflow-y-auto">
-        <div className="mx-auto flex min-h-full w-full max-w-2xl flex-col px-5 py-8 md:justify-center md:py-12">
-          {/* floating header — matches LandingScreen typography */}
-          <header className="mb-6 flex flex-col items-center text-center">
+        <div className="mx-auto flex min-h-full w-full max-w-5xl flex-col px-4 pt-[12vh] pb-6 md:px-6 md:pt-[14vh] md:pb-10">
+          <header className="mb-5 flex flex-col items-center text-center md:mb-6">
             <span
-              className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[0.7rem] font-semibold tracking-[0.16em] text-white/90 uppercase backdrop-blur-md md:text-xs"
+              className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[0.7rem] font-semibold tracking-[0.16em] text-white/90 uppercase backdrop-blur-md md:mb-4 md:text-xs"
               style={{ textShadow: "0 1px 3px rgba(0,0,0,0.4)" }}
             >
               <span className="inline-block size-1.5 rounded-full bg-emerald-400" />
@@ -161,15 +160,14 @@ export function SetupScreen() {
             </h1>
 
             <p
-              className="mt-2 text-sm text-white/70 md:text-base"
+              className="mt-1.5 text-sm text-white/70 md:text-base"
               style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}
             >
               {MIN_PLAYERS}~{MAX_PLAYERS}명 · 기본 산길
             </p>
           </header>
 
-          {/* toolbar */}
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90 backdrop-blur-sm">
                 {characters.length}명 참가
@@ -191,8 +189,7 @@ export function SetupScreen() {
             </button>
           </div>
 
-          {/* character cards */}
-          <ul className="grid gap-3 md:grid-cols-2">
+          <ul className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
             {characters.map((character, index) => {
               const uploadError = uploadErrors[character.id];
               const hasFace = isDataImage(character.faceImage);
@@ -200,19 +197,18 @@ export function SetupScreen() {
               return (
                 <li
                   key={character.id}
-                  className="group overflow-hidden rounded-2xl border border-white/15 bg-black/25 shadow-lg backdrop-blur-md transition hover:border-white/25 hover:bg-black/30"
+                  className="group overflow-hidden rounded-xl border border-white/15 bg-black/25 shadow-lg backdrop-blur-md transition hover:border-white/25 hover:bg-black/30"
                   style={{ borderLeftWidth: "3px", borderLeftColor: character.color.jacket }}
                 >
-                  {/* card header */}
-                  <div className="flex items-center justify-between gap-2 px-4 pt-3.5">
-                    <div className="flex min-w-0 items-center gap-2">
+                  <div className="flex items-center justify-between gap-1 px-3 pt-2.5">
+                    <div className="flex min-w-0 items-center gap-1.5">
                       <span
-                        className="inline-flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full px-1.5 text-[0.65rem] font-bold text-white"
+                        className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 text-[0.6rem] font-bold text-white"
                         style={{ backgroundColor: character.color.jacket }}
                       >
                         {index + 1}
                       </span>
-                      <span className="truncate text-sm font-semibold text-white/90">
+                      <span className="truncate text-xs font-semibold text-white/90">
                         {character.name.trim() || `산악인 ${index + 1}`}
                       </span>
                     </div>
@@ -220,15 +216,14 @@ export function SetupScreen() {
                       type="button"
                       disabled={!canRemoveCharacter}
                       onClick={() => handleRemoveCharacter(character.id)}
-                      className="shrink-0 rounded-lg p-1.5 text-[0.65rem] text-white/30 transition hover:bg-white/10 hover:text-red-400 disabled:pointer-events-none disabled:opacity-20"
+                      className="shrink-0 rounded p-1 text-[0.6rem] text-white/30 transition hover:bg-white/10 hover:text-red-400 disabled:pointer-events-none disabled:opacity-20"
                       aria-label={`${character.name.trim() || `산악인 ${index + 1}`} 삭제`}
                     >
                       ✕
                     </button>
                   </div>
 
-                  {/* nickname input */}
-                  <div className="mt-2.5 px-4">
+                  <div className="mt-2 px-3">
                     <input
                       value={character.name}
                       maxLength={MAX_NAME_LENGTH}
@@ -237,14 +232,13 @@ export function SetupScreen() {
                           name: event.target.value.slice(0, MAX_NAME_LENGTH),
                         });
                       }}
-                      className="w-full rounded-lg border border-white/10 bg-white/10 px-3 py-2 text-sm text-white placeholder-white/30 outline-none transition focus:border-white/30 focus:bg-white/15 focus:ring-1 focus:ring-white/20"
+                      className="w-full rounded-lg border border-white/10 bg-white/10 px-2.5 py-1.5 text-xs text-white placeholder-white/30 outline-none transition focus:border-white/30 focus:bg-white/15 focus:ring-1 focus:ring-white/20"
                       placeholder={`닉네임 (등산객 ${index + 1})`}
                     />
                   </div>
 
-                  {/* face upload row */}
-                  <div className="mt-3 flex items-center gap-3 px-4 pb-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/15 bg-white/10 text-xl">
+                  <div className="mt-2 flex items-center gap-2.5 px-3 pb-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/15 bg-white/10 text-lg">
                       {hasFace ? (
                         <img
                           src={character.faceImage ?? ""}
@@ -255,9 +249,9 @@ export function SetupScreen() {
                         <span>{getFaceFallback(index)}</span>
                       )}
                     </div>
-                    <div className="flex min-w-0 flex-1 flex-col gap-1">
+                    <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                       <label className="cursor-pointer">
-                        <span className="text-xs font-medium text-white/70">
+                        <span className="text-[0.65rem] font-medium text-white/70">
                           {hasFace ? "변경" : "얼굴 업로드"}
                         </span>
                         <input
@@ -268,14 +262,14 @@ export function SetupScreen() {
                             void handleFaceUpload(character.id, file);
                             event.currentTarget.value = "";
                           }}
-                          className="block w-full text-xs text-white/50 file:mr-2 file:cursor-pointer file:rounded-md file:border-0 file:bg-white/15 file:px-2.5 file:py-1 file:text-xs file:font-semibold file:text-white/80 hover:file:bg-white/25"
+                          className="block w-full text-[0.65rem] text-white/50 file:mr-1.5 file:cursor-pointer file:rounded file:border-0 file:bg-white/15 file:px-2 file:py-0.5 file:text-[0.65rem] file:font-semibold file:text-white/80 hover:file:bg-white/25"
                         />
                       </label>
                       {hasFace ? (
                         <button
                           type="button"
                           onClick={() => handleFaceRemove(character.id)}
-                          className="self-start rounded px-1.5 py-0.5 text-[0.65rem] text-red-400/70 transition hover:bg-red-500/10 hover:text-red-400"
+                          className="self-start rounded px-1 py-0.5 text-[0.6rem] text-red-400/70 transition hover:bg-red-500/10 hover:text-red-400"
                           aria-label="얼굴 이미지 삭제"
                         >
                           삭제
@@ -285,7 +279,7 @@ export function SetupScreen() {
                   </div>
 
                   {uploadError ? (
-                    <p className="border-t border-red-400/20 bg-red-500/10 px-4 py-2 text-xs text-red-300">
+                    <p className="border-t border-red-400/20 bg-red-500/10 px-3 py-1.5 text-[0.65rem] text-red-300">
                       {uploadError}
                     </p>
                   ) : null}
@@ -294,8 +288,7 @@ export function SetupScreen() {
             })}
           </ul>
 
-          {/* action bar */}
-          <div className="mt-8 flex flex-wrap items-center justify-end gap-3">
+          <div className="mt-5 flex items-center justify-center gap-3">
             <button
               type="button"
               onClick={() => {
@@ -303,13 +296,13 @@ export function SetupScreen() {
               }}
               className="rounded-xl border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white/80 backdrop-blur-sm transition hover:bg-white/20 active:scale-[0.97]"
             >
-              로비로
+              ← 로비로
             </button>
             <button
               type="button"
               onClick={handleStartRace}
               disabled={!canStartRace}
-              className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-xl bg-white px-8 text-base font-bold text-zinc-900 shadow-lg transition-all duration-200 hover:scale-[1.03] hover:shadow-xl active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+              className="group relative inline-flex h-11 items-center justify-center overflow-hidden rounded-xl bg-white px-7 text-sm font-bold text-zinc-900 shadow-lg transition-all duration-200 hover:scale-[1.03] hover:shadow-xl active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
             >
               <span className="relative z-10">🏃 등산 시작</span>
               <span className="absolute inset-0 -z-0 bg-gradient-to-r from-emerald-100 via-white to-sky-100 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
