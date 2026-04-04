@@ -1,9 +1,10 @@
 import { useNavigate } from "@tanstack/react-router";
+import { Canvas } from "@react-three/fiber";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { markSetupComplete } from "@/features/mountain-race/app";
 import { MAX_PLAYERS, MIN_PLAYERS } from "@/features/mountain-race/constants/balance";
 import { useGameStore } from "@/features/mountain-race/store/useGameStore";
+import { SetupScene } from "./SetupScene";
 
 const MAX_UPLOAD_SIZE_MB = 5;
 const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
@@ -53,6 +54,13 @@ export function SetupScreen() {
 
   const handleStartRace = () => {
     if (!canStartRace) return;
+
+    for (const [idx, c] of characters.entries()) {
+      if (!c.name.trim()) {
+        updateCharacter(c.id, { name: `산악인 ${idx + 1}` });
+      }
+    }
+
     finalizeSetup();
     markSetupComplete();
     void navigate({ to: "/race" });
@@ -64,7 +72,7 @@ export function SetupScreen() {
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
       setUploadErrors((prev) => ({
         ...prev,
-        [characterId]: "PNG/JPEG/WEBP/GIF 이미지 파일만 업로드할 수 있습니다.",
+        [characterId]: "PNG/JPEG/WEBP/GIF 이미지만 가능합니다.",
       }));
       return;
     }
@@ -72,7 +80,7 @@ export function SetupScreen() {
     if (file.size > MAX_UPLOAD_SIZE_MB * 1024 * 1024) {
       setUploadErrors((prev) => ({
         ...prev,
-        [characterId]: `이미지 크기는 ${MAX_UPLOAD_SIZE_MB}MB 이하만 허용됩니다.`,
+        [characterId]: `${MAX_UPLOAD_SIZE_MB}MB 이하만 허용됩니다.`,
       }));
       return;
     }
@@ -86,9 +94,18 @@ export function SetupScreen() {
         return next;
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "이미지 업로드에 실패했습니다.";
+      const message = error instanceof Error ? error.message : "업로드 실패";
       setUploadErrors((prev) => ({ ...prev, [characterId]: message }));
     }
+  };
+
+  const handleFaceRemove = (characterId: string) => {
+    updateCharacter(characterId, { faceImage: null });
+    setUploadErrors((prev) => {
+      const next = { ...prev };
+      delete next[characterId];
+      return next;
+    });
   };
 
   const handleRemoveCharacter = (characterId: string) => {
@@ -104,101 +121,127 @@ export function SetupScreen() {
   const getFaceFallback = (index: number) => FACE_FALLBACK[index % FACE_FALLBACK.length] ?? "🙂";
 
   return (
-    <main className="route-shell mx-auto w-full max-w-6xl py-6 md:py-10">
-      <section className="rounded-3xl border border-white/50 bg-white/80 p-5 shadow-xl backdrop-blur md:p-8">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold tracking-[0.12em] text-blue-600 uppercase">Setup</p>
-            <h1 className="mt-2 text-2xl font-black tracking-tight text-zinc-900 md:text-4xl">
-              플레이어 설정
-            </h1>
-            <p className="mt-2 text-sm text-zinc-600 md:text-base">
-              인원은 {MIN_PLAYERS}~{MAX_PLAYERS}명까지 설정할 수 있습니다.
-            </p>
-          </div>
+    <main style={{ position: "relative", height: "100dvh", overflow: "hidden", padding: 0 }}>
+      <Canvas
+        camera={{ position: [0, 25, -5], fov: 60 }}
+        dpr={[1, 1.5]}
+        style={{ position: "absolute", inset: 0 }}
+      >
+        <SetupScene />
+      </Canvas>
 
-          <div className="rounded-2xl border border-zinc-200 bg-zinc-50/80 p-3 text-sm text-zinc-600 md:min-w-64">
-            <p className="font-semibold text-zinc-900">맵 선택 (MVP)</p>
-            <select
-              value="basic-mountain"
-              disabled
-              aria-label="맵 선택"
-              className="mt-2 w-full cursor-not-allowed rounded-lg border border-zinc-200 bg-white px-3 py-2 text-zinc-600"
+      <div
+        className="pointer-events-none absolute inset-0 z-[5]"
+        style={{
+          background: [
+            "radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.4) 100%)",
+            "linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 35%, transparent 60%)",
+            "linear-gradient(to bottom, rgba(10,30,50,0.3) 0%, transparent 25%)",
+          ].join(", "),
+        }}
+      />
+
+      <div className="absolute inset-0 z-10 overflow-y-auto">
+        <div className="mx-auto flex min-h-full w-full max-w-5xl flex-col px-4 pt-[12vh] pb-6 md:px-6 md:pt-[14vh] md:pb-10">
+          <header className="mb-5 flex flex-col items-center text-center md:mb-6">
+            <span
+              className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[0.7rem] font-semibold tracking-[0.16em] text-white/90 uppercase backdrop-blur-md md:mb-4 md:text-xs"
+              style={{ textShadow: "0 1px 3px rgba(0,0,0,0.4)" }}
             >
-              <option value="basic-mountain">기본 산길 (단일 맵)</option>
-            </select>
-          </div>
-        </div>
+              <span className="inline-block size-1.5 rounded-full bg-emerald-400" />
+              플레이어 설정
+            </span>
 
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-zinc-600">
-            현재 인원 <strong className="text-zinc-900">{characters.length}명</strong>
-          </p>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={addCharacter}
-            disabled={!canAddCharacter}
-          >
-            캐릭터 추가
-          </Button>
-        </div>
+            <h1
+              className="text-2xl font-black tracking-tight text-white sm:text-3xl md:text-4xl"
+              style={{ textShadow: "0 2px 20px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.4)" }}
+            >
+              누가 뛸지 정해볼까?
+            </h1>
 
-        <ul className="mt-4 grid gap-4 md:grid-cols-2">
-          {characters.map((character, index) => {
-            const uploadError = uploadErrors[character.id];
-            const displayFace = character.faceImage;
+            <p
+              className="mt-1.5 text-sm text-white/70 md:text-base"
+              style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}
+            >
+              {MIN_PLAYERS}~{MAX_PLAYERS}명 · 기본 산길
+            </p>
+          </header>
 
-            return (
-              <li
-                key={character.id}
-                className="rounded-2xl border border-zinc-200 bg-white/90 p-4 shadow-sm"
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90 backdrop-blur-sm">
+                {characters.length}명 참가
+              </span>
+              <span
+                className="text-xs text-white/50"
+                style={{ textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}
               >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-full bg-zinc-900 px-2 text-xs font-bold text-white">
-                      #{index + 1}
-                    </span>
-                    <span
-                      aria-hidden
-                      className="h-4 w-4 rounded-full border border-black/10"
-                      style={{ backgroundColor: character.color.jacket }}
-                    />
-                    <span className="text-sm font-semibold text-zinc-700">플레이어</span>
+                {canStartRace ? "출발 준비 완료 ✓" : `최소 ${MIN_PLAYERS}명`}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={addCharacter}
+              disabled={!canAddCharacter}
+              className="rounded-lg border border-white/20 bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-white/90 backdrop-blur-sm transition hover:bg-white/20 active:scale-95 disabled:pointer-events-none disabled:opacity-30"
+            >
+              + 추가
+            </button>
+          </div>
+
+          <ul className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+            {characters.map((character, index) => {
+              const uploadError = uploadErrors[character.id];
+              const hasFace = isDataImage(character.faceImage);
+
+              return (
+                <li
+                  key={character.id}
+                  className="group overflow-hidden rounded-xl border border-white/15 bg-black/25 shadow-lg backdrop-blur-md transition hover:border-white/25 hover:bg-black/30"
+                  style={{ borderLeftWidth: "3px", borderLeftColor: character.color.jacket }}
+                >
+                  <div className="flex items-center justify-between gap-1 px-3 pt-2.5">
+                    <div className="flex min-w-0 items-center gap-1.5">
+                      <span
+                        className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 text-[0.6rem] font-bold text-white"
+                        style={{ backgroundColor: character.color.jacket }}
+                      >
+                        {index + 1}
+                      </span>
+                      <span className="truncate text-xs font-semibold text-white/90">
+                        {character.name.trim() || `산악인 ${index + 1}`}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={!canRemoveCharacter}
+                      onClick={() => handleRemoveCharacter(character.id)}
+                      className="shrink-0 rounded p-1 text-[0.6rem] text-white/30 transition hover:bg-white/10 hover:text-red-400 disabled:pointer-events-none disabled:opacity-20"
+                      aria-label={`${character.name.trim() || `산악인 ${index + 1}`} 삭제`}
+                    >
+                      ✕
+                    </button>
                   </div>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    disabled={!canRemoveCharacter}
-                    onClick={() => handleRemoveCharacter(character.id)}
-                  >
-                    삭제
-                  </Button>
-                </div>
 
-                <label className="mt-3 block text-sm font-medium text-zinc-700">
-                  닉네임
-                  <input
-                    value={character.name}
-                    maxLength={MAX_NAME_LENGTH}
-                    onChange={(event) => {
-                      updateCharacter(character.id, {
-                        name: event.target.value.slice(0, MAX_NAME_LENGTH),
-                      });
-                    }}
-                    className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none ring-blue-500 transition focus:ring-2"
-                    placeholder={`등산객 ${index + 1}`}
-                  />
-                </label>
+                  <div className="mt-2 px-3">
+                    <input
+                      value={character.name}
+                      maxLength={MAX_NAME_LENGTH}
+                      onChange={(event) => {
+                        updateCharacter(character.id, {
+                          name: event.target.value.slice(0, MAX_NAME_LENGTH),
+                        });
+                      }}
+                      className="w-full rounded-lg border border-white/10 bg-white/10 px-2.5 py-1.5 text-xs text-white placeholder-white/30 outline-none transition focus:border-white/30 focus:bg-white/15 focus:ring-1 focus:ring-white/20"
+                      placeholder={`닉네임 (등산객 ${index + 1})`}
+                    />
+                  </div>
 
-                <div className="mt-3 rounded-xl border border-zinc-200 bg-zinc-50/70 p-3">
-                  <p className="text-xs font-semibold text-zinc-600 uppercase">얼굴 미리보기</p>
-                  <div className="mt-2 flex items-center gap-3">
-                    <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border border-zinc-200 bg-white text-2xl">
-                      {isDataImage(displayFace) ? (
+                  <div className="mt-2 flex items-center gap-2.5 px-3 pb-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/15 bg-white/10 text-lg">
+                      {hasFace ? (
                         <img
-                          src={displayFace ?? ""}
+                          src={character.faceImage ?? ""}
                           alt={`${character.name} 얼굴`}
                           className="h-full w-full object-cover"
                         />
@@ -206,44 +249,67 @@ export function SetupScreen() {
                         <span>{getFaceFallback(index)}</span>
                       )}
                     </div>
-                    <label className="text-sm text-zinc-600">
-                      <span className="mb-1 block font-medium text-zinc-800">
-                        얼굴 이미지 업로드
-                      </span>
-                      <input
-                        type="file"
-                        accept={ACCEPTED_IMAGE_TYPES.join(",")}
-                        onChange={(event) => {
-                          const file = event.currentTarget.files?.[0] ?? null;
-                          void handleFaceUpload(character.id, file);
-                          event.currentTarget.value = "";
-                        }}
-                        className="block text-xs text-zinc-600 file:mr-2 file:rounded-md file:border-0 file:bg-zinc-900 file:px-2 file:py-1 file:text-xs file:font-semibold file:text-white hover:file:bg-zinc-700"
-                      />
-                    </label>
+                    <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                      <label className="cursor-pointer">
+                        <span className="text-[0.65rem] font-medium text-white/70">
+                          {hasFace ? "변경" : "얼굴 업로드"}
+                        </span>
+                        <input
+                          type="file"
+                          accept={ACCEPTED_IMAGE_TYPES.join(",")}
+                          onChange={(event) => {
+                            const file = event.currentTarget.files?.[0] ?? null;
+                            void handleFaceUpload(character.id, file);
+                            event.currentTarget.value = "";
+                          }}
+                          className="block w-full text-[0.65rem] text-white/50 file:mr-1.5 file:cursor-pointer file:rounded file:border-0 file:bg-white/15 file:px-2 file:py-0.5 file:text-[0.65rem] file:font-semibold file:text-white/80 hover:file:bg-white/25"
+                        />
+                      </label>
+                      {hasFace ? (
+                        <button
+                          type="button"
+                          onClick={() => handleFaceRemove(character.id)}
+                          className="self-start rounded px-1 py-0.5 text-[0.6rem] text-red-400/70 transition hover:bg-red-500/10 hover:text-red-400"
+                          aria-label={`${character.name.trim() || `산악인 ${index + 1}`} 얼굴 이미지 삭제`}
+                        >
+                          삭제
+                        </button>
+                      ) : null}
+                    </div>
                   </div>
-                  {uploadError ? <p className="mt-2 text-xs text-red-600">{uploadError}</p> : null}
-                </div>
-              </li>
-            );
-          })}
-        </ul>
 
-        <div className="mt-6 flex flex-wrap justify-end gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => {
-              void navigate({ to: "/" });
-            }}
-          >
-            로비로
-          </Button>
-          <Button type="button" onClick={handleStartRace} disabled={!canStartRace}>
-            등산 시작
-          </Button>
+                  {uploadError ? (
+                    <p className="border-t border-red-400/20 bg-red-500/10 px-3 py-1.5 text-[0.65rem] text-red-300">
+                      {uploadError}
+                    </p>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+
+          <div className="mt-5 flex items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                void navigate({ to: "/" });
+              }}
+              className="rounded-xl border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white/80 backdrop-blur-sm transition hover:bg-white/20 active:scale-[0.97]"
+            >
+              ← 로비로
+            </button>
+            <button
+              type="button"
+              onClick={handleStartRace}
+              disabled={!canStartRace}
+              className="group relative inline-flex h-11 items-center justify-center overflow-hidden rounded-xl bg-white px-7 text-sm font-bold text-zinc-900 shadow-lg transition-all duration-200 hover:scale-[1.03] hover:shadow-xl active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+            >
+              <span className="relative z-10">🏃 등산 시작</span>
+              <span className="absolute inset-0 -z-0 bg-gradient-to-r from-emerald-100 via-white to-sky-100 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            </button>
+          </div>
         </div>
-      </section>
+      </div>
     </main>
   );
 }
