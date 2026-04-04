@@ -7,6 +7,7 @@ import {
   JITTER_RANGE,
   MAX_PLAYERS,
   MIN_PLAYERS,
+  RACE_END_GRACE_PERIOD_MS,
   VOLCANIC_ASH_SPEED_MULT,
 } from "../constants/balance";
 import {
@@ -81,11 +82,20 @@ function createCharacter(index: number): Character {
     status: "running",
     stunEndTime: 0,
     stats: { hitCount: 0, setbackTotal: 0, ultimateUsed: 0, rankChanges: 0 },
+    finishTime: null,
   };
 }
 
 function computeRankings(characters: Character[]): string[] {
   return [...characters].sort((a, b) => b.progress - a.progress).map((c) => c.id);
+}
+
+function computeFinalRankings(characters: Character[], finishedIds: string[]): string[] {
+  const unfinished = characters
+    .filter((c) => !finishedIds.includes(c.id))
+    .sort((a, b) => b.progress - a.progress)
+    .map((c) => c.id);
+  return [...finishedIds, ...unfinished];
 }
 
 // ── Initial state factory ──────────────────────────────────────────────────
@@ -104,6 +114,7 @@ interface InitialState {
   elapsedTime: number;
   rankings: string[];
   finishedIds: string[];
+  firstFinishTime: number | null;
   events: GameEvent[];
   activeGlobalEvent: GlobalEventType | null;
   globalEventEndTime: number;
@@ -126,6 +137,7 @@ function getInitialState(): InitialState {
     elapsedTime: 0,
     rankings: computeRankings(characters),
     finishedIds: [],
+    firstFinishTime: null,
     events: [],
     activeGlobalEvent: null,
     globalEventEndTime: 0,
@@ -185,6 +197,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       status: "running" as const,
       stunEndTime: 0,
       stats: { hitCount: 0, setbackTotal: 0, ultimateUsed: 0, rankChanges: 0 },
+      finishTime: null,
     }));
     initEventScheduler(0);
     initDialogueScheduler(0);
@@ -194,6 +207,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       hasResult: false,
       elapsedTime: 0,
       finishedIds: [],
+      firstFinishTime: null,
       events: [],
       eventLogs: [],
       activeGlobalEvent: null,
@@ -206,7 +220,12 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   finishRace: () => {
-    set({ isRacing: false, hasResult: true });
+    const { characters, finishedIds } = get();
+    set({
+      isRacing: false,
+      hasResult: true,
+      rankings: computeFinalRankings(characters, finishedIds),
+    });
   },
 
   resetGame: () => {
@@ -244,22 +263,35 @@ export const useGameStore = create<GameState>((set, get) => ({
 
       const ashMult = ashActive ? VOLCANIC_ASH_SPEED_MULT : 1;
       const jitter = 1 + (Math.random() - 0.5) * JITTER_RANGE;
-      const progress = Math.min(char.progress + char.speed * deltaTime * jitter * ashMult, 1);
+      const progress = char.progress + char.speed * deltaTime * jitter * ashMult;
       return { ...char, progress };
     });
 
-    // 2. Lock newly finished characters before event processing
-    const newlyFinished = movedCharacters
+    // 2. Lock newly finished characters before event processing.
+    //    Sort by unclamped progress so same-tick finishers get accurate tie-break.
+    const newlyFinishedChars = movedCharacters
       .filter((c) => c.progress >= FINISH_LINE && !state.finishedIds.includes(c.id))
-      .map((c) => c.id);
-    const finishedIds = [...state.finishedIds, ...newlyFinished];
+      .sort((a, b) => b.progress - a.progress);
+    const newlyFinishedIds = newlyFinishedChars.map((c) => c.id);
+    const finishedIds = [...state.finishedIds, ...newlyFinishedIds];
+
+    // 2.5. Record finishTime + clamp progress to [0, 1] after tie-break is resolved
+    const firstFinishTime =
+      state.firstFinishTime ?? (newlyFinishedIds.length > 0 ? elapsedTime : null);
+    const withFinishTimes = movedCharacters.map((c) => {
+      const clampedProgress = Math.min(c.progress, 1);
+      if (newlyFinishedIds.includes(c.id)) {
+        return { ...c, progress: clampedProgress, finishTime: elapsedTime };
+      }
+      return clampedProgress !== c.progress ? { ...c, progress: clampedProgress } : c;
+    });
 
     // 3. Ranking
-    const rankings = computeRankings(movedCharacters);
+    const rankings = computeRankings(withFinishTimes);
 
     // 4. Event system — finished characters are protected from setback/stun
     const eventResult = processEvents({
-      characters: movedCharacters,
+      characters: withFinishTimes,
       rankings,
       finishedIds,
       elapsedTime,
@@ -270,23 +302,33 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     // 5. Final state
     const finalCharacters = eventResult.characters;
-    const finalRankings = computeRankings(finalCharacters);
 
     // 5.5 Dialogue system
     const dialogueResult = processDialogues({
       characters: finalCharacters,
-      rankings: finalRankings,
+      rankings: computeRankings(finalCharacters),
       finishedIds,
       elapsedTime,
       activeBubble: state.activeBubble,
       newEvents: eventResult.newEvents,
     });
 
+    // 6. Race end condition: all finished OR grace period expired
     const isAllFinished = finishedIds.length === finalCharacters.length;
+    const gracePeriodSec = RACE_END_GRACE_PERIOD_MS / 1000;
+    const isGracePeriodOver =
+      firstFinishTime !== null && elapsedTime - firstFinishTime >= gracePeriodSec;
+    const shouldEndRace = isAllFinished || isGracePeriodOver;
+
+    const finalRankings = shouldEndRace
+      ? computeFinalRankings(finalCharacters, finishedIds)
+      : computeRankings(finalCharacters);
+
     set({
       characters: finalCharacters,
       rankings: finalRankings,
       finishedIds,
+      firstFinishTime,
       elapsedTime,
       events: [...state.events, ...eventResult.newEvents],
       eventLogs: [...state.eventLogs, ...eventResult.newLogs],
@@ -294,7 +336,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       globalEventEndTime: eventResult.globalEventEndTime,
       ultimateCount: eventResult.ultimateCount,
       activeBubble: dialogueResult.activeBubble,
-      ...(isAllFinished ? { isRacing: false, hasResult: true } : {}),
+      ...(shouldEndRace ? { isRacing: false, hasResult: true } : {}),
     });
   },
 
