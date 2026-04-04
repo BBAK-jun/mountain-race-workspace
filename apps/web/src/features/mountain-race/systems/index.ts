@@ -1,1 +1,1 @@
-export {};
+export { CameraSystem } from "./CameraSystem";
