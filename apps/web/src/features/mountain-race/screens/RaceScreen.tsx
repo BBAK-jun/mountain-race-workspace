@@ -43,7 +43,7 @@ export function RaceScreen() {
       className="route-shell"
       style={{
         position: "relative",
-        height: "100vh",
+        height: "100dvh",
         padding: 0,
         overflow: "hidden",
       }}
