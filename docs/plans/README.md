@@ -2,6 +2,14 @@
 
 이 디렉토리는 `Mountain Race` MVP를 4명이 병렬로 구현하기 위한 실행 계획을 담는다.
 
+## 현재 코드 동기화 상태 (2026-04-04)
+
+- `RaceRouteComposition` 기준으로 `RaceSceneSlot + InGameOverlaySlot` 조합이 고정됨
+- 인게임 오버레이는 `HUD`, `EventAlert`, `EventLog` 실컴포넌트까지 반영됨
+- 결과 진입은 `hasResult` 감지 시 `/result` 자동 이동으로 연결됨
+- `finishTime` 기반 완주 순서 고정 + first finisher 기준 grace period 종료 규칙 반영됨
+- `ResultScreen`은 `ResultScene`(3D 배경) 위에 순위/포디움/MVP 오버레이 구조로 동작함
+
 ## 읽는 순서
 
 1. [mountain-race-team-execution-plan.md](./mountain-race-team-execution-plan.md)

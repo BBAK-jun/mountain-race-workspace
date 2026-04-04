@@ -1,18 +1,20 @@
+import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { markResultReady } from "@/features/mountain-race/app";
-import { useGameStore } from "../store/useGameStore";
+import { useGameStore } from "@/features/mountain-race/store";
 import { HUD } from "./HUD";
 import { EventAlert } from "./EventAlert";
 import { EventLog } from "./EventLog";
 
 export function InGameOverlaySlot() {
   const hasResult = useGameStore((s) => s.hasResult);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (hasResult) {
-      markResultReady();
-    }
-  }, [hasResult]);
+    if (!hasResult) return;
+    markResultReady();
+    void navigate({ to: "/result" });
+  }, [hasResult, navigate]);
 
   return (
     <aside className="pointer-events-none fixed inset-0 z-10" aria-label="In-game overlay">

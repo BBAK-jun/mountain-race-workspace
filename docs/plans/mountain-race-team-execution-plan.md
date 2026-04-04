@@ -23,21 +23,25 @@
 
 ---
 
-## 현재 진행 상태 (2026-04-04, 문서-코드 동기화 반영)
+## 현재 진행 상태 (2026-04-04, 최신 머지 반영)
 
 - 완료:
   - route 분리(`/`, `/setup`, `/race`, `/result`)와 sessionStorage 기반 route guard
-  - `LandingScreen`/`SetupScreen`/`ResultScreen` 기본 플로우
+  - `LandingScreen`/`SetupScreen`/`ResultScreen` 화면 플로우 및 3D 배경 연출
   - gameplay core(`types`, `store`, `EventSystem`, `DialogueSystem`, `data`)와 R3F scene(`Track`, `Character`, `Environment`, `SpeechBubble`, `CameraSystem`)
   - `RaceRouteComposition` + `RaceSceneSlot` + `InGameOverlaySlot` 구조
+  - `InGameOverlaySlot` 기반 `HUD`/`EventAlert`/`EventLog` 실구현 반영
+  - `hasResult` 상태 감지 시 `/result` 자동 이동 연결
+  - finish ordering(`finishTime`) + first finisher 기준 grace period 종료 규칙 반영
 - 현재 코드 기준 확인:
   - `routes/race.tsx`는 `RaceRouteComposition`을 렌더링함
-  - 인게임 오버레이는 `HUD/EventAlert/EventLog` 실컴포넌트가 아니라 `InGameOverlaySlot` placeholder 상태
-  - 결과 진입은 현재 `InGameOverlaySlot`의 링크(`markResultReady`)를 통해 수동 트리거됨
+  - 인게임 오버레이는 `InGameOverlaySlot`에서 `HUD`/`EventAlert`/`EventLog`를 함께 렌더링함
+  - 결과 진입은 `hasResult` 변화 시 `markResultReady` + `/result` 자동 네비게이션으로 동작함
+  - `ResultScreen`은 별도 `ResultScene`(R3F) 위에 최종 순위/포디움/MVP 카드를 오버레이함
 - 다음 통합 포인트:
-  - race 종료 상태(`hasResult`)와 `/result` 이동을 자동 연결
-  - `InGameOverlaySlot`을 실제 HUD/이벤트 로그 UI로 교체
-  - 2인/8인 기준 레이스 종료 타이밍 및 결과 데이터 체감 검증
+  - 2인/8인 기준 레이스 종료 타이밍(유예시간 포함) 체감 검증
+  - 모바일 viewport에서 HUD/이벤트 로그 + 결과 카드 가독성 회귀 점검
+  - 결과 화면 통계 확장 범위(MVP 외 지표) 확정 및 연계
 
 ---
 

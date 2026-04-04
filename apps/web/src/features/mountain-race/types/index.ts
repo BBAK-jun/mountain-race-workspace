@@ -33,6 +33,7 @@ export interface Character {
   status: CharacterStatus;
   stunEndTime: number;
   stats: CharacterStats;
+  finishTime: number | null;
 }
 
 // ── Event Types ────────────────────────────────────────────────────────────
@@ -106,6 +107,7 @@ export interface GameState {
   // ── Rankings ─────────────────────────────────────────────────────────────
   rankings: string[];
   finishedIds: string[];
+  firstFinishTime: number | null;
 
   // ── Events ───────────────────────────────────────────────────────────────
   events: GameEvent[];

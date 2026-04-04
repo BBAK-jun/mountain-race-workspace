@@ -18,16 +18,18 @@
 - [x] 여찬규 PR #12 머지 완료 (`7554d56`)
 - [x] 정도은 PR #13 머지 완료 (`EventSystem`, `1725c40`)
 - [x] 정도은 PR #17 머지 완료 (`DialogueSystem`, `abb4ba2`)
+- [x] 정도은 PR #24 머지 완료 (`finish ordering`, grace period, `finishTime`)
+- [x] 여찬규 PR #25 머지 완료 (`ResultScreen` 전면 리디자인 + `ResultScene`)
   - `4673da4`: `SetupScreen`/`ResultScreen`/`LandingScreen`의 `useGameStore` 액션 wiring 반영
   - `8a2281f`: route guard(sessionStorage) 동기화 복구(`markSetupComplete`, `resetRouteGuardSnapshot`)
   - `.gitignore`에 `.omc/` 무시 규칙 추가
 
 지금부터의 우선순위 (코드 기준 재정렬):
 
-1. race 종료/결과 전환 자동화: `hasResult` 상태와 `/result` 이동을 수동 링크 없이 연결
-2. 통합 회귀 점검: 2인/8인에서 `RaceSceneSlot + InGameOverlaySlot` 동시 렌더와 가독성 확인
-3. 결과 화면 데이터 확장(통계/MVP) 범위 확정 및 연계 작업 분배
-4. 통합 충돌 선제 점검: route entry/import path/styles 충돌 확인
+1. 통합 회귀 점검: 2인/8인에서 `RaceSceneSlot + InGameOverlaySlot` 동시 렌더와 가독성 확인
+2. 결과 화면 데이터 확장(통계/MVP) 범위 확정 및 연계 작업 분배
+3. 통합 충돌 선제 점검: route entry/import path/styles 충돌 확인
+4. 모바일 viewport에서 HUD/이벤트 로그 + 결과 카드 배치 안정성 확인
 
 블로커 상태 메모:
 
@@ -159,11 +161,11 @@ apps/web/src/features/mountain-race/
 실행 체크리스트:
 
 - [x] `RaceScreen` + `InGameOverlaySlot` route 조합 결합
-- [ ] `InGameOverlaySlot`을 HUD/이벤트 실UI로 치환
-- [ ] `setupComplete`, `hasResult` guard를 store 기반으로 전환
-- [ ] setup -> race 진입 시 `startRace` 호출 지점 확정
-- [ ] race 종료 -> result 전환 시 `finishRace`/`hasResult` 흐름 확정
-- [ ] result -> landing 복귀 시 `resetGame` 흐름 확정
+- [x] `InGameOverlaySlot`을 HUD/이벤트 실UI로 치환
+- [x] `setupComplete`, `hasResult` guard를 store 기반으로 전환
+- [x] setup -> race 진입 시 `startRace` 호출 지점 확정 (`RaceRouteComposition`)
+- [x] race 종료 -> result 전환 시 `finishRace`/`hasResult` 흐름 확정
+- [x] result -> landing 복귀 시 `resetGame` 흐름 확정
 
 ## Phase 2. 1차 통합 오너
 
@@ -214,7 +216,7 @@ apps/web/src/features/mountain-race/
 - scene PR(#15) 머지 반영 완료 (`100dvh` fullscreen 보정)
 - gameplay PR(#13) 머지 반영 완료
 - non-race PR(#12) 머지 반영 완료 및 guard 동기화 복구 확인
-- 다음 단계는 결과 전환 플로우 자동화 + EventSystem/DialogueSystem/overlay 일관성 안정화 + 결과 데이터 확장
+- 다음 단계는 2인/8인 회귀 검증 + 모바일 가독성 안정화 + 결과 데이터 확장
 
 ---
 

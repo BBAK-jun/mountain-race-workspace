@@ -12,10 +12,11 @@
 
 - `Phase 0~4` 핵심(`types`, `store`, `balance`, `data`, `EventSystem`, `DialogueSystem`)은 코드에 반영되어 있음
 - `tick` 자동 종료, 상태 복구(`stunned`), `startRace` 초기화 등 핵심 안정화 로직 반영됨
-- 현재 오버레이는 `HUD/EventAlert/EventLog` 실컴포넌트가 아니라 `InGameOverlaySlot` placeholder 상태
-- 결과 진입은 `hasResult` 자동 전환보다 `InGameOverlaySlot` 링크 클릭 흐름이 주 경로로 남아 있음
+- `InGameOverlaySlot`에서 `HUD`, `EventAlert`, `EventLog` 실컴포넌트 렌더링 반영됨
+- 결과 진입은 `hasResult` 감지 시 `markResultReady` + `/result` 자동 전환으로 연결됨
+- `finishTime` 기록, 완주 순서 고정, first finisher 기준 grace period 종료 규칙 반영됨
 
-현재 기준으로 다음 우선순위는 `Phase 5~6`(오버레이 실구현, 결과 전환 자동화, 결과 데이터 확장) 완성이다.
+현재 기준으로 다음 우선순위는 결과 통계 확장(추가 지표)과 오버레이 가독성/회귀 안정화다.
 
 ---
 
