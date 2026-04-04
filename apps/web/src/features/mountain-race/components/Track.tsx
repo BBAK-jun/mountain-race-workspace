@@ -23,12 +23,24 @@ export function getTrackPoint(progress: number): Vector3 {
   return trackCurve.getPointAt(Math.min(Math.max(progress, 0), 1));
 }
 
+export function getTrackPointTo(progress: number, out: Vector3): Vector3 {
+  return trackCurve.getPointAt(Math.min(Math.max(progress, 0), 1), out);
+}
+
 export function getTrackTangent(progress: number): Vector3 {
   return trackCurve.getTangentAt(Math.min(Math.max(progress, 0), 1));
 }
 
+export function getTrackTangentTo(progress: number, out: Vector3): Vector3 {
+  return trackCurve.getTangentAt(Math.min(Math.max(progress, 0), 1), out);
+}
+
 export function getFinishLinePosition(): Vector3 {
   return trackCurve.getPointAt(FINISH_LINE_PROGRESS);
+}
+
+export function getFinishLinePositionTo(out: Vector3): Vector3 {
+  return trackCurve.getPointAt(FINISH_LINE_PROGRESS, out);
 }
 
 function FinishLine() {

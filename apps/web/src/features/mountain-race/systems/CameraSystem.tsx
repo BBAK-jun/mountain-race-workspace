@@ -2,12 +2,15 @@ import { useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { Vector3 } from "three";
 import type { Character, CameraMode } from "@/features/mountain-race/types";
-import { getTrackPoint, getTrackTangent, getFinishLinePosition } from "../components/Track";
+import { getTrackPointTo, getTrackTangentTo, getFinishLinePositionTo } from "../components/Track";
 
 const _desired = new Vector3();
 const _lookTarget = new Vector3();
 const _behind = new Vector3();
 const _side = new Vector3();
+const _pos = new Vector3();
+const _tangent = new Vector3();
+const _finishPos = new Vector3();
 
 interface ModeConfig {
   height: number;
@@ -26,6 +29,7 @@ const MODE_CONFIG: Record<CameraMode, ModeConfig> = {
 
 const LERP_BASE = 0.04;
 const LERP_TRANSITION = 0.08;
+const TRANSITION_DURATION_MS = 250;
 const SHAKE_INTENSITY = 0.25;
 const SHAKE_DECAY = 0.9;
 
@@ -46,38 +50,44 @@ export function CameraSystem({
   const smoothLookAt = useRef(new Vector3(0, 5, -10));
   const prevMode = useRef<CameraMode>("follow");
   const shakeAmount = useRef(0);
+  const transitionStart = useRef(Number.NEGATIVE_INFINITY);
 
   useFrame(() => {
+    if (cameraMode !== prevMode.current) {
+      transitionStart.current = performance.now();
+      prevMode.current = cameraMode;
+    }
+
     const cfg = MODE_CONFIG[cameraMode];
 
     if (cameraMode === "finish") {
-      const finishPos = getFinishLinePosition();
-      _desired.set(finishPos.x + cfg.side, finishPos.y + cfg.height, finishPos.z + cfg.distance);
-      _lookTarget.copy(finishPos);
+      getFinishLinePositionTo(_finishPos);
+      _desired.set(_finishPos.x + cfg.side, _finishPos.y + cfg.height, _finishPos.z + cfg.distance);
+      _lookTarget.copy(_finishPos);
     } else {
       const target = resolveTarget(characters, rankings, cameraTarget);
       if (!target) return;
 
-      const pos = getTrackPoint(target.progress);
-      const tangent = getTrackTangent(target.progress);
+      getTrackPointTo(target.progress, _pos);
+      getTrackTangentTo(target.progress, _tangent);
 
-      _behind.copy(tangent).multiplyScalar(-cfg.distance);
-      _desired.copy(pos).add(_behind);
+      _behind.copy(_tangent).multiplyScalar(-cfg.distance);
+      _desired.copy(_pos).add(_behind);
       _desired.y += cfg.height;
 
       if (cfg.side !== 0) {
-        _side.set(-tangent.z, 0, tangent.x).normalize().multiplyScalar(cfg.side);
+        _side.set(-_tangent.z, 0, _tangent.x).normalize().multiplyScalar(cfg.side);
         _desired.add(_side);
       }
 
-      _lookTarget.copy(pos);
+      _lookTarget.copy(_pos);
       if (cfg.lookAhead > 0) {
-        _lookTarget.addScaledVector(tangent, cfg.lookAhead);
+        _lookTarget.addScaledVector(_tangent, cfg.lookAhead);
       }
     }
 
-    const transitioning = cameraMode !== prevMode.current;
-    const lerp = transitioning ? LERP_TRANSITION : LERP_BASE;
+    const inTransition = performance.now() - transitionStart.current < TRANSITION_DURATION_MS;
+    const lerp = inTransition ? LERP_TRANSITION : LERP_BASE;
 
     camera.position.lerp(_desired, lerp);
     smoothLookAt.current.lerp(_lookTarget, lerp);
@@ -95,7 +105,6 @@ export function CameraSystem({
     }
 
     camera.lookAt(smoothLookAt.current);
-    prevMode.current = cameraMode;
   });
 
   return null;
@@ -107,7 +116,8 @@ function resolveTarget(
   cameraTarget: string | null,
 ): Character | undefined {
   if (cameraTarget) {
-    return characters.find((c) => c.id === cameraTarget);
+    const found = characters.find((c) => c.id === cameraTarget);
+    if (found) return found;
   }
   const leaderId = rankings[0];
   if (leaderId) {
