@@ -65,6 +65,8 @@ function getColorPreset(index: number): ColorPreset {
 }
 
 let idCounter = 0;
+let lastRankChangeCheckTime = 0;
+const RANK_CHANGE_CHECK_INTERVAL = 0.5;
 function nextId(): string {
   idCounter += 1;
   return `char_${idCounter}`;
@@ -201,6 +203,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     }));
     initEventScheduler(0);
     initDialogueScheduler(0);
+    lastRankChangeCheckTime = 0;
     set({
       isRacing: true,
       countdown: 0,
@@ -230,6 +233,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   resetGame: () => {
     idCounter = 0;
+    lastRankChangeCheckTime = 0;
     resetEventScheduler();
     resetDialogueScheduler();
     set(getInitialState());
@@ -289,9 +293,23 @@ export const useGameStore = create<GameState>((set, get) => ({
     // 3. Ranking
     const rankings = computeRankings(withFinishTimes);
 
+    // 3.5 Track rank changes (throttled to avoid per-frame jitter noise)
+    let trackedCharacters = withFinishTimes;
+    if (elapsedTime - lastRankChangeCheckTime >= RANK_CHANGE_CHECK_INTERVAL) {
+      lastRankChangeCheckTime = elapsedTime;
+      const prevRankings = state.rankings;
+      trackedCharacters = withFinishTimes.map((c) => {
+        if (finishedIds.includes(c.id)) return c;
+        const prevRank = prevRankings.indexOf(c.id);
+        const currRank = rankings.indexOf(c.id);
+        if (prevRank === -1 || currRank === -1 || prevRank === currRank) return c;
+        return { ...c, stats: { ...c.stats, rankChanges: c.stats.rankChanges + 1 } };
+      });
+    }
+
     // 4. Event system — finished characters are protected from setback/stun
     const eventResult = processEvents({
-      characters: withFinishTimes,
+      characters: trackedCharacters,
       rankings,
       finishedIds,
       elapsedTime,
