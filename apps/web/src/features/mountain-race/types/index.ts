@@ -70,7 +70,7 @@ export interface EventLog {
 
 // ── Camera ─────────────────────────────────────────────────────────────────
 
-export type CameraMode = "follow" | "event_zoom" | "slowmo" | "shake" | "finish";
+export type CameraMode = "follow" | "event_zoom" | "slowmo" | "shake" | "finish" | "free";
 
 // ── Speech Bubble ──────────────────────────────────────────────────────────
 
@@ -126,4 +126,6 @@ export interface GameState {
   // ── Camera ───────────────────────────────────────────────────────────────
   cameraMode: CameraMode;
   cameraTarget: string | null;
+  setCameraMode: (mode: CameraMode) => void;
+  setCameraTarget: (id: string | null) => void;
 }

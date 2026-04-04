@@ -2,6 +2,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { markResultReady } from "@/features/mountain-race/app";
 import { useGameStore } from "@/features/mountain-race/store";
+import { CameraControls } from "./CameraControls";
 import { HUD } from "./HUD";
 import { EventAlert } from "./EventAlert";
 import { EventLog } from "./EventLog";
@@ -21,6 +22,7 @@ export function InGameOverlaySlot() {
       <HUD />
       <EventAlert />
       <EventLog />
+      <CameraControls />
     </aside>
   );
 }

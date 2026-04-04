@@ -1,8 +1,8 @@
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import type { Group } from "three";
-import { Vector3 } from "three";
+import { Vector3, TextureLoader, SRGBColorSpace } from "three";
 import type { Character as CharacterType } from "@/features/mountain-race/types";
 import { getTrackPointTo, getTrackSurfaceY, getTrackTangentTo } from "./Track";
 
@@ -20,7 +20,7 @@ export function Character({ character, isFinished }: CharacterProps) {
   const groupRef = useRef<Group>(null);
   const phaseRef = useRef(0);
 
-  const { color, status, name, progress } = character;
+  const { color, status, name, progress, faceImage } = character;
   const canAnimate = status !== "stunned" && !isFinished;
   const animSpeed = getAnimationSpeed(status);
 
@@ -52,7 +52,7 @@ export function Character({ character, isFinished }: CharacterProps) {
     <group ref={groupRef} rotation={[0, 0, tiltZ]}>
       <NameLabel name={name} />
       <Hat color={color.buff} />
-      <Head emissive={emissive} />
+      <Head emissive={emissive} faceImage={faceImage} />
       <Buff color={color.buff} />
       <Torso color={color.jacket} emissive={emissive} />
       <Belly color={color.inner} />
@@ -133,16 +133,43 @@ function Hat({ color }: { color: string }) {
   );
 }
 
-function Head({ emissive }: { emissive: { color: string; intensity: number } }) {
+function Head({
+  emissive,
+  faceImage,
+}: {
+  emissive: { color: string; intensity: number };
+  faceImage: string | null;
+}) {
+  const texture = useMemo(() => {
+    if (!faceImage?.startsWith("data:image/")) return null;
+    const tex = new TextureLoader().load(faceImage);
+    tex.colorSpace = SRGBColorSpace;
+    return tex;
+  }, [faceImage]);
+
   return (
-    <mesh position={[0, 1.55, 0]}>
-      <sphereGeometry args={[0.25, 12, 10]} />
-      <meshStandardMaterial
-        color="#ffe0bd"
-        emissive={emissive.color}
-        emissiveIntensity={emissive.intensity}
-      />
-    </mesh>
+    <group position={[0, 1.55, 0]}>
+      <mesh>
+        <sphereGeometry args={[0.25, 12, 10]} />
+        <meshStandardMaterial
+          color="#ffe0bd"
+          emissive={emissive.color}
+          emissiveIntensity={emissive.intensity}
+        />
+      </mesh>
+      {texture ? (
+        <group position={[0, 0.02, 0.26]}>
+          <mesh>
+            <circleGeometry args={[0.2, 24]} />
+            <meshBasicMaterial color="#ffffff" />
+          </mesh>
+          <mesh position={[0, 0, 0.001]}>
+            <circleGeometry args={[0.17, 24]} />
+            <meshBasicMaterial map={texture} />
+          </mesh>
+        </group>
+      ) : null}
+    </group>
   );
 }
 
