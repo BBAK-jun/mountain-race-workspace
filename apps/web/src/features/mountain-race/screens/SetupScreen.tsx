@@ -53,6 +53,13 @@ export function SetupScreen() {
 
   const handleStartRace = () => {
     if (!canStartRace) return;
+
+    for (const [idx, c] of characters.entries()) {
+      if (!c.name.trim()) {
+        updateCharacter(c.id, { name: `산악인 ${idx + 1}` });
+      }
+    }
+
     finalizeSetup();
     markSetupComplete();
     void navigate({ to: "/race" });
