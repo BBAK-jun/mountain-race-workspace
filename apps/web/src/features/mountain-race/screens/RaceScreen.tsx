@@ -71,8 +71,13 @@ function SceneContent() {
     <>
       <Track />
       <Environment activeGlobalEvent={activeGlobalEvent} leaderProgress={leaderProgress} />
-      {characters.map((char) => (
-        <Character key={char.id} character={char} isFinished={finishedIds.includes(char.id)} />
+      {characters.map((char, i) => (
+        <Character
+          key={char.id}
+          character={char}
+          isFinished={finishedIds.includes(char.id)}
+          index={i}
+        />
       ))}
       <SpeechBubble activeBubble={activeBubble} characterProgress={bubbleCharProgress} />
       <CameraSystem
