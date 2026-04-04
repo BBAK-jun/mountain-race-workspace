@@ -23,6 +23,18 @@
 
 ---
 
+## 현재 진행 상태 (2026-04-04)
+
+- 머지 완료: `codex/gameplay-race-ui` (정도은, Phase 0-1)
+- 반영 범위: `types/index.ts`, `store/useGameStore.ts`, `store/index.ts`
+- 리뷰 반영 완료:
+  - `tick` 자동 종료 연결
+  - `stunned` 복구 분기
+  - `startRace` 라운드 초기화
+- 다음 통합 포인트: `routes/race.tsx`에서 scene/overlay 조합 검증 및 Phase 2 작업 연계
+
+---
+
 ## 2. 역할 분배
 
 ### 박준형
