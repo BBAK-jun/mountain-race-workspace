@@ -263,26 +263,28 @@ export const useGameStore = create<GameState>((set, get) => ({
 
       const ashMult = ashActive ? VOLCANIC_ASH_SPEED_MULT : 1;
       const jitter = 1 + (Math.random() - 0.5) * JITTER_RANGE;
-      const progress = Math.min(char.progress + char.speed * deltaTime * jitter * ashMult, 1);
+      const progress = char.progress + char.speed * deltaTime * jitter * ashMult;
       return { ...char, progress };
     });
 
-    // 2. Lock newly finished characters before event processing (higher progress = earlier finish)
+    // 2. Lock newly finished characters before event processing.
+    //    Sort by unclamped progress so same-tick finishers get accurate tie-break.
     const newlyFinishedChars = movedCharacters
       .filter((c) => c.progress >= FINISH_LINE && !state.finishedIds.includes(c.id))
       .sort((a, b) => b.progress - a.progress);
     const newlyFinishedIds = newlyFinishedChars.map((c) => c.id);
     const finishedIds = [...state.finishedIds, ...newlyFinishedIds];
 
-    // 2.5. Record finishTime on newly finished characters
+    // 2.5. Record finishTime + clamp progress to [0, 1] after tie-break is resolved
     const firstFinishTime =
       state.firstFinishTime ?? (newlyFinishedIds.length > 0 ? elapsedTime : null);
-    const withFinishTimes =
-      newlyFinishedIds.length > 0
-        ? movedCharacters.map((c) =>
-            newlyFinishedIds.includes(c.id) ? { ...c, finishTime: elapsedTime } : c,
-          )
-        : movedCharacters;
+    const withFinishTimes = movedCharacters.map((c) => {
+      const clampedProgress = Math.min(c.progress, 1);
+      if (newlyFinishedIds.includes(c.id)) {
+        return { ...c, progress: clampedProgress, finishTime: elapsedTime };
+      }
+      return clampedProgress !== c.progress ? { ...c, progress: clampedProgress } : c;
+    });
 
     // 3. Ranking
     const rankings = computeRankings(withFinishTimes);
