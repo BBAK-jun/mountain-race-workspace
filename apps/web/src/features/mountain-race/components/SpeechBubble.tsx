@@ -16,7 +16,7 @@ export function SpeechBubble({ activeBubble, characterProgress }: SpeechBubblePr
 
   return (
     <group position={[anchorPos.x, anchorPos.y + BUBBLE_Y_OFFSET, anchorPos.z]}>
-      <Html center distanceFactor={12} style={{ pointerEvents: "none" }}>
+      <Html center distanceFactor={12} zIndexRange={[1, 0]} style={{ pointerEvents: "none" }}>
         <div
           style={{
             position: "relative",

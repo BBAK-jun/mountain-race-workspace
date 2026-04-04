@@ -72,7 +72,7 @@ export function EventAlert() {
   if (!alert) return null;
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center">
+    <div className="absolute inset-0 z-40 flex items-center justify-center">
       <div
         key={alert.eventId}
         className="animate-in fade-in-0 zoom-in-75 rounded-2xl bg-black/60 px-8 py-5 text-center backdrop-blur-md duration-300"
