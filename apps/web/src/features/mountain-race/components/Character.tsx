@@ -4,9 +4,12 @@ import { Html } from "@react-three/drei";
 import type { Group } from "three";
 import { Vector3 } from "three";
 import type { Character as CharacterType } from "@/features/mountain-race/types";
-import { getTrackPoint, getTrackTangent } from "./Track";
+import { getTrackPointTo, getTrackSurfaceY, getTrackTangentTo } from "./Track";
 
 const _lookTarget = new Vector3();
+const _trackPoint = new Vector3();
+const _trackTangent = new Vector3();
+const CHARACTER_FOOT_CLEARANCE = 0.05;
 
 interface CharacterProps {
   character: CharacterType;
@@ -25,17 +28,21 @@ export function Character({ character, isFinished }: CharacterProps) {
     const group = groupRef.current;
     if (!group) return;
 
-    const pos = getTrackPoint(progress);
-    const tangent = getTrackTangent(progress);
+    const pos = getTrackPointTo(progress, _trackPoint);
+    const tangent = getTrackTangentTo(progress, _trackTangent);
+    const groundY = getTrackSurfaceY(progress);
 
-    group.position.lerp(pos, 0.15);
+    group.position.x += (pos.x - group.position.x) * 0.15;
+    group.position.z += (pos.z - group.position.z) * 0.15;
     _lookTarget.copy(group.position).add(tangent);
     group.lookAt(_lookTarget);
 
     if (canAnimate) {
       phaseRef.current += delta * 8 * animSpeed;
-      group.position.y += Math.sin(phaseRef.current) * 0.08;
     }
+
+    const targetY = groundY + CHARACTER_FOOT_CLEARANCE;
+    group.position.y += (targetY - group.position.y) * 0.2;
   });
 
   const emissive = statusEmissive(status);
@@ -51,8 +58,7 @@ export function Character({ character, isFinished }: CharacterProps) {
       <Belly color={color.inner} />
       <Backpack color={color.jacket} />
       <ArmPair color={color.jacket} canAnimate={canAnimate} animSpeed={animSpeed} />
-      <Pants color={color.pants} />
-      <Boots />
+      <LegPair color={color.pants} canAnimate={canAnimate} animSpeed={animSpeed} />
       <TrekkingPoles canAnimate={canAnimate} animSpeed={animSpeed} />
     </group>
   );
@@ -186,26 +192,49 @@ function Backpack({ color }: { color: string }) {
   );
 }
 
-function Pants({ color }: { color: string }) {
-  return (
-    <mesh position={[0, 0.4, 0]}>
-      <boxGeometry args={[0.45, 0.35, 0.28]} />
-      <meshStandardMaterial color={color} />
-    </mesh>
-  );
-}
+function LegPair({
+  color,
+  canAnimate,
+  animSpeed,
+}: {
+  color: string;
+  canAnimate: boolean;
+  animSpeed: number;
+}) {
+  const leftRef = useRef<Group>(null);
+  const rightRef = useRef<Group>(null);
+  const phaseRef = useRef(0);
 
-function Boots() {
+  useFrame((_, delta) => {
+    if (!canAnimate) return;
+    phaseRef.current += delta * 7 * animSpeed;
+    const swing = Math.sin(phaseRef.current) * 0.33 * animSpeed;
+    if (leftRef.current) leftRef.current.rotation.x = -swing;
+    if (rightRef.current) rightRef.current.rotation.x = swing;
+  });
+
   return (
     <>
-      <mesh position={[-0.12, 0.12, 0.04]}>
-        <boxGeometry args={[0.16, 0.14, 0.22]} />
-        <meshStandardMaterial color="#5C4033" />
-      </mesh>
-      <mesh position={[0.12, 0.12, 0.04]}>
-        <boxGeometry args={[0.16, 0.14, 0.22]} />
-        <meshStandardMaterial color="#5C4033" />
-      </mesh>
+      <group ref={leftRef} position={[-0.13, 0.36, 0.02]}>
+        <mesh position={[0, 0.12, 0]}>
+          <boxGeometry args={[0.16, 0.34, 0.16]} />
+          <meshStandardMaterial color={color} />
+        </mesh>
+        <mesh position={[0, -0.08, 0.05]}>
+          <boxGeometry args={[0.17, 0.12, 0.24]} />
+          <meshStandardMaterial color="#5C4033" />
+        </mesh>
+      </group>
+      <group ref={rightRef} position={[0.13, 0.36, 0.02]}>
+        <mesh position={[0, 0.12, 0]}>
+          <boxGeometry args={[0.16, 0.34, 0.16]} />
+          <meshStandardMaterial color={color} />
+        </mesh>
+        <mesh position={[0, -0.08, 0.05]}>
+          <boxGeometry args={[0.17, 0.12, 0.24]} />
+          <meshStandardMaterial color="#5C4033" />
+        </mesh>
+      </group>
     </>
   );
 }
