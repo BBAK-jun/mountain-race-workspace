@@ -18,6 +18,9 @@ const TRAIL_SAMPLE_COUNT = 200;
 const TRAIL_WIDTH = 2.4;
 const TRAIL_THICKNESS = 0.2;
 const TRAIL_STONE_EVERY = 5;
+const TRAIL_CENTER_Y_OFFSET = 0.08;
+export const TRACK_SURFACE_Y_OFFSET = TRAIL_CENTER_Y_OFFSET + TRAIL_THICKNESS / 2;
+const _surfacePoint = new Vector3();
 
 export const trackCurve = new CatmullRomCurve3(TRACK_POINTS, false, "catmullrom", 0.3);
 
@@ -29,6 +32,10 @@ export function getTrackPoint(progress: number): Vector3 {
 
 export function getTrackPointTo(progress: number, out: Vector3): Vector3 {
   return trackCurve.getPointAt(Math.min(Math.max(progress, 0), 1), out);
+}
+
+export function getTrackSurfaceY(progress: number): number {
+  return getTrackPointTo(progress, _surfacePoint).y + TRACK_SURFACE_Y_OFFSET;
 }
 
 export function getTrackTangent(progress: number): Vector3 {
@@ -122,7 +129,7 @@ export function Track() {
 
       outputSegments.push({
         id: `seg-${i}`,
-        position: [mid.x, mid.y + 0.08, mid.z],
+        position: [mid.x, mid.y + TRAIL_CENTER_Y_OFFSET, mid.z],
         rotation: [pitch, yaw, roll],
         length: length + 0.12,
       });
