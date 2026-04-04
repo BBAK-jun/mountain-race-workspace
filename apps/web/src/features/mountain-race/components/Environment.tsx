@@ -39,7 +39,9 @@ export function Environment({ activeGlobalEvent, leaderProgress = 0 }: Environme
       <Clouds />
       {isRainy && <RainField intensity={rainIntensity} speed={rainSpeed} />}
       <fog attach="fog" args={fogArgs} />
-      <ambientLight intensity={isStormy ? WEATHER_CONFIG.stormAmbient : WEATHER_CONFIG.defaultAmbient} />
+      <ambientLight
+        intensity={isStormy ? WEATHER_CONFIG.stormAmbient : WEATHER_CONFIG.defaultAmbient}
+      />
       <directionalLight
         position={WEATHER_CONFIG.sunPosition}
         intensity={isRainy ? WEATHER_CONFIG.rainSunIntensity : WEATHER_CONFIG.clearSunIntensity}
@@ -192,8 +194,24 @@ const TREE_CONFIG = {
   scaleVariance: 0.24,
   zones: [
     { count: 42, zStart: -8, zEnd: -56, minOffset: 9, maxOffset: 17, yBase: -0.5, scaleBase: 0.95 },
-    { count: 28, zStart: -58, zEnd: -104, minOffset: 10, maxOffset: 18, yBase: 4.5, scaleBase: 0.84 },
-    { count: 18, zStart: -106, zEnd: -152, minOffset: 11, maxOffset: 21, yBase: 10.5, scaleBase: 0.72 },
+    {
+      count: 28,
+      zStart: -58,
+      zEnd: -104,
+      minOffset: 10,
+      maxOffset: 18,
+      yBase: 4.5,
+      scaleBase: 0.84,
+    },
+    {
+      count: 18,
+      zStart: -106,
+      zEnd: -152,
+      minOffset: 11,
+      maxOffset: 21,
+      yBase: 10.5,
+      scaleBase: 0.72,
+    },
   ] as const,
 } as const;
 

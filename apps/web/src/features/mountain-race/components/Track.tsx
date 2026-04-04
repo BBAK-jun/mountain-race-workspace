@@ -123,13 +123,25 @@ const _instanceObject = new Object3D();
 
 function applyInstanceTransforms(
   mesh: InstancedMesh,
-  transforms: { position: [number, number, number]; rotation: [number, number, number]; scale: [number, number, number] }[],
+  transforms: {
+    position: [number, number, number];
+    rotation: [number, number, number];
+    scale: [number, number, number];
+  }[],
 ) {
   for (let i = 0; i < transforms.length; i++) {
     const transform = transforms[i];
     if (!transform) continue;
-    _instanceObject.position.set(transform.position[0], transform.position[1], transform.position[2]);
-    _instanceObject.rotation.set(transform.rotation[0], transform.rotation[1], transform.rotation[2]);
+    _instanceObject.position.set(
+      transform.position[0],
+      transform.position[1],
+      transform.position[2],
+    );
+    _instanceObject.rotation.set(
+      transform.rotation[0],
+      transform.rotation[1],
+      transform.rotation[2],
+    );
     _instanceObject.scale.set(transform.scale[0], transform.scale[1], transform.scale[2]);
     _instanceObject.updateMatrix();
     mesh.setMatrixAt(i, _instanceObject.matrix);
