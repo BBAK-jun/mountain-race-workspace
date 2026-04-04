@@ -14,6 +14,7 @@
 - `Phase 1. store 뼈대` 완료 및 머지
 - `Phase 2. balance와 data` 완료 및 머지
 - `Phase 3. EventSystem` 완료 및 머지 (PR #13, `1725c40`)
+- `Phase 4. DialogueSystem` 완료 및 머지 (PR #17, `abb4ba2`)
 - 반영 브랜치: `codex/gameplay-race-ui`
 - 리뷰 반영 사항까지 포함:
   - `tick` 전원 골인 시 자동 종료 상태 전환
@@ -24,8 +25,9 @@
   - non-race 화면 PR #12가 머지되어(`7554d56`) `characters`, `rankings`, `events`, `finalizeSetup`, `resetGame` 계약을 실제 화면에서 사용 중
   - 후속 커밋 `8a2281f`로 route guard(sessionStorage) 동기화까지 복구되어 setup/result 흐름 연계 리스크 해소
   - race scene 라인 PR #14/#15가 머지되어 scene graph + fullscreen(`100dvh`) 레이아웃까지 main 반영
+  - PR #17 후속 수정까지 반영되어 `volcanic_ash` 감속 타이밍 오프셋과 `startRace` Strict Mode 이중호출 리스크 해소
 
-현재 기준으로 다음 우선순위는 `Phase 4~6`(DialogueSystem/HUD/EventAlert/EventLog/결과 데이터 연결) 완성이다.
+현재 기준으로 다음 우선순위는 `Phase 5~6`(HUD/EventAlert/EventLog 체감 튜닝, 결과 데이터 확장) 완성이다.
 
 ---
 

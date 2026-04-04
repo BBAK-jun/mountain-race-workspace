@@ -17,17 +17,17 @@
 - [x] 윤영서 PR #18 머지 완료 (`LandingScene`, `LandingScreen` 3D 배경, `894f26f`)
 - [x] 여찬규 PR #12 머지 완료 (`7554d56`)
 - [x] 정도은 PR #13 머지 완료 (`EventSystem`, `1725c40`)
+- [x] 정도은 PR #17 머지 완료 (`DialogueSystem`, `abb4ba2`)
   - `4673da4`: `SetupScreen`/`ResultScreen`/`LandingScreen`의 `useGameStore` 액션 wiring 반영
   - `8a2281f`: route guard(sessionStorage) 동기화 복구(`markSetupComplete`, `resetRouteGuardSnapshot`)
   - `.gitignore`에 `.omc/` 무시 규칙 추가
 
 지금부터의 우선순위:
 
-1. 통합 후속: `InGameOverlaySlot` placeholder를 `HUD` + `EventAlert` + `EventLog` 실컴포넌트로 교체
-2. race 종료/결과 전환 플로우 검증: store 기준 종료 상태(`hasResult`)와 route redirect 일관성 검증
-3. `/race` guard source 정리: store/session snapshot 경로 중 단일 진실원본으로 통일
-4. 통합 회귀 점검: 2인/8인에서 scene + overlay 동시 렌더와 이벤트/로그 표시 일치 확인
-5. 통합 충돌 선제 점검: route entry/import path/styles 충돌 확인
+1. race 종료/결과 전환 플로우 검증: store 기준 종료 상태(`hasResult`)와 route redirect 일관성 검증
+2. 통합 회귀 점검: 2인/8인에서 scene + overlay 동시 렌더와 이벤트/로그/대사 표시 일치 확인
+3. 결과 화면 데이터 확장(통계/MVP) 범위 확정 및 연계 작업 분배
+4. 통합 충돌 선제 점검: route entry/import path/styles 충돌 확인
 
 블로커 상태 메모:
 
@@ -213,7 +213,7 @@ apps/web/src/features/mountain-race/
 - scene PR(#15) 머지 반영 완료 (`100dvh` fullscreen 보정)
 - gameplay PR(#13) 머지 반영 완료
 - non-race PR(#12) 머지 반영 완료 및 guard 동기화 복구 확인
-- 다음 단계는 overlay 실컴포넌트 연결 + 결과 전환 플로우 확정 + EventSystem/DialogueSystem/HUD 일관성 안정화
+- 다음 단계는 결과 전환 플로우 확정 + EventSystem/DialogueSystem/HUD 일관성 안정화 + 결과 데이터 확장
 
 ---
 

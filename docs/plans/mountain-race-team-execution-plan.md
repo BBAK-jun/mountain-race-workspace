@@ -34,6 +34,7 @@
 - 머지 완료: `feat(web): compose RaceScreen with full scene graph` (PR #14, `e2b9e67`)
 - 머지 완료: `fix(web): Phase 6 - 통합 전 검증 수정` (PR #15, `0d3aac4`)
 - 머지 완료: `feat(landing): LandingScreen에 R3F 3D 산악 배경 추가` (PR #18, `894f26f`)
+- 머지 완료: `feat(web): Phase 4 - DialogueSystem 대사 스케줄링 구현` (PR #17, `abb4ba2`)
 - 반영 범위:
   - `types/index.ts`, `store/useGameStore.ts`
   - `constants/balance.ts`, `constants/index.ts`
@@ -49,16 +50,18 @@
 - PR 업데이트:
   - `feat(web): Setup·Result·Landing 화면 구현` (PR #12) 머지 완료 (`7554d56`)
   - `feat(landing): LandingScreen에 R3F 3D 산악 배경 추가` (PR #18) 머지 완료 (`894f26f`)
+  - `feat(web): Phase 4 - DialogueSystem 대사 스케줄링 구현` (PR #17) 머지 완료 (`abb4ba2`)
   - 반영 커밋: `4673da4`(store 연동), `8a2281f`(route guard sessionStorage 동기화 복구)
+  - 후속 수정 반영: `volcanic_ash` 감속 타이밍 오프셋 해소 + `startRace` Strict Mode 이중호출 가드
   - `SetupScreen`/`ResultScreen`/`LandingScreen`의 gameplay store 액션 wiring + route guard 동기화까지 반영
 - 통합 이슈 상태:
   - 기존 블로커였던 setup store/guard source 이원화 이슈는 `8a2281f`로 해소됨
   - `RaceScreen` fullscreen 검증 수정(`100dvh`)까지 main 반영 완료
-  - 현재 `routes/race.tsx`는 scene 슬롯 + overlay 슬롯 구조까지 고정됐고, overlay는 placeholder 상태
+  - `routes/race.tsx`는 scene + overlay 실컴포넌트(`HUD`/`EventAlert`/`EventLog`) 조합까지 main 반영 완료
 - 다음 통합 포인트:
-  - `InGameOverlaySlot`에 `HUD`/`EventAlert`/`EventLog` 실컴포넌트 연결
-  - race 종료 시점과 `/result` 전환 트리거를 store 단일 소스로 정리
-  - EventSystem/DialogueSystem/HUD 표시 타이밍 일관성 검증 (2인/8인)
+  - race 종료 시점과 `/result` 전환 트리거의 수동 시나리오 검증 강화 (2인/8인)
+  - EventSystem/DialogueSystem/HUD 표시 타이밍 체감 튜닝
+  - Phase 6(result 데이터 확장: MVP/통계) 범위 확정
 
 ---
 
