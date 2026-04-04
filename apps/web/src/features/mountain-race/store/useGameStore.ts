@@ -351,4 +351,14 @@ export const useGameStore = create<GameState>((set, get) => ({
   pushLog: (log: EventLog) => {
     set((state) => ({ eventLogs: [...state.eventLogs, log] }));
   },
+
+  // ── Camera ──────────────────────────────────────────────────────────────
+
+  setCameraMode: (mode: CameraMode) => {
+    set({ cameraMode: mode });
+  },
+
+  setCameraTarget: (id: string | null) => {
+    set({ cameraTarget: id });
+  },
 }));

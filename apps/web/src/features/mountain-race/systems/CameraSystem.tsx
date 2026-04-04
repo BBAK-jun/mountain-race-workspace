@@ -19,7 +19,7 @@ interface ModeConfig {
   lookAhead: number;
 }
 
-const MODE_CONFIG: Record<CameraMode, ModeConfig> = {
+const MODE_CONFIG: Record<Exclude<CameraMode, "free">, ModeConfig> = {
   follow: { height: 8, distance: 15, side: 0, lookAhead: 5 },
   event_zoom: { height: 4, distance: 8, side: 4, lookAhead: 0 },
   slowmo: { height: 6, distance: 12, side: 2, lookAhead: 3 },
@@ -40,6 +40,18 @@ interface CameraSystemProps {
   rankings: string[];
 }
 
+export function getTargetTrackPosition(
+  characters: Character[],
+  rankings: string[],
+  cameraTarget: string | null,
+  out: Vector3,
+): boolean {
+  const target = resolveTarget(characters, rankings, cameraTarget);
+  if (!target) return false;
+  getTrackPointTo(target.progress, out);
+  return true;
+}
+
 export function CameraSystem({
   cameraMode,
   cameraTarget,
@@ -53,6 +65,11 @@ export function CameraSystem({
   const transitionStart = useRef(Number.NEGATIVE_INFINITY);
 
   useFrame(() => {
+    if (cameraMode === "free") {
+      prevMode.current = "free";
+      return;
+    }
+
     if (cameraMode !== prevMode.current) {
       transitionStart.current = performance.now();
       prevMode.current = cameraMode;
