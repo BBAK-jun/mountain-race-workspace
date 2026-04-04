@@ -100,6 +100,7 @@ Cursor 문서의 구분에 맞춰 컨텍스트를 계층화했다.
 
 포함된 스킬:
 
+- `pr-create`: 현재 브랜치 diff를 PR 제목과 본문으로 정리하는 작업
 - `mountain-race-ui-flow`: 로비, HUD, 결과 화면, 반응형 UI 작업
 - `mountain-race-gameplay-loop`: 레이스 상태 전이, 순위 계산, 밸런싱 작업
 - `mountain-race-api-surface`: 백엔드 라우트, 계약, 서버 연결 작업
