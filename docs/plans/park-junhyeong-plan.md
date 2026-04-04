@@ -22,10 +22,10 @@
   - `8a2281f`: route guard(sessionStorage) 동기화 복구(`markSetupComplete`, `resetRouteGuardSnapshot`)
   - `.gitignore`에 `.omc/` 무시 규칙 추가
 
-지금부터의 우선순위:
+지금부터의 우선순위 (코드 기준 재정렬):
 
-1. race 종료/결과 전환 플로우 검증: store 기준 종료 상태(`hasResult`)와 route redirect 일관성 검증
-2. 통합 회귀 점검: 2인/8인에서 scene + overlay 동시 렌더와 이벤트/로그/대사 표시 일치 확인
+1. race 종료/결과 전환 자동화: `hasResult` 상태와 `/result` 이동을 수동 링크 없이 연결
+2. 통합 회귀 점검: 2인/8인에서 `RaceSceneSlot + InGameOverlaySlot` 동시 렌더와 가독성 확인
 3. 결과 화면 데이터 확장(통계/MVP) 범위 확정 및 연계 작업 분배
 4. 통합 충돌 선제 점검: route entry/import path/styles 충돌 확인
 
@@ -158,7 +158,8 @@ apps/web/src/features/mountain-race/
 
 실행 체크리스트:
 
-- [ ] `RaceScreen` + `HUD/EventAlert/EventLog` 실컴포넌트 결합
+- [x] `RaceScreen` + `InGameOverlaySlot` route 조합 결합
+- [ ] `InGameOverlaySlot`을 HUD/이벤트 실UI로 치환
 - [ ] `setupComplete`, `hasResult` guard를 store 기반으로 전환
 - [ ] setup -> race 진입 시 `startRace` 호출 지점 확정
 - [ ] race 종료 -> result 전환 시 `finishRace`/`hasResult` 흐름 확정
@@ -213,7 +214,7 @@ apps/web/src/features/mountain-race/
 - scene PR(#15) 머지 반영 완료 (`100dvh` fullscreen 보정)
 - gameplay PR(#13) 머지 반영 완료
 - non-race PR(#12) 머지 반영 완료 및 guard 동기화 복구 확인
-- 다음 단계는 결과 전환 플로우 확정 + EventSystem/DialogueSystem/HUD 일관성 안정화 + 결과 데이터 확장
+- 다음 단계는 결과 전환 플로우 자동화 + EventSystem/DialogueSystem/overlay 일관성 안정화 + 결과 데이터 확장
 
 ---
 

@@ -8,6 +8,17 @@
 
 ---
 
+## 진행 현황 (2026-04-04, 문서-코드 동기화 반영)
+
+- `LandingScreen` 구현 완료(3D 배경 포함) 및 route 연결 완료
+- `SetupScreen` 구현 완료(2~8명, 닉네임/얼굴 업로드, 시작 버튼 조건) 및 store 연동 완료
+- `ResultScreen` 구현 완료(최종 순위, MVP 카드, 다시 하기/로비 버튼) 및 store 연동 완료
+- 현재 남은 통합 포인트:
+  - 레이스 종료 시 `/result` 자동 진입 흐름이 `hasResult` 기준으로 자연스럽게 이어지는지 최종 검증
+  - 2인/8인 모바일 레이아웃에서 카드 길이/텍스트 잘림 회귀 점검
+
+---
+
 ## 1. 당신의 목표
 
 비인게임 화면을 완성해서 게임 플로우를 자연스럽게 만든다.
@@ -72,7 +83,7 @@
 주의:
 
 - 캐릭터 조작 액션은 store를 호출만 하고 직접 상태 계산하지 않는다.
-- `RaceScreen`이나 HUD 구성 요소를 이 화면에 끌어오지 않는다.
+- `RaceScreen`이나 인게임 오버레이 구성 요소를 이 화면에 끌어오지 않는다.
 
 ## Phase 3. ResultScreen
 
@@ -85,7 +96,7 @@
 주의:
 
 - 최종 순위와 MVP 계산은 store state를 그대로 읽는다.
-- 인게임 HUD를 재사용하지 않는다.
+- 인게임 오버레이를 재사용하지 않는다.
 
 ---
 
@@ -121,5 +132,5 @@
 ## 6. 주의사항
 
 - `types`, `store`, `systems`, `data`는 직접 수정하지 않는다.
-- `RaceScreen.tsx`, `HUD.tsx`, `EventAlert.tsx`, `EventLog.tsx`, `SpeechBubble.tsx`를 직접 수정하지 않는다.
+- `RaceScreen.tsx`, `InGameOverlaySlot.tsx`, `SpeechBubble.tsx`를 직접 수정하지 않는다.
 - layout 이슈를 해결하려고 route나 styles를 건드리지 않는다.

@@ -4,30 +4,18 @@
 
 - Gameplay Core And In-Game UI Owner
 
-당신은 인게임의 단일 진실원본과 HUD를 만든다. 이 프로젝트에서 레이스가 실제로 굴러가고, 그 상태가 읽히게 되는 기준은 결국 `types`, `store`, `systems`, `HUD`다.
+당신은 인게임의 단일 진실원본과 오버레이를 만든다. 이 프로젝트에서 레이스가 실제로 굴러가고, 그 상태가 읽히게 되는 기준은 `types`, `store`, `systems`, `InGameOverlaySlot`이다.
 
 ---
 
-## 진행 현황 (2026-04-04)
+## 진행 현황 (2026-04-04, 문서-코드 동기화 반영)
 
-- `Phase 0. 계약 고정` 완료 및 머지
-- `Phase 1. store 뼈대` 완료 및 머지
-- `Phase 2. balance와 data` 완료 및 머지
-- `Phase 3. EventSystem` 완료 및 머지 (PR #13, `1725c40`)
-- `Phase 4. DialogueSystem` 완료 및 머지 (PR #17, `abb4ba2`)
-- 반영 브랜치: `codex/gameplay-race-ui`
-- 리뷰 반영 사항까지 포함:
-  - `tick` 전원 골인 시 자동 종료 상태 전환
-  - `stunned` 상태의 `stunEndTime` 기반 복구 분기
-  - `startRace` 시 라운드 상태 명시적 초기화
-  - store 하드코딩 상수의 `balance` 기반 참조 통일
-- 통합 반영:
-  - non-race 화면 PR #12가 머지되어(`7554d56`) `characters`, `rankings`, `events`, `finalizeSetup`, `resetGame` 계약을 실제 화면에서 사용 중
-  - 후속 커밋 `8a2281f`로 route guard(sessionStorage) 동기화까지 복구되어 setup/result 흐름 연계 리스크 해소
-  - race scene 라인 PR #14/#15가 머지되어 scene graph + fullscreen(`100dvh`) 레이아웃까지 main 반영
-  - PR #17 후속 수정까지 반영되어 `volcanic_ash` 감속 타이밍 오프셋과 `startRace` Strict Mode 이중호출 리스크 해소
+- `Phase 0~4` 핵심(`types`, `store`, `balance`, `data`, `EventSystem`, `DialogueSystem`)은 코드에 반영되어 있음
+- `tick` 자동 종료, 상태 복구(`stunned`), `startRace` 초기화 등 핵심 안정화 로직 반영됨
+- 현재 오버레이는 `HUD/EventAlert/EventLog` 실컴포넌트가 아니라 `InGameOverlaySlot` placeholder 상태
+- 결과 진입은 `hasResult` 자동 전환보다 `InGameOverlaySlot` 링크 클릭 흐름이 주 경로로 남아 있음
 
-현재 기준으로 다음 우선순위는 `Phase 5~6`(HUD/EventAlert/EventLog 체감 튜닝, 결과 데이터 확장) 완성이다.
+현재 기준으로 다음 우선순위는 `Phase 5~6`(오버레이 실구현, 결과 전환 자동화, 결과 데이터 확장) 완성이다.
 
 ---
 
@@ -43,9 +31,10 @@
 - ranking 계산
 - event scheduling
 - dialogue selection
-- HUD
-- EventAlert
-- EventLog
+- In-Game Overlay(`InGameOverlaySlot`)
+- (후속) `HUD`
+- (후속) `EventAlert`
+- (후속) `EventLog`
 
 ---
 
@@ -58,9 +47,10 @@
 - `apps/web/src/features/mountain-race/systems/DialogueSystem.ts`
 - `apps/web/src/features/mountain-race/data/dialogues.ts`
 - `apps/web/src/features/mountain-race/data/eventMessages.ts`
-- `apps/web/src/features/mountain-race/components/HUD.tsx`
-- `apps/web/src/features/mountain-race/components/EventAlert.tsx`
-- `apps/web/src/features/mountain-race/components/EventLog.tsx`
+- `apps/web/src/features/mountain-race/components/InGameOverlaySlot.tsx`
+- (후속) `apps/web/src/features/mountain-race/components/HUD.tsx`
+- (후속) `apps/web/src/features/mountain-race/components/EventAlert.tsx`
+- (후속) `apps/web/src/features/mountain-race/components/EventLog.tsx`
 
 ---
 
@@ -124,7 +114,7 @@
 
 주의:
 
-- 이벤트명과 로그 메시지 키는 나중에 HUD와 result가 그대로 참조하므로 처음부터 일관되게 잡는다.
+- 이벤트명과 로그 메시지 키는 오버레이와 result가 그대로 참조하므로 처음부터 일관되게 잡는다.
 
 ## Phase 3. EventSystem
 
@@ -155,14 +145,13 @@
 
 구현:
 
-- `HUD`
-- `EventAlert`
-- `EventLog`
+- `InGameOverlaySlot` 실구현
+- (필요 시) `HUD`/`EventAlert`/`EventLog`로 분리
 
 주의:
 
 - overlay는 고정 UI 레이어로만 만든다.
-- `routes/race.tsx`에서 붙는다는 가정으로 작성하고 `RaceScreen.tsx`를 직접 수정하지 않는다.
+- `RaceRouteComposition`에서 붙는다는 가정으로 작성하고 `RaceScreen.tsx`를 직접 수정하지 않는다.
 - `SpeechBubble`은 scene anchored element라 윤영서가 소유한다.
 
 ## Phase 6. Result용 데이터 제공
@@ -215,7 +204,7 @@
 
 - store 하나만으로 race state가 재구성 가능하다.
 - 이벤트 발생 시 progress, status, stats가 일관되게 갱신된다.
-- HUD와 event layers가 store state와 즉시 동기화된다.
+- in-game overlay가 store state와 즉시 동기화된다.
 - setup과 result가 추가 계산 없이 state만 읽어도 그릴 수 있다.
 
 ---
