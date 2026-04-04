@@ -176,6 +176,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   // ── Race lifecycle ───────────────────────────────────────────────────────
 
   startRace: () => {
+    if (get().isRacing) return;
     const { characters } = get();
     const resetCharacters = characters.map((c) => ({
       ...c,
@@ -220,7 +221,10 @@ export const useGameStore = create<GameState>((set, get) => ({
     if (!state.isRacing || state.isPaused) return;
 
     const elapsedTime = state.elapsedTime + deltaTime;
-    const ashActive = state.activeGlobalEvent === "volcanic_ash";
+
+    const isGlobalEventActive =
+      state.activeGlobalEvent !== null && elapsedTime < state.globalEventEndTime;
+    const ashActive = isGlobalEventActive && state.activeGlobalEvent === "volcanic_ash";
 
     // 1. Status recovery + movement
     const movedCharacters = state.characters.map((c) => {
