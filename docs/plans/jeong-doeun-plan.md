@@ -12,13 +12,15 @@
 
 - `Phase 0. 계약 고정` 완료 및 머지
 - `Phase 1. store 뼈대` 완료 및 머지
+- `Phase 2. balance와 data` 완료 및 머지
 - 반영 브랜치: `codex/gameplay-race-ui`
 - 리뷰 반영 사항까지 포함:
   - `tick` 전원 골인 시 자동 종료 상태 전환
   - `stunned` 상태의 `stunEndTime` 기반 복구 분기
   - `startRace` 시 라운드 상태 명시적 초기화
+  - store 하드코딩 상수의 `balance` 기반 참조 통일
 
-현재 기준으로 다음 우선순위는 `Phase 2. balance와 data`다.
+현재 기준으로 다음 우선순위는 `Phase 3. EventSystem`이다.
 
 ---
 

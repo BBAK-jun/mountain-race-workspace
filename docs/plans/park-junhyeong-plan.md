@@ -6,13 +6,17 @@
 - [x] Phase 0-B 완료 (starter shell 제거, fullscreen route 레이아웃 전환)
 - [x] Phase 0-C 완료 (route wiring 초안, `/race`·`/result` guard 적용)
 - [x] Phase 0-C 변경 PR 머지 완료
+- [x] 정도은 Phase 0-1 머지 확인 및 리뷰 반영 완료
+- [x] 정도은 Phase 2(PR #6) 머지 완료
+- [ ] 윤영서 PR #5 최종 정리본 머지 대기 (rebase 후 충돌 해소 필요)
 
 지금부터의 우선순위:
 
-1. Phase 1 통합 준비: `routes/race.tsx`에 scene + overlay 실제 컴포넌트 연결
-2. store 계약 반영: 임시 route guard 상태 접근을 실제 `useGameStore` selector 기반으로 전환
-3. 비인게임 화면 연결: `Landing/Setup/Result` 실제 액션 wiring(`startRace`, `finishRace`, `resetGame`) 반영
-4. 통합 충돌 선제 점검: route entry/import path/styles 충돌 확인
+1. 윤영서 PR #5 충돌 해소 후 머지 (`Track.tsx`, `r3f-jsx.d.ts` 중심)
+2. Phase 1 통합 준비: `routes/race.tsx`에 scene + overlay 실제 컴포넌트 연결
+3. store 계약 반영: 임시 route guard 상태 접근을 실제 `useGameStore` selector 기반으로 전환
+4. 비인게임 화면 연결: `Landing/Setup/Result` 실제 액션 wiring(`startRace`, `finishRace`, `resetGame`) 반영
+5. 통합 충돌 선제 점검: route entry/import path/styles 충돌 확인
 
 역할:
 
@@ -184,7 +188,9 @@ apps/web/src/features/mountain-race/
 현재 상태:
 
 - route guard와 navigation wiring 1차 반영 완료
-- 다음 단계는 임시 상태 접근을 store 계약으로 교체하는 작업
+- gameplay 계약(Phase 2) 머지 반영 완료
+- scene PR(#5) 충돌 해소 대기
+- 다음 단계는 store 기반 guard 전환 + race route 실컴포넌트 조합
 
 ---
 
