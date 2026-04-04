@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
+import { resetRouteGuardSnapshot } from "@/features/mountain-race/app";
 import { useGameStore } from "@/features/mountain-race/store/useGameStore";
 import type { Character, GameEvent } from "@/features/mountain-race/types";
 
@@ -46,11 +47,13 @@ export function ResultScreen() {
 
   const handleGoSetup = () => {
     resetGame();
+    resetRouteGuardSnapshot();
     void navigate({ to: "/setup" });
   };
 
   const handleGoLobby = () => {
     resetGame();
+    resetRouteGuardSnapshot();
     void navigate({ to: "/" });
   };
 

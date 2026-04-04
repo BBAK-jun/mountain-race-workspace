@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { markSetupComplete } from "@/features/mountain-race/app";
 import { MAX_PLAYERS, MIN_PLAYERS } from "@/features/mountain-race/constants/balance";
 import { useGameStore } from "@/features/mountain-race/store/useGameStore";
 
@@ -53,6 +54,7 @@ export function SetupScreen() {
   const handleStartRace = () => {
     if (!canStartRace) return;
     finalizeSetup();
+    markSetupComplete();
     void navigate({ to: "/race" });
   };
 
