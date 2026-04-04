@@ -1,5 +1,5 @@
-import { useRef, useEffect, type ElementRef } from "react";
-import { Canvas } from "@react-three/fiber";
+import { useRef, type ElementRef } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { Vector3 } from "three";
 import { useGameStore } from "@/features/mountain-race/store";
@@ -13,20 +13,27 @@ const _focusPos = new Vector3();
 
 function FreeOrbitControls() {
   const controlsRef = useRef<ElementRef<typeof OrbitControls>>(null);
-  const characters = useGameStore((s) => s.characters);
-  const rankings = useGameStore((s) => s.rankings);
-  const cameraTarget = useGameStore((s) => s.cameraTarget);
+  const prevTargetRef = useRef<string | null | undefined>(undefined);
 
-  useEffect(() => {
+  useFrame(() => {
     const controls = controlsRef.current;
     if (!controls) return;
+
+    const { cameraTarget, characters, rankings } = useGameStore.getState();
 
     const ok = getTargetTrackPosition(characters, rankings, cameraTarget, _focusPos);
     if (!ok) return;
 
-    controls.target.copy(_focusPos);
-    controls.update();
-  }, [cameraTarget, characters, rankings]);
+    const isFirstFrame = prevTargetRef.current === undefined;
+    const targetChanged = cameraTarget !== prevTargetRef.current;
+    prevTargetRef.current = cameraTarget;
+
+    if (isFirstFrame || targetChanged) {
+      controls.target.copy(_focusPos);
+    } else if (cameraTarget) {
+      controls.target.lerp(_focusPos, 0.05);
+    }
+  });
 
   return (
     <OrbitControls
