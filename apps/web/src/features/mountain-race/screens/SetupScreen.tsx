@@ -270,7 +270,7 @@ export function SetupScreen() {
                           type="button"
                           onClick={() => handleFaceRemove(character.id)}
                           className="self-start rounded px-1 py-0.5 text-[0.6rem] text-red-400/70 transition hover:bg-red-500/10 hover:text-red-400"
-                          aria-label="얼굴 이미지 삭제"
+                          aria-label={`${character.name.trim() || `산악인 ${index + 1}`} 얼굴 이미지 삭제`}
                         >
                           삭제
                         </button>
