@@ -1,6 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { RaceScreen } from "@/features/mountain-race/screens";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { RaceRouteComposition, readRouteGuardSnapshot } from "@/features/mountain-race";
 
 export const Route = createFileRoute("/race")({
-  component: RaceScreen,
+  beforeLoad: () => {
+    const { setupComplete } = readRouteGuardSnapshot();
+
+    if (!setupComplete) {
+      throw redirect({ to: "/setup" });
+    }
+  },
+  component: RaceRouteComposition,
 });
