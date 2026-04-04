@@ -19,6 +19,9 @@
   - `stunned` 상태의 `stunEndTime` 기반 복구 분기
   - `startRace` 시 라운드 상태 명시적 초기화
   - store 하드코딩 상수의 `balance` 기반 참조 통일
+- 통합 반영:
+  - non-race 화면 PR #12가 머지되어(`7554d56`) `characters`, `rankings`, `events`, `finalizeSetup`, `resetGame` 계약을 실제 화면에서 사용 중
+  - 후속 커밋 `8a2281f`로 route guard(sessionStorage) 동기화까지 복구되어 setup/result 흐름 연계 리스크 해소
 
 현재 기준으로 다음 우선순위는 `Phase 3. EventSystem`이다.
 

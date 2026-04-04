@@ -42,12 +42,13 @@
   - `startRace` 라운드 초기화
   - store 하드코딩 상수의 `balance` 기반 참조 통일
 - PR 업데이트:
-  - `feat(web): Setup·Result·Landing 화면 구현` (PR #12)에서 리뷰 반영 커밋 `4673da4` 확인
-  - `SetupScreen`의 로컬 상태 제거 후 `useGameStore` 액션 연동, `ResultScreen` 실데이터 렌더링, `LandingScreen`의 `resetGame` 진입 처리 반영
-- 남은 통합 이슈:
-  - `/race` route guard는 여전히 `readRouteGuardSnapshot()`(sessionStorage)를 참조하고, `SetupScreen`은 `finalizeSetup()`(store)만 호출하는 상태라 guard source가 이원화됨
-  - 다음 통합에서 `route guard store 전환` 또는 `guard 동기화`를 우선 처리해야 setup → race 진입 회귀를 방지할 수 있음
-- 다음 통합 포인트: `routes/race.tsx`에서 `Track` + `Character` + `Environment` + `SpeechBubble` + overlay 실조합, route guard store 전환, setup/result 액션 wiring, EventSystem 연결
+  - `feat(web): Setup·Result·Landing 화면 구현` (PR #12) 머지 완료 (`7554d56`)
+  - 반영 커밋: `4673da4`(store 연동), `8a2281f`(route guard sessionStorage 동기화 복구)
+  - `SetupScreen`/`ResultScreen`/`LandingScreen`의 gameplay store 액션 wiring + route guard 동기화까지 반영
+- 통합 이슈 상태:
+  - 기존 블로커였던 setup store/guard source 이원화 이슈는 `8a2281f`로 해소됨
+  - 현재 단계의 우선순위는 race route 실조합(`Track` + `Character` + `Environment` + `SpeechBubble` + overlay)과 EventSystem 연동 안정화
+- 다음 통합 포인트: `routes/race.tsx`에서 scene + overlay 실조합 고정, race 종료 시점과 result 전환 타이밍 검증, EventSystem/DialogueSystem/HUD 표시 일관성 검증
 
 ---
 
