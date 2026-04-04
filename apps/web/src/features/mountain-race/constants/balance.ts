@@ -8,7 +8,8 @@ import type {
 
 // ── Core pacing ────────────────────────────────────────────────────────────
 
-export const GAME_SPEED = 0.0015;
+// Tuned so a typical race finishes around 60-90 seconds.
+export const GAME_SPEED = 0.018;
 export const JITTER_RANGE = 0.2;
 export const FINISH_LINE = 0.98;
 

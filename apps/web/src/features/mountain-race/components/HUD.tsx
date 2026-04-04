@@ -28,7 +28,7 @@ export function HUD() {
   return (
     <>
       {/* ── Ranking list — top right ─────────────────────────────────── */}
-      <div className="absolute top-3 right-3 flex max-h-[70vh] flex-col gap-1 overflow-y-auto">
+      <div className="absolute top-3 right-3 z-20 flex max-h-[70vh] flex-col gap-1 overflow-y-auto">
         {rankings.map((id, index) => {
           const char = characterMap.get(id);
           if (!char) return null;
@@ -58,7 +58,7 @@ export function HUD() {
       </div>
 
       {/* ── Progress bar — bottom ────────────────────────────────────── */}
-      <div className="absolute right-4 bottom-14 left-4 md:bottom-4">
+      <div className="absolute right-4 bottom-14 left-4 z-20 md:bottom-4">
         <div className="relative h-7 rounded-full bg-black/40 backdrop-blur-sm">
           <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-white/80 select-none">
             🏔️ 정상

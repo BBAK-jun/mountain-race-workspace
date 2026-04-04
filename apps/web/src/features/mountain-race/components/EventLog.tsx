@@ -19,7 +19,7 @@ export function EventLog() {
   if (visibleLogs.length === 0) return null;
 
   return (
-    <div className="absolute bottom-16 left-3 w-72 max-w-[45vw] md:bottom-14">
+    <div className="absolute bottom-16 left-3 z-30 w-72 max-w-[45vw] md:bottom-14">
       <div
         ref={scrollRef}
         className="flex max-h-[35vh] flex-col gap-1 overflow-y-auto rounded-lg bg-black/40 p-2 backdrop-blur-sm"

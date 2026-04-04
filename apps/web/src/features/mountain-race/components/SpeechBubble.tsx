@@ -16,7 +16,7 @@ export function SpeechBubble({ activeBubble, characterProgress }: SpeechBubblePr
 
   return (
     <group position={[anchorPos.x, anchorPos.y + BUBBLE_Y_OFFSET, anchorPos.z]}>
-      <Html center distanceFactor={12} style={{ pointerEvents: "none" }}>
+      <Html center distanceFactor={12} zIndexRange={[1, 0]} style={{ pointerEvents: "none" }}>
         <div
           style={{
             position: "relative",
@@ -24,13 +24,17 @@ export function SpeechBubble({ activeBubble, characterProgress }: SpeechBubblePr
             borderRadius: "10px",
             padding: "6px 12px",
             fontSize: "13px",
+            lineHeight: 1.35,
             fontWeight: 600,
             color: "#1a1a2e",
-            maxWidth: "140px",
+            minWidth: "120px",
+            maxWidth: "220px",
             textAlign: "center",
             boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
             border: "1.5px solid rgba(0,0,0,0.08)",
-            whiteSpace: "pre-wrap",
+            whiteSpace: "normal",
+            wordBreak: "keep-all",
+            overflowWrap: "anywhere",
             userSelect: "none",
           }}
         >
