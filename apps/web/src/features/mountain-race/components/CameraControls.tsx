@@ -70,9 +70,9 @@ export function CameraControls() {
   const activeCharIndex = cameraTarget ? characters.findIndex((c) => c.id === cameraTarget) : -1;
 
   return (
-    <>
+    <div className="pointer-events-auto absolute top-3 left-3 z-30 flex flex-col items-start gap-2">
       {/* control bar */}
-      <div className="pointer-events-auto absolute top-3 left-1/2 z-30 flex -translate-x-1/2 items-center gap-1.5 rounded-xl bg-black/55 px-3 py-2 shadow-lg backdrop-blur-md">
+      <div className="flex items-center gap-1.5 rounded-xl bg-black/55 px-3 py-2 shadow-lg backdrop-blur-md">
         <button
           type="button"
           onClick={isFree ? returnToAuto : toggleMode}
@@ -109,56 +109,54 @@ export function CameraControls() {
         })}
       </div>
 
-      {/* guide overlay */}
+      {/* guide overlay / toggle — centered under control bar */}
       {guideVisible ? (
-        <div className="pointer-events-auto absolute top-16 left-1/2 z-30 -translate-x-1/2">
-          <div className="relative rounded-xl bg-black/60 px-4 py-3 shadow-lg backdrop-blur-md">
-            <button
-              type="button"
-              onClick={() => setGuideVisible(false)}
-              className="absolute top-1.5 right-2 text-sm text-white/40 hover:text-white/80"
-              aria-label="가이드 닫기"
-            >
-              ✕
-            </button>
-            <p className="mb-2 text-xs font-bold text-white/90">📷 카메라 조작법</p>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-[0.7rem] leading-relaxed text-white/70">
-              <span>
-                <kbd className="rounded bg-white/15 px-1 py-0.5 text-[0.6rem] font-semibold text-white/90">
-                  1
-                </kbd>
-                ~
-                <kbd className="rounded bg-white/15 px-1 py-0.5 text-[0.6rem] font-semibold text-white/90">
-                  8
-                </kbd>{" "}
-                캐릭터 포커스
-              </span>
-              <span>
-                <kbd className="rounded bg-white/15 px-1 py-0.5 text-[0.6rem] font-semibold text-white/90">
-                  0
-                </kbd>{" "}
-                /{" "}
-                <kbd className="rounded bg-white/15 px-1 py-0.5 text-[0.6rem] font-semibold text-white/90">
-                  Esc
-                </kbd>{" "}
-                자동 시점 복귀
-              </span>
-              <span>🖱️ 드래그 → 회전</span>
-              <span>🖱️ 우클릭 드래그 → 이동</span>
-              <span>🖱️ 스크롤 → 줌 인/아웃</span>
-              <span>📱 핀치 → 줌 / 2핑거 → 이동</span>
-            </div>
+        <div className="relative self-center rounded-xl bg-black/60 px-4 py-3 shadow-lg backdrop-blur-md">
+          <button
+            type="button"
+            onClick={() => setGuideVisible(false)}
+            className="absolute top-1.5 right-2 text-sm text-white/40 hover:text-white/80"
+            aria-label="가이드 닫기"
+          >
+            ✕
+          </button>
+          <p className="mb-2 text-xs font-bold text-white/90">📷 카메라 조작법</p>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-[0.7rem] leading-relaxed text-white/70">
+            <span>
+              <kbd className="rounded bg-white/15 px-1 py-0.5 text-[0.6rem] font-semibold text-white/90">
+                1
+              </kbd>
+              ~
+              <kbd className="rounded bg-white/15 px-1 py-0.5 text-[0.6rem] font-semibold text-white/90">
+                8
+              </kbd>{" "}
+              캐릭터 포커스
+            </span>
+            <span>
+              <kbd className="rounded bg-white/15 px-1 py-0.5 text-[0.6rem] font-semibold text-white/90">
+                0
+              </kbd>{" "}
+              /{" "}
+              <kbd className="rounded bg-white/15 px-1 py-0.5 text-[0.6rem] font-semibold text-white/90">
+                Esc
+              </kbd>{" "}
+              자동 시점 복귀
+            </span>
+            <span>🖱️ 드래그 → 회전</span>
+            <span>🖱️ 우클릭 드래그 → 이동</span>
+            <span>🖱️ 스크롤 → 줌 인/아웃</span>
+            <span>📱 핀치 → 줌 / 2핑거 → 이동</span>
           </div>
         </div>
       ) : (
         <button
           type="button"
           onClick={() => setGuideVisible(true)}
-          className="pointer-events-auto absolute top-16 left-1/2 z-30 -translate-x-1/2 rounded-lg bg-black/40 px-2.5 py-1 text-[0.65rem] text-white/40 backdrop-blur-sm transition hover:bg-black/60 hover:text-white/70"
+          className="rounded-lg bg-black/40 px-2.5 py-1 text-[0.65rem] text-white/40 backdrop-blur-sm transition hover:bg-black/60 hover:text-white/70"
         >
           📷 조작법 보기
         </button>
       )}
-    </>
+    </div>
   );
 }
