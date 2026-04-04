@@ -19,10 +19,12 @@
     "lint": "biome lint .",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "check": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm build"
+    "check": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm build",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
+    "husky": "catalog:",
     "prettier": "catalog:",
     "typescript": "catalog:"
   }

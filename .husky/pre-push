@@ -1,0 +1,32 @@
+#!/usr/bin/env sh
+
+current_branch="$(git branch --show-current)"
+remote_url="$(git remote get-url origin 2>/dev/null || true)"
+repo_owner="$(printf '%s\n' "$remote_url" | sed -E 's#(git@github\.com:|https://github\.com/)([^/]+)/.*#\2#')"
+git_user_name="$(git config --get user.name 2>/dev/null || true)"
+
+normalize_identity() {
+  printf '%s\n' "$1" | tr '[:upper:]' '[:lower:]' | tr -cd '[:alnum:]'
+}
+
+normalized_repo_owner="$(normalize_identity "$repo_owner")"
+normalized_git_user="$(normalize_identity "$git_user_name")"
+
+if [ "$current_branch" = "main" ]; then
+  if [ -n "$normalized_repo_owner" ] && [ -n "$normalized_git_user" ] && [ "$normalized_git_user" = "$normalized_repo_owner" ]; then
+    echo "Owner bypass: $git_user_name is allowed to push main."
+  else
+    echo "Push blocked: direct pushes to main are not allowed."
+    if [ -n "$repo_owner" ]; then
+      echo "Only repository owner $repo_owner can bypass this local rule."
+    fi
+    echo "Create a feature branch and open a pull request instead."
+    exit 1
+  fi
+fi
+
+echo "Running pnpm check before push..."
+pnpm check || {
+  echo "Push blocked: pnpm check failed."
+  exit 1
+}
