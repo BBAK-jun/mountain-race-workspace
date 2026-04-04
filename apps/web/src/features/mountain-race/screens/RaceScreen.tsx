@@ -39,7 +39,15 @@ function SceneContent() {
 
 export function RaceScreen() {
   return (
-    <main className="route-shell route-view" style={{ position: "relative" }}>
+    <main
+      className="route-shell"
+      style={{
+        position: "relative",
+        height: "100vh",
+        padding: 0,
+        overflow: "hidden",
+      }}
+    >
       <Canvas
         camera={{ position: [0, 10, 20], fov: 60 }}
         style={{ position: "absolute", inset: 0 }}
