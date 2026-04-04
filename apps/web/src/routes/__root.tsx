@@ -1,4 +1,5 @@
 import { Link, Outlet, createRootRoute } from "@tanstack/react-router";
+import { BGMPlayer } from "@/features/mountain-race/components/BGMPlayer";
 
 export const Route = createRootRoute({
   component: RootLayout,
@@ -8,6 +9,7 @@ export const Route = createRootRoute({
 function RootLayout() {
   return (
     <div className="app-shell">
+      <BGMPlayer />
       <Outlet />
     </div>
   );
