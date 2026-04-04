@@ -167,7 +167,30 @@ export const useGameStore = create<GameState>((set, get) => ({
   // ── Race lifecycle ───────────────────────────────────────────────────────
 
   startRace: () => {
-    set({ isRacing: true, countdown: 0 });
+    const { characters } = get();
+    const resetCharacters = characters.map((c) => ({
+      ...c,
+      progress: 0,
+      speed: c.baseSpeed,
+      status: "running" as const,
+      stunEndTime: 0,
+      stats: { hitCount: 0, setbackTotal: 0, ultimateUsed: 0, rankChanges: 0 },
+    }));
+    set({
+      isRacing: true,
+      countdown: 0,
+      hasResult: false,
+      elapsedTime: 0,
+      finishedIds: [],
+      events: [],
+      eventLogs: [],
+      activeGlobalEvent: null,
+      globalEventEndTime: 0,
+      ultimateCount: 0,
+      activeBubble: null,
+      characters: resetCharacters,
+      rankings: computeRankings(resetCharacters),
+    });
   },
 
   finishRace: () => {
@@ -186,7 +209,12 @@ export const useGameStore = create<GameState>((set, get) => ({
     const elapsedTime = state.elapsedTime + deltaTime;
 
     const characters = state.characters.map((c) => {
-      if (c.status === "stunned") return c;
+      if (c.status === "stunned") {
+        if (elapsedTime >= c.stunEndTime) {
+          return { ...c, status: "running" as const };
+        }
+        return c;
+      }
 
       const jitter = 1 + (Math.random() - 0.5) * JITTER_RANGE;
       const progress = Math.min(c.progress + c.speed * deltaTime * jitter, 1);
@@ -200,7 +228,14 @@ export const useGameStore = create<GameState>((set, get) => ({
       .map((c) => c.id);
     const finishedIds = [...state.finishedIds, ...newlyFinished];
 
-    set({ characters, rankings, finishedIds, elapsedTime });
+    const isAllFinished = finishedIds.length === characters.length;
+    set({
+      characters,
+      rankings,
+      finishedIds,
+      elapsedTime,
+      ...(isAllFinished ? { isRacing: false, hasResult: true } : {}),
+    });
   },
 
   // ── Events ───────────────────────────────────────────────────────────────
