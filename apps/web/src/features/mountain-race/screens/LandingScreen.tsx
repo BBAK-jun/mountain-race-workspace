@@ -1,7 +1,7 @@
-import { Link } from "@tanstack/react-router";
-import { Canvas } from "@react-three/fiber";
-import { useEffect } from "react";
 import { useGameStore } from "@/features/mountain-race/store/useGameStore";
+import { Canvas } from "@react-three/fiber";
+import { Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { LandingScene } from "./LandingScene";
 
 export function LandingScreen() {
@@ -65,7 +65,7 @@ export function LandingScreen() {
           style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}
         >
           친구 얼굴과 닉네임을 넣고, 랜덤 이벤트가 만드는
-          <br className="hidden sm:inline" /> 역전 드라마를 관전하는 파티 레이싱 게임
+          <br className="hidden sm:inline" /> 역전 드라마를 관전하는 파티 레이싱 룰렛
         </p>
 
         {/* CTA */}
