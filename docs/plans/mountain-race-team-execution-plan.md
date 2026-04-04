@@ -33,6 +33,7 @@
 - 머지 완료: `feat(web): Phase 4 - CameraSystem 모드 전환 구현` (PR #11, `40dceb8`)
 - 머지 완료: `feat(web): compose RaceScreen with full scene graph` (PR #14, `e2b9e67`)
 - 머지 완료: `fix(web): Phase 6 - 통합 전 검증 수정` (PR #15, `0d3aac4`)
+- 머지 완료: `feat(landing): LandingScreen에 R3F 3D 산악 배경 추가` (PR #18, `894f26f`)
 - 반영 범위:
   - `types/index.ts`, `store/useGameStore.ts`
   - `constants/balance.ts`, `constants/index.ts`
@@ -47,6 +48,7 @@
   - store 하드코딩 상수의 `balance` 기반 참조 통일
 - PR 업데이트:
   - `feat(web): Setup·Result·Landing 화면 구현` (PR #12) 머지 완료 (`7554d56`)
+  - `feat(landing): LandingScreen에 R3F 3D 산악 배경 추가` (PR #18) 머지 완료 (`894f26f`)
   - 반영 커밋: `4673da4`(store 연동), `8a2281f`(route guard sessionStorage 동기화 복구)
   - `SetupScreen`/`ResultScreen`/`LandingScreen`의 gameplay store 액션 wiring + route guard 동기화까지 반영
 - 통합 이슈 상태:

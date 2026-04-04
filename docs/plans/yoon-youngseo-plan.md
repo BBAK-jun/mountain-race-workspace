@@ -16,6 +16,7 @@
 - `CameraSystem` 모드 전환 구현 및 머지 완료 (PR #11, `40dceb8`)
 - `RaceScreen` full scene graph 조합 및 머지 완료 (PR #14, `e2b9e67`)
 - `RaceScreen` fullscreen 레이아웃 보정(`100dvh`) 및 머지 완료 (PR #15, `0d3aac4`)
+- `LandingScene.tsx` 추가 + `LandingScreen` 3D 배경 전환 머지 완료 (PR #18, `894f26f`)
 - `CatmullRomCurve3` 기반 트랙 곡선/샘플링 유틸 반영
 - 결승선 앵커 구조 반영
 - CI 타입체크 이슈 대응 완료:

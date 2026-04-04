@@ -14,6 +14,7 @@
 - [x] 윤영서 PR #11 머지 완료 (`CameraSystem`, `40dceb8`)
 - [x] 윤영서 PR #14 머지 완료 (`RaceScreen` scene graph 조합, `e2b9e67`)
 - [x] 윤영서 PR #15 머지 완료 (`RaceScreen` fullscreen `100dvh`, `0d3aac4`)
+- [x] 윤영서 PR #18 머지 완료 (`LandingScene`, `LandingScreen` 3D 배경, `894f26f`)
 - [x] 여찬규 PR #12 머지 완료 (`7554d56`)
 - [x] 정도은 PR #13 머지 완료 (`EventSystem`, `1725c40`)
   - `4673da4`: `SetupScreen`/`ResultScreen`/`LandingScreen`의 `useGameStore` 액션 wiring 반영
