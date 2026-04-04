@@ -41,6 +41,12 @@
   - `stunned` 복구 분기
   - `startRace` 라운드 초기화
   - store 하드코딩 상수의 `balance` 기반 참조 통일
+- PR 업데이트:
+  - `feat(web): Setup·Result·Landing 화면 구현` (PR #12)에서 리뷰 반영 커밋 `4673da4` 확인
+  - `SetupScreen`의 로컬 상태 제거 후 `useGameStore` 액션 연동, `ResultScreen` 실데이터 렌더링, `LandingScreen`의 `resetGame` 진입 처리 반영
+- 남은 통합 이슈:
+  - `/race` route guard는 여전히 `readRouteGuardSnapshot()`(sessionStorage)를 참조하고, `SetupScreen`은 `finalizeSetup()`(store)만 호출하는 상태라 guard source가 이원화됨
+  - 다음 통합에서 `route guard store 전환` 또는 `guard 동기화`를 우선 처리해야 setup → race 진입 회귀를 방지할 수 있음
 - 다음 통합 포인트: `routes/race.tsx`에서 `Track` + `Character` + `Environment` + `SpeechBubble` + overlay 실조합, route guard store 전환, setup/result 액션 wiring, EventSystem 연결
 
 ---

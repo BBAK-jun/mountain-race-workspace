@@ -11,6 +11,9 @@
 - [x] 윤영서 PR #5 머지 완료 (`Track.tsx`, `r3f-jsx.d.ts`)
 - [x] 윤영서 PR #9 머지 완료 (`Character.tsx`)
 - [x] 윤영서 PR #10 머지 완료 (`Environment.tsx`, `SpeechBubble.tsx`)
+- [x] 여찬규 PR #12 후속 커밋(`4673da4`) 확인
+  - `SetupScreen`/`ResultScreen`/`LandingScreen`의 `useGameStore` 액션 wiring 반영
+  - 비인게임 화면 placeholder 제거 및 결과 실데이터 렌더링 반영
 
 지금부터의 우선순위:
 
@@ -19,6 +22,11 @@
 3. 비인게임 화면 연결: `Landing/Setup/Result` 실제 액션 wiring(`startRace`, `finishRace`, `resetGame`) 반영
 4. RaceScreen/CameraSystem/EventSystem 연동 시 route 전환 타이밍 점검
 5. 통합 충돌 선제 점검: route entry/import path/styles 충돌 확인
+
+현재 블로커 메모:
+
+- `/race` guard는 `readRouteGuardSnapshot()`를 유지하고, setup 시작 액션은 `finalizeSetup()`(store) 중심으로 변경되어 guard source가 이원화됨
+- 다음 통합 커밋에서 guard 기준을 store로 통일하거나 route guard snapshot 동기화를 명시적으로 복구해야 함
 
 역할:
 
