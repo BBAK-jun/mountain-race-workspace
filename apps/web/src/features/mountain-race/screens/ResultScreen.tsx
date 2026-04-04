@@ -136,12 +136,12 @@ export function ResultScreen() {
       />
 
       <style>{`
-        @keyframes result-reveal {
+        @keyframes mr-result-reveal {
           from { opacity: 0; transform: translateY(12px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        .result-stagger {
-          animation: result-reveal 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+        .mr-result-stagger {
+          animation: mr-result-reveal 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
       `}</style>
 
@@ -149,7 +149,7 @@ export function ResultScreen() {
         <div className="mx-auto flex min-h-full w-full max-w-4xl flex-col px-4 pt-[8vh] pb-8 md:px-6 md:pt-[10vh] md:pb-12">
           {/* header */}
           <header
-            className="result-stagger mb-6 flex flex-col items-center text-center"
+            className="mr-result-stagger mb-6 flex flex-col items-center text-center"
             style={{ animationDelay: "0ms" }}
           >
             <span
@@ -171,7 +171,7 @@ export function ResultScreen() {
           {/* podium — top 3 */}
           {podium.length > 0 ? (
             <div
-              className="result-stagger mb-4 grid gap-2.5"
+              className="mr-result-stagger mb-4 grid gap-2.5"
               style={{
                 animationDelay: "150ms",
                 gridTemplateColumns:
@@ -222,7 +222,7 @@ export function ResultScreen() {
 
           {/* rest of rankings */}
           {rest.length > 0 ? (
-            <div className="result-stagger mb-4" style={{ animationDelay: "300ms" }}>
+            <div className="mr-result-stagger mb-4" style={{ animationDelay: "300ms" }}>
               <div className="overflow-hidden rounded-xl border border-white/15 bg-black/25 backdrop-blur-md">
                 {rest.map((character, idx) => {
                   const globalRank = idx + 4;
@@ -256,7 +256,7 @@ export function ResultScreen() {
 
           {/* MVP awards */}
           {mvpCards.length > 0 ? (
-            <div className="result-stagger mb-6" style={{ animationDelay: "450ms" }}>
+            <div className="mr-result-stagger mb-6" style={{ animationDelay: "450ms" }}>
               <p
                 className="mb-2 text-center text-xs font-semibold tracking-wide text-white/50 uppercase"
                 style={{ textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}
@@ -286,7 +286,7 @@ export function ResultScreen() {
 
           {/* action buttons */}
           <div
-            className="result-stagger flex items-center justify-center gap-3"
+            className="mr-result-stagger flex items-center justify-center gap-3"
             style={{ animationDelay: "600ms" }}
           >
             <button

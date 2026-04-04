@@ -9,9 +9,19 @@ function ResultCamera() {
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReduced(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setReduced(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
+    const handler = () => setReduced(mq.matches);
+    if (mq.addEventListener) {
+      mq.addEventListener("change", handler);
+    } else {
+      mq.addListener(handler);
+    }
+    return () => {
+      if (mq.removeEventListener) {
+        mq.removeEventListener("change", handler);
+      } else {
+        mq.removeListener(handler);
+      }
+    };
   }, []);
 
   useFrame(({ camera, clock }) => {
