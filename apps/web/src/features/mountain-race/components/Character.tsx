@@ -18,7 +18,8 @@ export function Character({ character, isFinished }: CharacterProps) {
   const phaseRef = useRef(0);
 
   const { color, status, name, progress } = character;
-  const isMoving = (status === "running" || status === "boosted") && !isFinished;
+  const canAnimate = status !== "stunned" && !isFinished;
+  const animSpeed = getAnimationSpeed(status);
 
   useFrame((_, delta) => {
     const group = groupRef.current;
@@ -31,9 +32,9 @@ export function Character({ character, isFinished }: CharacterProps) {
     _lookTarget.copy(group.position).add(tangent);
     group.lookAt(_lookTarget);
 
-    if (isMoving) {
-      phaseRef.current += delta * 8;
-      group.position.y += Math.abs(Math.sin(phaseRef.current)) * 0.15;
+    if (canAnimate) {
+      phaseRef.current += delta * 8 * animSpeed;
+      group.position.y += Math.sin(phaseRef.current) * 0.08;
     }
   });
 
@@ -49,12 +50,27 @@ export function Character({ character, isFinished }: CharacterProps) {
       <Torso color={color.jacket} emissive={emissive} />
       <Belly color={color.inner} />
       <Backpack color={color.jacket} />
-      <ArmPair color={color.jacket} isMoving={isMoving} />
+      <ArmPair color={color.jacket} canAnimate={canAnimate} animSpeed={animSpeed} />
       <Pants color={color.pants} />
       <Boots />
-      <TrekkingPoles isMoving={isMoving} />
+      <TrekkingPoles canAnimate={canAnimate} animSpeed={animSpeed} />
     </group>
   );
+}
+
+function getAnimationSpeed(status: CharacterType["status"]): number {
+  switch (status) {
+    case "boosted":
+      return 1.3;
+    case "slowed":
+      return 0.5;
+    case "sliding":
+      return 0.4;
+    case "stunned":
+      return 0;
+    default:
+      return 1;
+  }
 }
 
 function statusEmissive(status: CharacterType["status"]): {
@@ -194,15 +210,23 @@ function Boots() {
   );
 }
 
-function ArmPair({ color, isMoving }: { color: string; isMoving: boolean }) {
+function ArmPair({
+  color,
+  canAnimate,
+  animSpeed,
+}: {
+  color: string;
+  canAnimate: boolean;
+  animSpeed: number;
+}) {
   const leftRef = useRef<Group>(null);
   const rightRef = useRef<Group>(null);
   const phaseRef = useRef(0);
 
   useFrame((_, delta) => {
-    if (!isMoving) return;
-    phaseRef.current += delta * 6;
-    const swing = Math.sin(phaseRef.current) * 0.5;
+    if (!canAnimate) return;
+    phaseRef.current += delta * 6 * animSpeed;
+    const swing = Math.sin(phaseRef.current) * 0.5 * animSpeed;
     if (leftRef.current) leftRef.current.rotation.x = swing;
     if (rightRef.current) rightRef.current.rotation.x = -swing;
   });
@@ -225,15 +249,15 @@ function ArmPair({ color, isMoving }: { color: string; isMoving: boolean }) {
   );
 }
 
-function TrekkingPoles({ isMoving }: { isMoving: boolean }) {
+function TrekkingPoles({ canAnimate, animSpeed }: { canAnimate: boolean; animSpeed: number }) {
   const leftRef = useRef<Group>(null);
   const rightRef = useRef<Group>(null);
   const phaseRef = useRef(0);
 
   useFrame((_, delta) => {
-    if (!isMoving) return;
-    phaseRef.current += delta * 6;
-    const swing = Math.sin(phaseRef.current) * 0.3;
+    if (!canAnimate) return;
+    phaseRef.current += delta * 6 * animSpeed;
+    const swing = Math.sin(phaseRef.current) * 0.3 * animSpeed;
     if (leftRef.current) leftRef.current.rotation.x = -0.3 + swing;
     if (rightRef.current) rightRef.current.rotation.x = -0.3 - swing;
   });
