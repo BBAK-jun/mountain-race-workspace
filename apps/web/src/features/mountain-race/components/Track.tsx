@@ -141,8 +141,8 @@ export function Track() {
         const side = dir.clone().cross(up).normalize();
         const left = mid.clone().add(side.clone().multiplyScalar(1.55));
         const right = mid.clone().add(side.multiplyScalar(-1.55));
-        const leftScaleSeed = 0.65 + ((i % 3) * 0.08);
-        const rightScaleSeed = 0.58 + (((i + 1) % 3) * 0.09);
+        const leftScaleSeed = 0.65 + (i % 3) * 0.08;
+        const rightScaleSeed = 0.58 + ((i + 1) % 3) * 0.09;
 
         outputStones.push({
           id: `stone-l-${i}`,
@@ -163,7 +163,12 @@ export function Track() {
   return (
     <group>
       {ridges.map((ridge) => (
-        <mesh key={ridge.id} position={ridge.position} rotation={ridge.rotation} scale={ridge.scale}>
+        <mesh
+          key={ridge.id}
+          position={ridge.position}
+          rotation={ridge.rotation}
+          scale={ridge.scale}
+        >
           <boxGeometry args={[1, 1, 1]} />
           <meshStandardMaterial color="#4f5e4d" roughness={0.98} />
         </mesh>

@@ -19,9 +19,7 @@ function SceneContent() {
     ? (characters.find((c) => c.id === activeBubble.characterId)?.progress ?? null)
     : null;
   const leaderId = rankings[0];
-  const leaderProgress = leaderId
-    ? (characters.find((c) => c.id === leaderId)?.progress ?? 0)
-    : 0;
+  const leaderProgress = leaderId ? (characters.find((c) => c.id === leaderId)?.progress ?? 0) : 0;
 
   return (
     <>

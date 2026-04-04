@@ -99,7 +99,15 @@ function buildTreeData(): { id: string; pos: [number, number, number]; scale: nu
   const zones = [
     { name: "low", count: 42, zStart: -8, zEnd: -56, minOffset: 9, maxOffset: 17, yBase: -0.5 },
     { name: "mid", count: 28, zStart: -58, zEnd: -104, minOffset: 10, maxOffset: 18, yBase: 4.5 },
-    { name: "peak", count: 18, zStart: -106, zEnd: -152, minOffset: 11, maxOffset: 21, yBase: 10.5 },
+    {
+      name: "peak",
+      count: 18,
+      zStart: -106,
+      zEnd: -152,
+      minOffset: 11,
+      maxOffset: 21,
+      yBase: 10.5,
+    },
   ] as const;
   let treeIndex = 0;
 
@@ -107,13 +115,14 @@ function buildTreeData(): { id: string; pos: [number, number, number]; scale: nu
     for (let i = 0; i < zone.count; i++) {
       const lane = i % 2 === 0 ? 1 : -1;
       const t = zone.count <= 1 ? 0 : i / (zone.count - 1);
-      const z = zone.zStart + (zone.zEnd - zone.zStart) * t + Math.sin((treeIndex + 1) * 1.12) * 0.9;
-      const spreadSeed = (Math.sin((treeIndex + 1) * 2.17) * 0.5 + 0.5);
+      const z =
+        zone.zStart + (zone.zEnd - zone.zStart) * t + Math.sin((treeIndex + 1) * 1.12) * 0.9;
+      const spreadSeed = Math.sin((treeIndex + 1) * 2.17) * 0.5 + 0.5;
       const offset = zone.minOffset + spreadSeed * (zone.maxOffset - zone.minOffset);
       const x = lane * (offset + Math.cos((treeIndex + 3) * 0.91) * 1.7);
       const y = zone.yBase + Math.sin((treeIndex + 2) * 0.58) * 1.2 + t * 2.6;
       const scaleBase = zone.name === "low" ? 1.02 : zone.name === "mid" ? 0.9 : 0.76;
-      const scale = scaleBase + ((treeIndex % 4) * 0.07);
+      const scale = scaleBase + (treeIndex % 4) * 0.07;
       trees.push({ id: `tr-${treeIndex}`, pos: [x, y, z], scale });
       treeIndex += 1;
     }
@@ -195,7 +204,7 @@ function RainField({ intensity, speed }: { intensity: number; speed: number }) {
     () =>
       Array.from({ length: RAIN_DROP_COUNT_MAX }, (_, i) => ({
         x: (Math.sin(i * 17.17) * 0.5 + 0.5) * RAIN_RANGE_X - RAIN_RANGE_X / 2,
-        y: RAIN_MIN_Y + ((Math.cos(i * 23.41) * 0.5 + 0.5) * (RAIN_MAX_Y - RAIN_MIN_Y)),
+        y: RAIN_MIN_Y + (Math.cos(i * 23.41) * 0.5 + 0.5) * (RAIN_MAX_Y - RAIN_MIN_Y),
         z: -((Math.sin(i * 7.23) * 0.5 + 0.5) * RAIN_RANGE_Z),
       })),
     [],
