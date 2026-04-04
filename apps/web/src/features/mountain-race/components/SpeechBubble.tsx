@@ -1,17 +1,18 @@
 import { Html } from "@react-three/drei";
 import { useRef, useEffect, useState } from "react";
 import type { ActiveBubble } from "@/features/mountain-race/types";
+import { DIALOGUE_DISPLAY_TIME_MS } from "@/features/mountain-race/constants";
 import { getTrackPoint } from "./Track";
 
 const BUBBLE_Y_OFFSET = 3.0;
-const DURATION_MS = 3000;
+const ANIMATION_DURATION_MS = Math.round(DIALOGUE_DISPLAY_TIME_MS * 1.5);
 
 const KEYFRAMES = `
 @keyframes textLife {
-  0%   { opacity: 0; transform: translateY(10px);    filter: blur(3px); }
-  8%   { opacity: 1; transform: translateY(0);        filter: blur(0px); }
-  35%  { opacity: 1; transform: translateY(0);         filter: blur(0px); }
-  100% { opacity: 0; transform: translateY(-280px);    filter: blur(5px); }
+  0%   { opacity: 0; transform: translateY(10px); }
+  8%   { opacity: 1; transform: translateY(0); }
+  35%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-280px); }
 }
 
 @keyframes glowLife {
@@ -29,9 +30,35 @@ const KEYFRAMES = `
 @keyframes wispMid {
   50%  { opacity: var(--peak, 0.35); }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes textLife {
+    0%   { opacity: 0; transform: none; }
+    8%   { opacity: 1; transform: none; }
+    35%  { opacity: 1; transform: none; }
+    100% { opacity: 0; transform: none; }
+  }
+  @keyframes glowLife { 0%, 100% { opacity: 0; transform: none; } }
+  @keyframes wisp     { 0%, 100% { opacity: 0; transform: none; } }
+  @keyframes wispMid  { 50% { opacity: 0; } }
+}
 `;
 
+const STYLE_ID = "speech-bubble-keyframes";
+
+function ensureKeyframes(): void {
+  if (typeof document === "undefined") return;
+  if (document.getElementById(STYLE_ID)) return;
+  const style = document.createElement("style");
+  style.id = STYLE_ID;
+  style.textContent = KEYFRAMES;
+  document.head.appendChild(style);
+}
+
+ensureKeyframes();
+
 interface WispConfig {
+  id: string;
   ex: number;
   ey: number;
   es: number;
@@ -45,6 +72,7 @@ interface WispConfig {
 
 const WISPS: WispConfig[] = [
   {
+    id: "w0",
     ex: -120,
     ey: -220,
     es: 3.2,
@@ -56,6 +84,7 @@ const WISPS: WispConfig[] = [
     rgb: "200,215,245",
   },
   {
+    id: "w1",
     ex: 110,
     ey: -250,
     es: 3.5,
@@ -67,6 +96,7 @@ const WISPS: WispConfig[] = [
     rgb: "190,208,240",
   },
   {
+    id: "w2",
     ex: 15,
     ey: -290,
     es: 3.8,
@@ -78,6 +108,7 @@ const WISPS: WispConfig[] = [
     rgb: "180,200,235",
   },
   {
+    id: "w3",
     ex: -95,
     ey: -260,
     es: 3.0,
@@ -89,6 +120,7 @@ const WISPS: WispConfig[] = [
     rgb: "195,210,240",
   },
   {
+    id: "w4",
     ex: 130,
     ey: -200,
     es: 3.2,
@@ -100,6 +132,7 @@ const WISPS: WispConfig[] = [
     rgb: "210,220,248",
   },
   {
+    id: "w5",
     ex: -40,
     ey: -310,
     es: 3.5,
@@ -111,6 +144,7 @@ const WISPS: WispConfig[] = [
     rgb: "185,205,240",
   },
   {
+    id: "w6",
     ex: 75,
     ey: -270,
     es: 3.0,
@@ -134,6 +168,10 @@ export function SpeechBubble({ activeBubble, characterProgress }: SpeechBubblePr
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    ensureKeyframes();
+  }, []);
+
+  useEffect(() => {
     if (!activeBubble) return;
 
     const key = `${activeBubble.characterId}-${activeBubble.endTime}`;
@@ -149,7 +187,7 @@ export function SpeechBubble({ activeBubble, characterProgress }: SpeechBubblePr
     timerRef.current = setTimeout(() => {
       setVisibleBubble(null);
       prevKeyRef.current = null;
-    }, DURATION_MS + 50);
+    }, ANIMATION_DURATION_MS + 50);
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
@@ -159,15 +197,13 @@ export function SpeechBubble({ activeBubble, characterProgress }: SpeechBubblePr
   if (!visibleBubble || characterProgress === null) return null;
 
   const anchorPos = getTrackPoint(characterProgress);
-  const dur = `${DURATION_MS}ms`;
-  const dissolveDelay = DURATION_MS * 0.33;
-  const wispDur = DURATION_MS * 0.67;
+  const dur = `${ANIMATION_DURATION_MS}ms`;
+  const dissolveDelay = ANIMATION_DURATION_MS * 0.33;
+  const wispDur = ANIMATION_DURATION_MS * 0.67;
 
   return (
     <group position={[anchorPos.x, anchorPos.y + BUBBLE_Y_OFFSET, anchorPos.z]}>
       <Html center distanceFactor={12} zIndexRange={[1, 0]} style={{ pointerEvents: "none" }}>
-        <style>{KEYFRAMES}</style>
-
         <div
           style={{
             position: "relative",
@@ -179,7 +215,7 @@ export function SpeechBubble({ activeBubble, characterProgress }: SpeechBubblePr
             userSelect: "none",
           }}
         >
-          {/* Ambient glow — drifts upward with text */}
+          {/* Ambient glow */}
           <div
             style={{
               position: "absolute",
@@ -193,10 +229,10 @@ export function SpeechBubble({ activeBubble, characterProgress }: SpeechBubblePr
             }}
           />
 
-          {/* Smoke wisps — drift far upward during dissolve */}
+          {/* Smoke wisps */}
           {WISPS.map((w) => (
             <div
-              key={`${w.left}-${w.top}`}
+              key={w.id}
               style={{
                 position: "absolute",
                 left: w.left,
@@ -239,7 +275,7 @@ export function SpeechBubble({ activeBubble, characterProgress }: SpeechBubblePr
               overflowWrap: "anywhere",
               letterSpacing: "0.02em",
               animation: `textLife ${dur} ease-in-out forwards`,
-              willChange: "opacity, transform, filter",
+              willChange: "opacity, transform",
             }}
           >
             {visibleBubble.text}
