@@ -1,4 +1,13 @@
 import { create } from "zustand";
+import {
+  COUNTDOWN_SECONDS,
+  FINISH_LINE,
+  GAME_SPEED,
+  INITIAL_PLAYER_COUNT,
+  JITTER_RANGE,
+  MAX_PLAYERS,
+  MIN_PLAYERS,
+} from "../constants/balance";
 import type {
   ActiveBubble,
   CameraMode,
@@ -33,13 +42,6 @@ const DEFAULT_NAMES = [
   "산악인 7",
   "산악인 8",
 ] as const;
-
-const MIN_PLAYERS = 2;
-const MAX_PLAYERS = 8;
-const INITIAL_PLAYER_COUNT = 4;
-const GAME_SPEED = 0.0015;
-const JITTER_RANGE = 0.2;
-const FINISH_LINE = 0.98;
 
 const DEFAULT_COLOR: ColorPreset = {
   jacket: "#FF69B4",
@@ -113,7 +115,7 @@ function getInitialState(): InitialState {
     hasResult: false,
     isRacing: false,
     isPaused: false,
-    countdown: 3,
+    countdown: COUNTDOWN_SECONDS,
     elapsedTime: 0,
     rankings: computeRankings(characters),
     finishedIds: [],
