@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Canvas } from "@react-three/fiber";
 import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { useGameStore } from "@/features/mountain-race/store/useGameStore";
 import { LandingScene } from "./LandingScene";
 
@@ -29,35 +28,62 @@ export function LandingScreen() {
         <LandingScene />
       </Canvas>
 
-      {/* bottom gradient for depth */}
+      {/* vignette + gradient overlay for text contrast */}
       <div
         className="pointer-events-none absolute inset-0 z-[5]"
         style={{
-          background:
-            "linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 40%), linear-gradient(to bottom, rgba(135,180,220,0.2) 0%, transparent 30%)",
+          background: [
+            "radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.4) 100%)",
+            "linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 35%, transparent 60%)",
+            "linear-gradient(to bottom, rgba(10,30,50,0.3) 0%, transparent 25%)",
+          ].join(", "),
         }}
       />
 
-      <div className="absolute inset-0 z-10 flex items-end justify-center p-4 pb-12 md:items-center md:pb-4">
-        <section className="w-full max-w-md rounded-3xl border border-white/30 bg-white/65 p-6 shadow-2xl backdrop-blur-xl md:max-w-2xl md:p-10">
-          <p className="mb-1 text-[0.7rem] font-bold tracking-[0.18em] text-emerald-700 uppercase md:mb-2 md:text-xs">
-            Mountain Race
-          </p>
-          <h1 className="text-3xl leading-tight font-black tracking-tight text-zinc-900 md:text-5xl lg:text-6xl">
-            등산복 입고 뛰어
-          </h1>
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-600 md:mt-4 md:text-base">
-            친구 얼굴과 닉네임을 넣고, 랜덤 이벤트가 만드는 역전 드라마를 관전하는 파티 레이싱
-            게임입니다.
-          </p>
+      {/* hero content */}
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-end px-6 pb-16 md:justify-center md:pb-0">
+        {/* badge */}
+        <span
+          className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[0.7rem] font-semibold tracking-[0.16em] text-white/90 uppercase backdrop-blur-md md:mb-5 md:text-xs"
+          style={{ textShadow: "0 1px 3px rgba(0,0,0,0.4)" }}
+        >
+          <span className="inline-block size-1.5 rounded-full bg-emerald-400" />
+          Mountain Race
+        </span>
 
-          <div className="mt-6 flex flex-wrap items-center gap-3 md:mt-8">
-            <Button asChild size="lg" className="px-6 text-base font-bold">
-              <Link to="/setup">게임 시작</Link>
-            </Button>
-            <p className="text-xs text-zinc-500 md:text-sm">2~8명 · 약 60~90초</p>
-          </div>
-        </section>
+        {/* title */}
+        <h1
+          className="text-center text-4xl leading-[1.1] font-black tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
+          style={{ textShadow: "0 2px 20px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.4)" }}
+        >
+          등산복 입고 뛰어
+        </h1>
+
+        {/* description */}
+        <p
+          className="mx-auto mt-4 max-w-md text-center text-sm leading-relaxed text-white/80 md:mt-5 md:max-w-lg md:text-base"
+          style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}
+        >
+          친구 얼굴과 닉네임을 넣고, 랜덤 이벤트가 만드는
+          <br className="hidden sm:inline" /> 역전 드라마를 관전하는 파티 레이싱 게임
+        </p>
+
+        {/* CTA */}
+        <div className="mt-8 flex flex-col items-center gap-3 md:mt-10">
+          <Link
+            to="/setup"
+            className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-xl bg-white px-8 text-base font-bold text-zinc-900 shadow-lg transition-all duration-200 hover:scale-[1.03] hover:shadow-xl active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent md:h-14 md:px-10 md:text-lg"
+          >
+            <span className="relative z-10">게임 시작</span>
+            <span className="absolute inset-0 -z-0 bg-gradient-to-r from-emerald-100 via-white to-sky-100 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          </Link>
+          <span
+            className="text-xs tracking-wide text-white/70 md:text-sm"
+            style={{ textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}
+          >
+            2~8명 · 약 60~90초
+          </span>
+        </div>
       </div>
     </main>
   );
