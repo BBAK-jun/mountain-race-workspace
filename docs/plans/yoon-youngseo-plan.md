@@ -11,16 +11,20 @@
 ## 진행 현황 (2026-04-04)
 
 - `Track.tsx` 구현 및 머지 완료 (`feat/scene-track`, PR #5)
+- `Character.tsx` 구현 및 머지 완료 (`feat/scene-character`, PR #9)
 - `CatmullRomCurve3` 기반 트랙 곡선/샘플링 유틸 반영
 - 결승선 앵커 구조 반영
 - CI 타입체크 이슈 대응 완료:
   - `r3f-jsx.d.ts` 추가로 R3F JSX 타입 확장 로드 보장
+- PR #9 리뷰 반영 완료:
+  - `slowed`/`sliding` 상태 애니메이션 강도 스케일링
+  - 바운스 상향 편향 제거(대칭 진동)
 
 현재 기준 다음 우선순위:
 
-1. `RaceScreen.tsx`에 실제 track/character 렌더 조합
-2. store의 `characters.progress/status`를 3D 위치/상태 표현으로 연결
-3. `cameraMode/cameraTarget` 기반 카메라 시스템 동작 고정
+1. `RaceScreen.tsx`에 `Track` + `Character` 실조합
+2. `Environment.tsx` 초기 버전 구성 및 성능 예산 맞춤
+3. `cameraMode/cameraTarget` 기반 `CameraSystem` 동작 고정
 
 ---
 
