@@ -72,13 +72,13 @@ export function LandingScreen() {
         <div className="mt-8 flex flex-col items-center gap-3 md:mt-10">
           <Link
             to="/setup"
-            className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-xl bg-white px-8 text-base font-bold text-zinc-900 shadow-lg transition-all duration-200 hover:scale-[1.03] hover:shadow-xl active:scale-[0.98] md:h-14 md:px-10 md:text-lg"
+            className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-xl bg-white px-8 text-base font-bold text-zinc-900 shadow-lg transition-all duration-200 hover:scale-[1.03] hover:shadow-xl active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent md:h-14 md:px-10 md:text-lg"
           >
             <span className="relative z-10">게임 시작</span>
             <span className="absolute inset-0 -z-0 bg-gradient-to-r from-emerald-100 via-white to-sky-100 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
           </Link>
           <span
-            className="text-xs tracking-wide text-white/50 md:text-sm"
+            className="text-xs tracking-wide text-white/70 md:text-sm"
             style={{ textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}
           >
             2~8명 · 약 60~90초
