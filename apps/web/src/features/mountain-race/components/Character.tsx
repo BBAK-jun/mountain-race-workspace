@@ -158,10 +158,16 @@ function Head({
         />
       </mesh>
       {texture ? (
-        <mesh position={[0, 0, 0.22]} rotation={[0, 0, 0]}>
-          <circleGeometry args={[0.18, 24]} />
-          <meshBasicMaterial map={texture} transparent />
-        </mesh>
+        <group position={[0, 0.02, 0.26]}>
+          <mesh>
+            <circleGeometry args={[0.2, 24]} />
+            <meshBasicMaterial color="#ffffff" />
+          </mesh>
+          <mesh position={[0, 0, 0.001]}>
+            <circleGeometry args={[0.17, 24]} />
+            <meshBasicMaterial map={texture} />
+          </mesh>
+        </group>
       ) : null}
     </group>
   );
