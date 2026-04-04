@@ -4,20 +4,25 @@ packages:
 
 catalog:
   "@biomejs/biome": 1.9.4
+  "@react-three/drei": ^10.6.1
+  "@react-three/fiber": ^9.3.0
   "@cloudflare/workers-types": ^4.20260401.1
   "@tanstack/react-router": ^1.168.10
   "@tanstack/router-plugin": ^1.167.12
   "@types/react": ^19.2.14
   "@types/react-dom": ^19.2.3
+  "@types/three": ^0.179.0
   "@vitejs/plugin-react": ^6.0.1
   hono: ^4.12.10
   husky: ^9.1.7
   prettier: ^3.5.3
   react: ^19.2.4
   react-dom: ^19.2.4
+  three: ^0.179.1
   tslib: ^2.8.1
   typescript: ^6.0.2
   vite: ^8.0.3
+  zustand: ^5.0.7
   wrangler: ^4.80.0
 
 catalogMode: strict
