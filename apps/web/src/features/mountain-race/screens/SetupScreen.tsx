@@ -1,7 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { markSetupComplete } from "@/features/mountain-race/app";
+import { useGameStore } from "@/features/mountain-race/store";
 
 export function SetupScreen() {
+  const finalizeSetup = useGameStore((state) => state.finalizeSetup);
+
   return (
     <main className="route-shell route-view">
       <h1>Setup</h1>
@@ -11,7 +13,7 @@ export function SetupScreen() {
         <Link
           to="/race"
           onClick={() => {
-            markSetupComplete();
+            finalizeSetup();
           }}
         >
           /race
