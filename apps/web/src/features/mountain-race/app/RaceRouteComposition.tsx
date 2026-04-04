@@ -75,6 +75,7 @@ function CountdownOverlay({ phase }: { phase: number }) {
 export function RaceRouteComposition() {
   const startRace = useGameStore((s) => s.startRace);
   const tick = useGameStore((s) => s.tick);
+  const isRacing = useGameStore((s) => s.isRacing);
   const [countdownPhase, setCountdownPhase] = useState(COUNTDOWN_SECONDS);
   const raceStarted = useRef(false);
 
@@ -99,12 +100,16 @@ export function RaceRouteComposition() {
     return () => timers.forEach(clearTimeout);
   }, []);
 
-  // Start race loop when countdown reaches 0
+  // Trigger race start when countdown reaches 0
   useEffect(() => {
     if (countdownPhase > 0 || raceStarted.current) return;
     raceStarted.current = true;
-
     startRace();
+  }, [countdownPhase, startRace]);
+
+  // RAF game loop — independent of countdownPhase so the "출발!" hide doesn't kill it
+  useEffect(() => {
+    if (!isRacing) return;
 
     let rafId = 0;
     let prevTime = performance.now();
@@ -122,7 +127,7 @@ export function RaceRouteComposition() {
 
     rafId = window.requestAnimationFrame(loop);
     return () => window.cancelAnimationFrame(rafId);
-  }, [countdownPhase, startRace, tick]);
+  }, [isRacing, tick]);
 
   // Auto-hide "출발!" after a short display
   useEffect(() => {
