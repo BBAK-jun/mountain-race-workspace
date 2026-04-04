@@ -1,11 +1,26 @@
 import { useNavigate } from "@tanstack/react-router";
+import { Canvas } from "@react-three/fiber";
 import { useMemo } from "react";
-import { Button } from "@/components/ui/button";
 import { resetRouteGuardSnapshot } from "@/features/mountain-race/app";
 import { useGameStore } from "@/features/mountain-race/store/useGameStore";
 import type { Character, GameEvent } from "@/features/mountain-race/types";
+import { ResultScene } from "./ResultScene";
 
 const RANK_MEDALS = ["🥇", "🥈", "🥉"] as const;
+const PODIUM_BORDERS = [
+  "border-yellow-400/50",
+  "border-zinc-300/50",
+  "border-amber-600/50",
+] as const;
+const FACE_FALLBACK = ["🧗", "🥾", "🏔️", "🚩", "🌤️", "🎒", "🧢", "🌲"] as const;
+
+function getFaceFallback(index: number) {
+  return FACE_FALLBACK[index % FACE_FALLBACK.length] ?? "🙂";
+}
+
+function isDataImage(source: string | null) {
+  return Boolean(source?.startsWith("data:image/"));
+}
 
 function getMvpMostHit(characters: Character[]) {
   let best: Character | null = null;
@@ -19,6 +34,14 @@ function getMvpLastUltimate(characters: Character[], events: GameEvent[]) {
   const lastUltimate = [...events].reverse().find((e) => e.category === "ultimate");
   if (!lastUltimate?.casterId) return null;
   return characters.find((c) => c.id === lastUltimate.casterId) ?? null;
+}
+
+function getMvpBiggestComeback(characters: Character[]) {
+  let best: Character | null = null;
+  for (const c of characters) {
+    if (!best || c.stats.rankChanges > best.stats.rankChanges) best = c;
+  }
+  return best && best.stats.rankChanges > 0 ? best : null;
 }
 
 export function ResultScreen() {
@@ -38,12 +61,46 @@ export function ResultScreen() {
     }, []);
   }, [characters, rankings]);
 
+  const charIndexMap = useMemo(() => new Map(characters.map((c, i) => [c.id, i])), [characters]);
+
+  const podium = rankedCharacters.slice(0, 3);
+  const rest = rankedCharacters.slice(3);
+
   const mvpMostHit = useMemo(() => getMvpMostHit(characters), [characters]);
   const mvpLastUltimate = useMemo(
     () => getMvpLastUltimate(characters, events),
     [characters, events],
   );
-  const hasMvpData = mvpMostHit || mvpLastUltimate;
+  const mvpComeback = useMemo(() => getMvpBiggestComeback(characters), [characters]);
+
+  const mvpCards = useMemo(() => {
+    const cards: { emoji: string; title: string; character: Character; desc: string }[] = [];
+    if (mvpMostHit) {
+      cards.push({
+        emoji: "😱",
+        title: "최다 피격상",
+        character: mvpMostHit,
+        desc: `${mvpMostHit.stats.hitCount}회 피격`,
+      });
+    }
+    if (mvpLastUltimate) {
+      cards.push({
+        emoji: "💥",
+        title: "판 뒤집기상",
+        character: mvpLastUltimate,
+        desc: "마지막 피살기 시전",
+      });
+    }
+    if (mvpComeback) {
+      cards.push({
+        emoji: "🔄",
+        title: "대역전상",
+        character: mvpComeback,
+        desc: `${mvpComeback.stats.rankChanges}회 순위 변동`,
+      });
+    }
+    return cards;
+  }, [mvpMostHit, mvpLastUltimate, mvpComeback]);
 
   const handleGoSetup = () => {
     resetGame();
@@ -58,79 +115,198 @@ export function ResultScreen() {
   };
 
   return (
-    <main className="route-shell mx-auto w-full max-w-5xl py-6 md:py-10">
-      <section className="rounded-3xl border border-white/50 bg-white/85 p-5 shadow-xl backdrop-blur md:p-8">
-        <p className="text-xs font-semibold tracking-[0.12em] text-blue-600 uppercase">Result</p>
-        <h1 className="mt-2 text-2xl font-black tracking-tight text-zinc-900 md:text-4xl">
-          레이스 결과
-        </h1>
+    <main style={{ position: "relative", height: "100dvh", overflow: "hidden", padding: 0 }}>
+      <Canvas
+        camera={{ position: [0, 18, -5], fov: 60 }}
+        dpr={[1, 1.5]}
+        style={{ position: "absolute", inset: 0 }}
+      >
+        <ResultScene />
+      </Canvas>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-[2fr_1fr]">
-          <article className="rounded-2xl border border-zinc-200 bg-white/90 p-4">
-            <h2 className="text-sm font-bold text-zinc-900">최종 순위</h2>
-            {rankedCharacters.length > 0 ? (
-              <ol className="mt-3 space-y-2">
-                {rankedCharacters.map((character, index) => (
-                  <li
+      <div
+        className="pointer-events-none absolute inset-0 z-[5]"
+        style={{
+          background: [
+            "radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.4) 100%)",
+            "linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 35%, transparent 60%)",
+            "linear-gradient(to bottom, rgba(10,30,50,0.3) 0%, transparent 25%)",
+          ].join(", "),
+        }}
+      />
+
+      <style>{`
+        @keyframes mr-result-reveal {
+          from { opacity: 0; transform: translateY(12px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .mr-result-stagger {
+          animation: mr-result-reveal 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+      `}</style>
+
+      <div className="absolute inset-0 z-10 overflow-y-auto">
+        <div className="mx-auto flex min-h-full w-full max-w-4xl flex-col px-4 pt-[8vh] pb-8 md:px-6 md:pt-[10vh] md:pb-12">
+          {/* header */}
+          <header
+            className="mr-result-stagger mb-6 flex flex-col items-center text-center"
+            style={{ animationDelay: "0ms" }}
+          >
+            <span
+              className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[0.7rem] font-semibold tracking-[0.16em] text-white/90 uppercase backdrop-blur-md md:text-xs"
+              style={{ textShadow: "0 1px 3px rgba(0,0,0,0.4)" }}
+            >
+              <span className="inline-block size-1.5 rounded-full bg-emerald-400" />
+              레이스 결과
+            </span>
+
+            <h1
+              className="text-3xl font-black tracking-tight text-white sm:text-4xl md:text-5xl"
+              style={{ textShadow: "0 2px 20px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.4)" }}
+            >
+              🏆 경기 종료!
+            </h1>
+          </header>
+
+          {/* podium — top 3 */}
+          {podium.length > 0 ? (
+            <div
+              className="mr-result-stagger mb-4 grid gap-2.5"
+              style={{
+                animationDelay: "150ms",
+                gridTemplateColumns:
+                  podium.length >= 3
+                    ? "repeat(3, 1fr)"
+                    : podium.length === 2
+                      ? "repeat(2, 1fr)"
+                      : "1fr",
+              }}
+            >
+              {podium.map((character, rank) => {
+                const originalIdx = charIndexMap.get(character.id) ?? 0;
+                return (
+                  <div
                     key={character.id}
-                    className="flex items-center gap-3 rounded-xl border border-zinc-100 bg-zinc-50/60 px-3 py-2"
+                    className={`overflow-hidden rounded-2xl border-2 ${PODIUM_BORDERS[rank]} bg-black/30 p-4 text-center shadow-lg backdrop-blur-md`}
                   >
-                    <span className="w-7 text-center text-lg">
-                      {index < RANK_MEDALS.length ? RANK_MEDALS[index] : `${index + 1}`}
-                    </span>
-                    <span
-                      aria-hidden
-                      className="h-4 w-4 shrink-0 rounded-full border border-black/10"
-                      style={{ backgroundColor: character.color.jacket }}
-                    />
-                    <span className="flex-1 truncate text-sm font-semibold text-zinc-800">
+                    <div className="text-3xl md:text-4xl">{RANK_MEDALS[rank]}</div>
+                    <div className="mx-auto mt-2 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-white/20 bg-white/10 text-2xl md:h-16 md:w-16">
+                      {isDataImage(character.faceImage) ? (
+                        <img
+                          src={character.faceImage ?? ""}
+                          alt={character.name}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span>{getFaceFallback(originalIdx)}</span>
+                      )}
+                    </div>
+                    <p
+                      className="mt-2 truncate text-sm font-bold text-white md:text-base"
+                      style={{ textShadow: "0 1px 3px rgba(0,0,0,0.4)" }}
+                    >
                       {character.name}
-                    </span>
-                    <span className="text-xs tabular-nums text-zinc-500">
-                      {(character.progress * 100).toFixed(1)}%
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            ) : (
-              <p className="mt-3 text-sm text-zinc-500">순위 데이터가 없습니다.</p>
-            )}
-          </article>
+                    </p>
+                    <p className="mt-0.5 text-xs tabular-nums text-white/60">
+                      {(character.progress * 100).toFixed(1)}% 완주
+                    </p>
+                    <div className="mt-2 flex justify-center gap-3 text-[0.6rem] text-white/50">
+                      <span>피격 {character.stats.hitCount}</span>
+                      <span>역전 {character.stats.rankChanges}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : null}
 
-          <article className="rounded-2xl border border-zinc-200 bg-white/90 p-4">
-            <h2 className="text-sm font-bold text-zinc-900">MVP</h2>
-            {hasMvpData ? (
-              <div className="mt-3 space-y-3">
-                {mvpMostHit ? (
-                  <div className="rounded-xl border border-zinc-100 bg-zinc-50/60 px-3 py-2">
-                    <p className="text-xs font-semibold text-zinc-500">😱 최다 피격상</p>
-                    <p className="mt-1 text-sm font-bold text-zinc-800">{mvpMostHit.name}</p>
-                    <p className="text-xs text-zinc-500">{mvpMostHit.stats.hitCount}회 피격</p>
-                  </div>
-                ) : null}
-                {mvpLastUltimate ? (
-                  <div className="rounded-xl border border-zinc-100 bg-zinc-50/60 px-3 py-2">
-                    <p className="text-xs font-semibold text-zinc-500">💥 판 뒤집기상</p>
-                    <p className="mt-1 text-sm font-bold text-zinc-800">{mvpLastUltimate.name}</p>
-                    <p className="text-xs text-zinc-500">마지막 피살기 시전</p>
-                  </div>
-                ) : null}
+          {/* rest of rankings */}
+          {rest.length > 0 ? (
+            <div className="mr-result-stagger mb-4" style={{ animationDelay: "300ms" }}>
+              <div className="overflow-hidden rounded-xl border border-white/15 bg-black/25 backdrop-blur-md">
+                {rest.map((character, idx) => {
+                  const globalRank = idx + 4;
+                  return (
+                    <div
+                      key={character.id}
+                      className="flex items-center gap-3 border-b border-white/10 px-4 py-2.5 last:border-b-0"
+                    >
+                      <span className="w-6 text-center text-xs font-bold text-white/50">
+                        {globalRank}
+                      </span>
+                      <span
+                        className="h-3 w-3 shrink-0 rounded-full"
+                        style={{ backgroundColor: character.color.jacket }}
+                      />
+                      <span className="min-w-0 flex-1 truncate text-sm font-semibold text-white/80">
+                        {character.name}
+                      </span>
+                      <span className="text-xs tabular-nums text-white/40">
+                        {(character.progress * 100).toFixed(1)}%
+                      </span>
+                      <span className="text-[0.6rem] text-white/30">
+                        피격 {character.stats.hitCount} · 역전 {character.stats.rankChanges}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-            ) : (
-              <p className="mt-3 text-sm text-zinc-500">MVP 데이터가 없습니다.</p>
-            )}
-          </article>
-        </div>
+            </div>
+          ) : null}
 
-        <div className="mt-6 flex flex-wrap justify-end gap-3">
-          <Button type="button" variant="outline" onClick={handleGoLobby}>
-            로비로
-          </Button>
-          <Button type="button" onClick={handleGoSetup}>
-            다시 하기
-          </Button>
+          {/* MVP awards */}
+          {mvpCards.length > 0 ? (
+            <div className="mr-result-stagger mb-6" style={{ animationDelay: "450ms" }}>
+              <p
+                className="mb-2 text-center text-xs font-semibold tracking-wide text-white/50 uppercase"
+                style={{ textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}
+              >
+                MVP Awards
+              </p>
+              <div className="grid gap-2 sm:grid-cols-3">
+                {mvpCards.map((card) => (
+                  <div
+                    key={card.title}
+                    className="flex items-center gap-3 rounded-xl border border-white/15 bg-black/25 px-3.5 py-3 backdrop-blur-md"
+                    style={{ borderLeftWidth: "3px", borderLeftColor: card.character.color.jacket }}
+                  >
+                    <span className="text-2xl">{card.emoji}</span>
+                    <div className="min-w-0">
+                      <p className="text-[0.65rem] font-semibold text-white/50">{card.title}</p>
+                      <p className="truncate text-sm font-bold text-white/90">
+                        {card.character.name}
+                      </p>
+                      <p className="text-[0.65rem] text-white/40">{card.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {/* action buttons */}
+          <div
+            className="mr-result-stagger flex items-center justify-center gap-3"
+            style={{ animationDelay: "600ms" }}
+          >
+            <button
+              type="button"
+              onClick={handleGoLobby}
+              className="rounded-xl border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white/80 backdrop-blur-sm transition hover:bg-white/20 active:scale-[0.97]"
+            >
+              ← 로비로
+            </button>
+            <button
+              type="button"
+              onClick={handleGoSetup}
+              className="group relative inline-flex h-11 items-center justify-center overflow-hidden rounded-xl bg-white px-7 text-sm font-bold text-zinc-900 shadow-lg transition-all duration-200 hover:scale-[1.03] hover:shadow-xl active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+            >
+              <span className="relative z-10">🔄 다시 하기</span>
+              <span className="absolute inset-0 -z-0 bg-gradient-to-r from-emerald-100 via-white to-sky-100 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            </button>
+          </div>
         </div>
-      </section>
+      </div>
     </main>
   );
 }
