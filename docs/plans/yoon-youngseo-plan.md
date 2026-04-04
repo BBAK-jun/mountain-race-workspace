@@ -8,6 +8,22 @@
 
 ---
 
+## 진행 현황 (2026-04-04)
+
+- `Track.tsx` 구현 및 머지 완료 (`feat/scene-track`, PR #5)
+- `CatmullRomCurve3` 기반 트랙 곡선/샘플링 유틸 반영
+- 결승선 앵커 구조 반영
+- CI 타입체크 이슈 대응 완료:
+  - `r3f-jsx.d.ts` 추가로 R3F JSX 타입 확장 로드 보장
+
+현재 기준 다음 우선순위:
+
+1. `RaceScreen.tsx`에 실제 track/character 렌더 조합
+2. store의 `characters.progress/status`를 3D 위치/상태 표현으로 연결
+3. `cameraMode/cameraTarget` 기반 카메라 시스템 동작 고정
+
+---
+
 ## 1. 당신의 목표
 
 R3F 씬과 카메라를 만들고, store 상태를 3D 표현으로 연결한다.

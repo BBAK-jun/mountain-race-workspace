@@ -26,19 +26,18 @@
 ## 현재 진행 상태 (2026-04-04)
 
 - 머지 완료: `codex/gameplay-race-ui` (정도은, Phase 0-1, Phase 2)
+- 머지 완료: `feat/scene-track` (윤영서, Phase 1-track)
 - 반영 범위:
   - `types/index.ts`, `store/useGameStore.ts`
   - `constants/balance.ts`, `constants/index.ts`
   - `data/dialogues.ts`, `data/eventMessages.ts`, `data/index.ts`
+  - `components/Track.tsx`, `r3f-jsx.d.ts`
 - 리뷰 반영 완료:
   - `tick` 자동 종료 연결
   - `stunned` 복구 분기
   - `startRace` 라운드 초기화
   - store 하드코딩 상수의 `balance` 기반 참조 통일
-- 대기 중: `feat/scene-track` (윤영서, PR #5)
-  - 현재 상태: CI green, merge conflict 해결 대기
-  - 정리 기준: `Track.tsx` + `r3f-jsx.d.ts` 중심으로 재정리 후 머지
-- 다음 통합 포인트: `routes/race.tsx`에서 scene/overlay 조합, route guard store 전환, setup/result 액션 wiring
+- 다음 통합 포인트: `routes/race.tsx`에서 scene/overlay 조합, route guard store 전환, setup/result 액션 wiring, EventSystem 연결
 
 ---
 
