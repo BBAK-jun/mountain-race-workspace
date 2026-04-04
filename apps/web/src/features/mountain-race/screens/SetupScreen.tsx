@@ -164,24 +164,26 @@ export function SetupScreen() {
                 style={{ borderLeftWidth: "3px", borderLeftColor: character.color.jacket }}
               >
                 <div className="flex items-center justify-between gap-3 p-4 pb-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex min-w-0 items-center gap-2">
                     <span
-                      className="inline-flex h-7 min-w-7 items-center justify-center rounded-full px-2 text-xs font-bold text-white"
+                      className="inline-flex h-7 min-w-7 shrink-0 items-center justify-center rounded-full px-2 text-xs font-bold text-white"
                       style={{ backgroundColor: character.color.jacket }}
                     >
                       #{index + 1}
                     </span>
-                    <span className="text-sm font-semibold text-zinc-700">플레이어</span>
+                    <span className="truncate text-sm font-semibold text-zinc-700">
+                      {character.name.trim() || `산악인 ${index + 1}`}
+                    </span>
                   </div>
-                  <Button
+                  <button
                     type="button"
-                    size="sm"
-                    variant="ghost"
                     disabled={!canRemoveCharacter}
                     onClick={() => handleRemoveCharacter(character.id)}
+                    className="shrink-0 rounded-lg p-2 text-xs text-zinc-400 transition hover:bg-red-50 hover:text-red-500 disabled:pointer-events-none disabled:opacity-30"
+                    aria-label={`${character.name.trim() || `산악인 ${index + 1}`} 삭제`}
                   >
-                    삭제
-                  </Button>
+                    ✕
+                  </button>
                 </div>
 
                 <label className="mt-3 block px-4 text-sm font-medium text-zinc-700">
