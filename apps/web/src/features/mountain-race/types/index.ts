@@ -9,6 +9,7 @@ export interface ColorPreset {
   inner: string;
   pants: string;
   buff: string;
+  hat: string;
 }
 
 // ── Character ──────────────────────────────────────────────────────────────

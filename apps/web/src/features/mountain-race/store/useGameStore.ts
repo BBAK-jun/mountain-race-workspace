@@ -27,17 +27,17 @@ import type {
   GlobalEventType,
 } from "../types";
 
-// ── Color presets (8 colors from Product PRD) ──────────────────────────────
+// ── Color presets (8 hiking outfits) ────────────────────────────────────────
 
 const COLOR_PRESETS: readonly ColorPreset[] = [
-  { jacket: "#FF69B4", inner: "#FFFFFF", pants: "#000000", buff: "#C71585" },
-  { jacket: "#4169E1", inner: "#000000", pants: "#333333", buff: "#00008B" },
-  { jacket: "#2E8B57", inner: "#FFFFFF", pants: "#444444", buff: "#006400" },
-  { jacket: "#9370DB", inner: "#CCCCCC", pants: "#000000", buff: "#4B0082" },
-  { jacket: "#FF8C00", inner: "#FFFFFF", pants: "#333333", buff: "#D2691E" },
-  { jacket: "#DC143C", inner: "#000000", pants: "#444444", buff: "#8B0000" },
-  { jacket: "#FFD700", inner: "#000000", pants: "#333333", buff: "#B8860B" },
-  { jacket: "#00CED1", inner: "#FFFFFF", pants: "#000000", buff: "#008B8B" },
+  { jacket: "#FF69B4", inner: "#FFFFFF", pants: "#333333", buff: "#CC3355", hat: "#FF69B4" },
+  { jacket: "#4488CC", inner: "#222222", pants: "#444444", buff: "#3366AA", hat: "#4488CC" },
+  { jacket: "#55BB55", inner: "#EEEEEE", pants: "#555555", buff: "#44AA44", hat: "#55BB55" },
+  { jacket: "#8855CC", inner: "#DDDDDD", pants: "#333333", buff: "#7744BB", hat: "#8855CC" },
+  { jacket: "#FF6633", inner: "#FFFFFF", pants: "#444444", buff: "#EE5522", hat: "#FF6633" },
+  { jacket: "#CC2222", inner: "#222222", pants: "#555555", buff: "#BB1111", hat: "#CC2222" },
+  { jacket: "#F0C030", inner: "#333333", pants: "#444444", buff: "#E0B020", hat: "#F0C030" },
+  { jacket: "#22BBBB", inner: "#FFFFFF", pants: "#333333", buff: "#11AAAA", hat: "#22BBBB" },
 ];
 
 const DEFAULT_NAMES = [
@@ -54,9 +54,25 @@ const DEFAULT_NAMES = [
 const DEFAULT_COLOR: ColorPreset = {
   jacket: "#FF69B4",
   inner: "#FFFFFF",
-  pants: "#000000",
-  buff: "#C71585",
+  pants: "#333333",
+  buff: "#CC3355",
+  hat: "#FF69B4",
 };
+
+/**
+ * 2D UI palette — used for setup screen, ranking bar, progress markers.
+ * Separate from 3D outfit colors for better screen readability.
+ */
+export const UI_PLAYER_COLORS = [
+  "#ff6b35",
+  "#4ecdc4",
+  "#ff69b4",
+  "#7c5cfc",
+  "#2ecc71",
+  "#e74c3c",
+  "#f39c12",
+  "#1abc9c",
+] as const;
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
