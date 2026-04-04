@@ -168,18 +168,17 @@ export function SetupScreen() {
             return (
               <li
                 key={character.id}
-                className="rounded-2xl border border-zinc-200 bg-white/90 p-4 shadow-sm"
+                className="overflow-hidden rounded-2xl border border-zinc-200 bg-white/90 shadow-sm"
+                style={{ borderLeftWidth: "3px", borderLeftColor: character.color.jacket }}
               >
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center justify-between gap-3 p-4 pb-0">
                   <div className="flex items-center gap-2">
-                    <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-full bg-zinc-900 px-2 text-xs font-bold text-white">
+                    <span
+                      className="inline-flex h-7 min-w-7 items-center justify-center rounded-full px-2 text-xs font-bold text-white"
+                      style={{ backgroundColor: character.color.jacket }}
+                    >
                       #{index + 1}
                     </span>
-                    <span
-                      aria-hidden
-                      className="h-4 w-4 rounded-full border border-black/10"
-                      style={{ backgroundColor: character.color.jacket }}
-                    />
                     <span className="text-sm font-semibold text-zinc-700">플레이어</span>
                   </div>
                   <Button
@@ -193,7 +192,7 @@ export function SetupScreen() {
                   </Button>
                 </div>
 
-                <label className="mt-3 block text-sm font-medium text-zinc-700">
+                <label className="mt-3 block px-4 text-sm font-medium text-zinc-700">
                   닉네임
                   <input
                     value={character.name}
@@ -208,7 +207,7 @@ export function SetupScreen() {
                   />
                 </label>
 
-                <div className="mt-3 flex items-center gap-3">
+                <div className="mt-3 flex items-center gap-3 px-4 pb-4">
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border border-zinc-200 bg-white text-2xl">
                     {hasFace ? (
                       <img
