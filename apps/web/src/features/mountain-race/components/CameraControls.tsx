@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useGameStore } from "../store/useGameStore";
 
 export function CameraControls() {
@@ -8,6 +8,7 @@ export function CameraControls() {
   const setCameraMode = useGameStore((s) => s.setCameraMode);
   const setCameraTarget = useGameStore((s) => s.setCameraTarget);
   const isRacing = useGameStore((s) => s.isRacing);
+  const [guideVisible, setGuideVisible] = useState(true);
 
   const isFree = cameraMode === "free";
 
@@ -58,57 +59,106 @@ export function CameraControls() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [isRacing, focusCharacter, returnToAuto]);
 
+  useEffect(() => {
+    if (!isRacing) return;
+    const timer = setTimeout(() => setGuideVisible(false), 8000);
+    return () => clearTimeout(timer);
+  }, [isRacing]);
+
   if (!isRacing) return null;
 
   const activeCharIndex = cameraTarget ? characters.findIndex((c) => c.id === cameraTarget) : -1;
 
   return (
-    <div className="pointer-events-auto absolute top-3 left-1/2 z-30 flex -translate-x-1/2 items-center gap-1.5 rounded-xl bg-black/50 px-2.5 py-1.5 backdrop-blur-sm">
-      {/* auto follow */}
-      <button
-        type="button"
-        onClick={isFree ? returnToAuto : toggleMode}
-        className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[0.65rem] font-semibold transition active:scale-95 ${
-          !isFree ? "bg-white/20 text-white" : "text-white/50 hover:bg-white/10 hover:text-white/80"
-        }`}
-        aria-label="자동 추적"
-        title="자동 추적 (0)"
-      >
-        <span className="text-xs">🎥</span>
-        <span className="hidden sm:inline">자동</span>
-      </button>
+    <>
+      {/* control bar */}
+      <div className="pointer-events-auto absolute top-3 left-1/2 z-30 flex -translate-x-1/2 items-center gap-1.5 rounded-xl bg-black/55 px-3 py-2 shadow-lg backdrop-blur-md">
+        <button
+          type="button"
+          onClick={isFree ? returnToAuto : toggleMode}
+          className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition active:scale-95 ${
+            !isFree ? "bg-white/25 text-white" : "text-white/60 hover:bg-white/10 hover:text-white"
+          }`}
+          aria-label="자동 추적"
+          title="자동 추적 (0 또는 Esc)"
+        >
+          🎥 자동
+        </button>
 
-      <span className="h-4 w-px bg-white/20" />
+        <span className="h-5 w-px bg-white/25" />
 
-      {/* character buttons */}
-      {characters.map((char, idx) => {
-        const isActive = idx === activeCharIndex;
-        return (
-          <button
-            key={char.id}
-            type="button"
-            onClick={() => focusCharacter(idx)}
-            className={`flex h-6 w-6 items-center justify-center rounded-full border-2 text-[0.55rem] font-bold text-white transition-all hover:scale-110 active:scale-95 ${
-              isActive
-                ? "border-white shadow-[0_0_6px_rgba(255,255,255,0.4)]"
-                : "border-white/20 hover:border-white/50"
-            }`}
-            style={{ backgroundColor: char.color.jacket }}
-            aria-label={`${char.name} 카메라 포커스 (${idx + 1})`}
-            title={`${char.name} (${idx + 1})`}
-          >
-            {idx + 1}
-          </button>
-        );
-      })}
+        {characters.map((char, idx) => {
+          const isActive = idx === activeCharIndex;
+          return (
+            <button
+              key={char.id}
+              type="button"
+              onClick={() => focusCharacter(idx)}
+              className={`flex h-7 w-7 items-center justify-center rounded-full border-2 text-xs font-bold text-white transition-all hover:scale-110 active:scale-95 ${
+                isActive
+                  ? "border-white shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                  : "border-white/25 hover:border-white/60"
+              }`}
+              style={{ backgroundColor: char.color.jacket }}
+              aria-label={`${char.name} 카메라 포커스 (${idx + 1})`}
+              title={`${char.name} (${idx + 1})`}
+            >
+              {idx + 1}
+            </button>
+          );
+        })}
+      </div>
 
-      {/* free mode hint */}
-      {isFree ? (
-        <>
-          <span className="h-4 w-px bg-white/20" />
-          <span className="text-[0.5rem] text-white/40">드래그=회전 · 스크롤=줌</span>
-        </>
-      ) : null}
-    </div>
+      {/* guide overlay */}
+      {guideVisible ? (
+        <div className="pointer-events-auto absolute top-16 left-1/2 z-30 -translate-x-1/2">
+          <div className="relative rounded-xl bg-black/60 px-4 py-3 shadow-lg backdrop-blur-md">
+            <button
+              type="button"
+              onClick={() => setGuideVisible(false)}
+              className="absolute top-1.5 right-2 text-sm text-white/40 hover:text-white/80"
+              aria-label="가이드 닫기"
+            >
+              ✕
+            </button>
+            <p className="mb-2 text-xs font-bold text-white/90">📷 카메라 조작법</p>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-[0.7rem] leading-relaxed text-white/70">
+              <span>
+                <kbd className="rounded bg-white/15 px-1 py-0.5 text-[0.6rem] font-semibold text-white/90">
+                  1
+                </kbd>
+                ~
+                <kbd className="rounded bg-white/15 px-1 py-0.5 text-[0.6rem] font-semibold text-white/90">
+                  8
+                </kbd>{" "}
+                캐릭터 포커스
+              </span>
+              <span>
+                <kbd className="rounded bg-white/15 px-1 py-0.5 text-[0.6rem] font-semibold text-white/90">
+                  0
+                </kbd>{" "}
+                /{" "}
+                <kbd className="rounded bg-white/15 px-1 py-0.5 text-[0.6rem] font-semibold text-white/90">
+                  Esc
+                </kbd>{" "}
+                자동 시점 복귀
+              </span>
+              <span>🖱️ 드래그 → 회전</span>
+              <span>🖱️ 우클릭 드래그 → 이동</span>
+              <span>🖱️ 스크롤 → 줌 인/아웃</span>
+              <span>📱 핀치 → 줌 / 2핑거 → 이동</span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setGuideVisible(true)}
+          className="pointer-events-auto absolute top-16 left-1/2 z-30 -translate-x-1/2 rounded-lg bg-black/40 px-2.5 py-1 text-[0.65rem] text-white/40 backdrop-blur-sm transition hover:bg-black/60 hover:text-white/70"
+        >
+          📷 조작법 보기
+        </button>
+      )}
+    </>
   );
 }
