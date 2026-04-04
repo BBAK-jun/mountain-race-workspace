@@ -1,7 +1,15 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { useGameStore } from "@/features/mountain-race/store/useGameStore";
 
 export function LandingScreen() {
+  const resetGame = useGameStore((s) => s.resetGame);
+
+  useEffect(() => {
+    resetGame();
+  }, [resetGame]);
+
   return (
     <main className="route-shell flex min-h-screen items-center justify-center">
       <section className="w-full max-w-3xl rounded-3xl border border-white/50 bg-white/80 p-6 shadow-xl backdrop-blur md:p-10">

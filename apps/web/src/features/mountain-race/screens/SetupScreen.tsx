@@ -1,32 +1,12 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { markSetupComplete } from "@/features/mountain-race/app";
+import { MAX_PLAYERS, MIN_PLAYERS } from "@/features/mountain-race/constants/balance";
+import { useGameStore } from "@/features/mountain-race/store/useGameStore";
 
 const MAX_UPLOAD_SIZE_MB = 5;
 const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
-const MIN_PLAYERS = 2;
-const MAX_PLAYERS = 8;
 const MAX_NAME_LENGTH = 16;
-const DEFAULT_PLAYERS = 4;
-
-type SetupCharacter = {
-  id: string;
-  name: string;
-  faceImage: string | null;
-  color: string;
-};
-
-const COLOR_PRESETS = [
-  "#ff66b2",
-  "#3b82f6",
-  "#22c55e",
-  "#a855f7",
-  "#f97316",
-  "#ef4444",
-  "#eab308",
-  "#06b6d4",
-] as const;
 const FACE_FALLBACK = ["🧗", "🥾", "🏔️", "🚩", "🌤️", "🎒", "🧢", "🌲"] as const;
 
 function isDataImage(source: string | null) {
@@ -56,68 +36,28 @@ function readFileAsDataUrl(file: File) {
   });
 }
 
-function createCharacter(index: number): SetupCharacter {
-  return {
-    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${index}`,
-    name: `등산객 ${index + 1}`,
-    faceImage: FACE_FALLBACK[index % FACE_FALLBACK.length] ?? "🙂",
-    color: COLOR_PRESETS[index % COLOR_PRESETS.length] ?? "#64748b",
-  };
-}
-
 export function SetupScreen() {
   const navigate = useNavigate();
   const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({});
-  const [characters, setCharacters] = useState<SetupCharacter[]>(() =>
-    Array.from({ length: DEFAULT_PLAYERS }, (_, index) => createCharacter(index)),
-  );
+
+  const characters = useGameStore((s) => s.characters);
+  const addCharacter = useGameStore((s) => s.addCharacter);
+  const removeCharacter = useGameStore((s) => s.removeCharacter);
+  const updateCharacter = useGameStore((s) => s.updateCharacter);
+  const finalizeSetup = useGameStore((s) => s.finalizeSetup);
 
   const canAddCharacter = characters.length < MAX_PLAYERS;
   const canRemoveCharacter = characters.length > MIN_PLAYERS;
   const canStartRace = characters.length >= MIN_PLAYERS && characters.length <= MAX_PLAYERS;
 
   const handleStartRace = () => {
-    if (!canStartRace) {
-      return;
-    }
-
-    markSetupComplete();
+    if (!canStartRace) return;
+    finalizeSetup();
     void navigate({ to: "/race" });
   };
 
-  const addCharacter = () => {
-    if (!canAddCharacter) {
-      return;
-    }
-
-    setCharacters((prev) => [...prev, createCharacter(prev.length)]);
-  };
-
-  const removeCharacter = (characterId: string) => {
-    if (!canRemoveCharacter) {
-      return;
-    }
-
-    setCharacters((prev) => prev.filter((character) => character.id !== characterId));
-    setUploadErrors((prev) => {
-      const next = { ...prev };
-      delete next[characterId];
-      return next;
-    });
-  };
-
-  const updateCharacter = (characterId: string, partial: Partial<SetupCharacter>) => {
-    setCharacters((prev) =>
-      prev.map((character) =>
-        character.id === characterId ? { ...character, ...partial, id: character.id } : character,
-      ),
-    );
-  };
-
   const handleFaceUpload = async (characterId: string, file: File | null) => {
-    if (!file) {
-      return;
-    }
+    if (!file) return;
 
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
       setUploadErrors((prev) => ({
@@ -145,12 +85,21 @@ export function SetupScreen() {
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : "이미지 업로드에 실패했습니다.";
-      setUploadErrors((prev) => ({
-        ...prev,
-        [characterId]: message,
-      }));
+      setUploadErrors((prev) => ({ ...prev, [characterId]: message }));
     }
   };
+
+  const handleRemoveCharacter = (characterId: string) => {
+    if (!canRemoveCharacter) return;
+    removeCharacter(characterId);
+    setUploadErrors((prev) => {
+      const next = { ...prev };
+      delete next[characterId];
+      return next;
+    });
+  };
+
+  const getFaceFallback = (index: number) => FACE_FALLBACK[index % FACE_FALLBACK.length] ?? "🙂";
 
   return (
     <main className="route-shell mx-auto w-full max-w-6xl py-6 md:py-10">
@@ -196,6 +145,7 @@ export function SetupScreen() {
         <ul className="mt-4 grid gap-4 md:grid-cols-2">
           {characters.map((character, index) => {
             const uploadError = uploadErrors[character.id];
+            const displayFace = character.faceImage;
 
             return (
               <li
@@ -210,7 +160,7 @@ export function SetupScreen() {
                     <span
                       aria-hidden
                       className="h-4 w-4 rounded-full border border-black/10"
-                      style={{ backgroundColor: character.color }}
+                      style={{ backgroundColor: character.color.jacket }}
                     />
                     <span className="text-sm font-semibold text-zinc-700">플레이어</span>
                   </div>
@@ -219,9 +169,7 @@ export function SetupScreen() {
                     size="sm"
                     variant="ghost"
                     disabled={!canRemoveCharacter}
-                    onClick={() => {
-                      removeCharacter(character.id);
-                    }}
+                    onClick={() => handleRemoveCharacter(character.id)}
                   >
                     삭제
                   </Button>
@@ -246,14 +194,14 @@ export function SetupScreen() {
                   <p className="text-xs font-semibold text-zinc-600 uppercase">얼굴 미리보기</p>
                   <div className="mt-2 flex items-center gap-3">
                     <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border border-zinc-200 bg-white text-2xl">
-                      {isDataImage(character.faceImage) ? (
+                      {isDataImage(displayFace) ? (
                         <img
-                          src={character.faceImage ?? ""}
+                          src={displayFace ?? ""}
                           alt={`${character.name} 얼굴`}
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <span>{character.faceImage ?? "🙂"}</span>
+                        <span>{getFaceFallback(index)}</span>
                       )}
                     </div>
                     <label className="text-sm text-zinc-600">
