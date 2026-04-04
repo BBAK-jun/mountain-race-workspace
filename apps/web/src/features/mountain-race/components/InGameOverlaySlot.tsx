@@ -1,23 +1,24 @@
-import { Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { markResultReady } from "@/features/mountain-race/app";
+import { useGameStore } from "../store/useGameStore";
+import { HUD } from "./HUD";
+import { EventAlert } from "./EventAlert";
+import { EventLog } from "./EventLog";
 
 export function InGameOverlaySlot() {
+  const hasResult = useGameStore((s) => s.hasResult);
+
+  useEffect(() => {
+    if (hasResult) {
+      markResultReady();
+    }
+  }, [hasResult]);
+
   return (
-    <aside className="route-view" aria-label="In-game overlay slot">
-      <h2>In-Game Overlay</h2>
-      <p>HUD, event alert, and race log UI from gameplay owner will be mounted here.</p>
-      <p>
-        When race finishes, move to{" "}
-        <Link
-          to="/result"
-          onClick={() => {
-            markResultReady();
-          }}
-        >
-          /result
-        </Link>
-        .
-      </p>
+    <aside className="pointer-events-none fixed inset-0 z-10" aria-label="In-game overlay">
+      <HUD />
+      <EventAlert />
+      <EventLog />
     </aside>
   );
 }
