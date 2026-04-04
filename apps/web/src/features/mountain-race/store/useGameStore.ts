@@ -227,11 +227,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       }
 
       let char = c;
-      if (
-        c.status !== "running" &&
-        c.stunEndTime > 0 &&
-        elapsedTime >= c.stunEndTime
-      ) {
+      if (c.status !== "running" && c.stunEndTime > 0 && elapsedTime >= c.stunEndTime) {
         char = { ...c, status: "running" as const, speed: c.baseSpeed, stunEndTime: 0 };
       }
 

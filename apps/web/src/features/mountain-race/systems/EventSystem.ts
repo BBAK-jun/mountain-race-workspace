@@ -201,9 +201,7 @@ function checkSkillEvent(
   elapsedTime: number,
 ): InternalEventResult | null {
   const activeRankings = rankings.filter((id) => !finishedIds.includes(id));
-  const eligible = characters.filter(
-    (c) => !finishedIds.includes(c.id) && c.status !== "stunned",
-  );
+  const eligible = characters.filter((c) => !finishedIds.includes(c.id) && c.status !== "stunned");
   if (eligible.length === 0) return null;
 
   const caster = pickRandom(eligible);
@@ -367,9 +365,7 @@ function checkUltimateEvent(
         break;
       }
       case "random_one": {
-        const others = characters.filter(
-          (c) => c.id !== charId && !finishedIds.includes(c.id),
-        );
+        const others = characters.filter((c) => c.id !== charId && !finishedIds.includes(c.id));
         if (others.length === 0) break;
         const victim = pickRandom(others);
         const found = findChar(updated, victim.id);
@@ -513,9 +509,7 @@ function checkTargetEvent(
   finishedIds: string[],
   elapsedTime: number,
 ): InternalEventResult | null {
-  const eligible = characters.filter(
-    (c) => !finishedIds.includes(c.id) && c.status !== "stunned",
-  );
+  const eligible = characters.filter((c) => !finishedIds.includes(c.id) && c.status !== "stunned");
   if (eligible.length === 0) return null;
 
   const victim = pickRandom(eligible);
@@ -549,8 +543,7 @@ function checkTargetEvent(
 export function initEventScheduler(startTime: number): void {
   nextSkillAt = startTime + randomInRange(SKILL_INTERVAL_MIN, SKILL_INTERVAL_MAX);
   nextUltimateAt = startTime + randomInRange(ULTIMATE_INTERVAL_MIN, ULTIMATE_INTERVAL_MAX);
-  nextGlobalAt =
-    startTime + randomInRange(GLOBAL_EVENT_INTERVAL_MIN, GLOBAL_EVENT_INTERVAL_MAX);
+  nextGlobalAt = startTime + randomInRange(GLOBAL_EVENT_INTERVAL_MIN, GLOBAL_EVENT_INTERVAL_MAX);
   nextTargetAt = startTime + randomInRange(TARGET_EVENT_INTERVAL_MIN, TARGET_EVENT_INTERVAL_MAX);
   eventIdCounter = 0;
   logIdCounter = 0;
@@ -631,7 +624,8 @@ export function processEvents(input: EventTickInput): EventTickResult {
       newEvents.push(result.event);
       newLogs.push(...result.logs);
     }
-    nextTargetAt = elapsedTime + randomInRange(TARGET_EVENT_INTERVAL_MIN, TARGET_EVENT_INTERVAL_MAX);
+    nextTargetAt =
+      elapsedTime + randomInRange(TARGET_EVENT_INTERVAL_MIN, TARGET_EVENT_INTERVAL_MAX);
   }
 
   return {
