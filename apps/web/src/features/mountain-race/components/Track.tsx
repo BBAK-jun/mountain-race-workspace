@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { CatmullRomCurve3, Vector3 } from "three";
+import { useLayoutEffect, useMemo, useRef } from "react";
+import { CatmullRomCurve3, Object3D, type InstancedMesh, Vector3 } from "three";
 import { FINISH_LINE } from "@/features/mountain-race/constants";
 
 const TRACK_POINTS = [
@@ -14,12 +14,30 @@ const TRACK_POINTS = [
   new Vector3(0, 24, -142),
 ];
 
-const TRAIL_SAMPLE_COUNT = 200;
-const TRAIL_WIDTH = 2.4;
-const TRAIL_THICKNESS = 0.2;
-const TRAIL_STONE_EVERY = 5;
-const TRAIL_CENTER_Y_OFFSET = 0.08;
-export const TRACK_SURFACE_Y_OFFSET = TRAIL_CENTER_Y_OFFSET + TRAIL_THICKNESS / 2;
+const TRAIL_CONFIG = {
+  sampleCount: 200,
+  width: 2.4,
+  thickness: 0.2,
+  stoneEvery: 5,
+  centerYOffset: 0.08,
+  segmentLengthPad: 0.12,
+  stoneSideOffset: 1.55,
+  stoneLeftY: 0.45,
+  stoneRightY: 0.42,
+  ridge: {
+    baseHeight: 2.8,
+    growHeight: 5.2,
+    baseWidth: 8.5,
+    growWidth: 4.5,
+    sinkRatio: 0.65,
+    lengthPad: 1.8,
+    rollScale: 0.3,
+  },
+  rollFrequency: 0.37,
+  rollAmount: 0.05,
+} as const;
+
+export const TRACK_SURFACE_Y_OFFSET = TRAIL_CONFIG.centerYOffset + TRAIL_CONFIG.thickness / 2;
 const _surfacePoint = new Vector3();
 
 export const trackCurve = new CatmullRomCurve3(TRACK_POINTS, false, "catmullrom", 0.3);
@@ -84,28 +102,48 @@ function FinishLine() {
 }
 
 interface TrailSegment {
-  id: string;
   position: [number, number, number];
   rotation: [number, number, number];
-  length: number;
+  scale: [number, number, number];
 }
 
 interface TrailStone {
-  id: string;
   position: [number, number, number];
+  rotation: [number, number, number];
   scale: [number, number, number];
 }
 
 interface TrailRidge {
-  id: string;
   position: [number, number, number];
   rotation: [number, number, number];
   scale: [number, number, number];
 }
 
+const _instanceObject = new Object3D();
+
+function applyInstanceTransforms(
+  mesh: InstancedMesh,
+  transforms: { position: [number, number, number]; rotation: [number, number, number]; scale: [number, number, number] }[],
+) {
+  for (let i = 0; i < transforms.length; i++) {
+    const transform = transforms[i];
+    if (!transform) continue;
+    _instanceObject.position.set(transform.position[0], transform.position[1], transform.position[2]);
+    _instanceObject.rotation.set(transform.rotation[0], transform.rotation[1], transform.rotation[2]);
+    _instanceObject.scale.set(transform.scale[0], transform.scale[1], transform.scale[2]);
+    _instanceObject.updateMatrix();
+    mesh.setMatrixAt(i, _instanceObject.matrix);
+  }
+  mesh.instanceMatrix.needsUpdate = true;
+}
+
 export function Track() {
+  const segmentRef = useRef<InstancedMesh>(null);
+  const stoneRef = useRef<InstancedMesh>(null);
+  const ridgeRef = useRef<InstancedMesh>(null);
+
   const { segments, stones, ridges } = useMemo(() => {
-    const sampled = trackCurve.getSpacedPoints(TRAIL_SAMPLE_COUNT);
+    const sampled = trackCurve.getSpacedPoints(TRAIL_CONFIG.sampleCount);
     const outputSegments: TrailSegment[] = [];
     const outputStones: TrailStone[] = [];
     const outputRidges: TrailRidge[] = [];
@@ -125,40 +163,38 @@ export function Track() {
       const flat = Math.hypot(dir.x, dir.z);
       const yaw = Math.atan2(dir.x, dir.z);
       const pitch = -Math.atan2(dir.y, Math.max(flat, 0.0001));
-      const roll = Math.sin(i * 0.37) * 0.05;
+      const roll = Math.sin(i * TRAIL_CONFIG.rollFrequency) * TRAIL_CONFIG.rollAmount;
 
       outputSegments.push({
-        id: `seg-${i}`,
-        position: [mid.x, mid.y + TRAIL_CENTER_Y_OFFSET, mid.z],
+        position: [mid.x, mid.y + TRAIL_CONFIG.centerYOffset, mid.z],
         rotation: [pitch, yaw, roll],
-        length: length + 0.12,
+        scale: [TRAIL_CONFIG.width, TRAIL_CONFIG.thickness, length + TRAIL_CONFIG.segmentLengthPad],
       });
 
       const progressT = i / lastIndex;
-      const ridgeHeight = 2.8 + progressT * 5.2;
-      const ridgeWidth = 8.5 + progressT * 4.5;
+      const ridgeHeight = TRAIL_CONFIG.ridge.baseHeight + progressT * TRAIL_CONFIG.ridge.growHeight;
+      const ridgeWidth = TRAIL_CONFIG.ridge.baseWidth + progressT * TRAIL_CONFIG.ridge.growWidth;
       outputRidges.push({
-        id: `ridge-${i}`,
-        position: [mid.x, mid.y - ridgeHeight * 0.65, mid.z],
-        rotation: [pitch, yaw, roll * 0.3],
-        scale: [ridgeWidth, ridgeHeight, length + 1.8],
+        position: [mid.x, mid.y - ridgeHeight * TRAIL_CONFIG.ridge.sinkRatio, mid.z],
+        rotation: [pitch, yaw, roll * TRAIL_CONFIG.ridge.rollScale],
+        scale: [ridgeWidth, ridgeHeight, length + TRAIL_CONFIG.ridge.lengthPad],
       });
 
-      if (i % TRAIL_STONE_EVERY === 0) {
+      if (i % TRAIL_CONFIG.stoneEvery === 0) {
         const side = dir.clone().cross(up).normalize();
-        const left = mid.clone().add(side.clone().multiplyScalar(1.55));
-        const right = mid.clone().add(side.multiplyScalar(-1.55));
+        const left = mid.clone().add(side.clone().multiplyScalar(TRAIL_CONFIG.stoneSideOffset));
+        const right = mid.clone().add(side.multiplyScalar(-TRAIL_CONFIG.stoneSideOffset));
         const leftScaleSeed = 0.65 + (i % 3) * 0.08;
         const rightScaleSeed = 0.58 + ((i + 1) % 3) * 0.09;
 
         outputStones.push({
-          id: `stone-l-${i}`,
-          position: [left.x, left.y - 0.45, left.z],
+          position: [left.x, left.y - TRAIL_CONFIG.stoneLeftY, left.z],
+          rotation: [pitch, yaw, 0],
           scale: [leftScaleSeed, leftScaleSeed * 0.8, leftScaleSeed],
         });
         outputStones.push({
-          id: `stone-r-${i}`,
-          position: [right.x, right.y - 0.42, right.z],
+          position: [right.x, right.y - TRAIL_CONFIG.stoneRightY, right.z],
+          rotation: [pitch, yaw, 0],
           scale: [rightScaleSeed, rightScaleSeed * 0.75, rightScaleSeed],
         });
       }
@@ -167,31 +203,26 @@ export function Track() {
     return { segments: outputSegments, stones: outputStones, ridges: outputRidges };
   }, []);
 
+  useLayoutEffect(() => {
+    if (segmentRef.current) applyInstanceTransforms(segmentRef.current, segments);
+    if (stoneRef.current) applyInstanceTransforms(stoneRef.current, stones);
+    if (ridgeRef.current) applyInstanceTransforms(ridgeRef.current, ridges);
+  }, [segments, stones, ridges]);
+
   return (
     <group>
-      {ridges.map((ridge) => (
-        <mesh
-          key={ridge.id}
-          position={ridge.position}
-          rotation={ridge.rotation}
-          scale={ridge.scale}
-        >
-          <boxGeometry args={[1, 1, 1]} />
-          <meshStandardMaterial color="#4f5e4d" roughness={0.98} />
-        </mesh>
-      ))}
-      {segments.map((segment) => (
-        <mesh key={segment.id} position={segment.position} rotation={segment.rotation}>
-          <boxGeometry args={[TRAIL_WIDTH, TRAIL_THICKNESS, segment.length]} />
-          <meshStandardMaterial color="#8a6a47" roughness={0.94} />
-        </mesh>
-      ))}
-      {stones.map((stone) => (
-        <mesh key={stone.id} position={stone.position} scale={stone.scale}>
-          <dodecahedronGeometry args={[1, 0]} />
-          <meshStandardMaterial color="#5e6a72" roughness={0.98} />
-        </mesh>
-      ))}
+      <instancedMesh ref={ridgeRef} args={[undefined, undefined, ridges.length]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial color="#4f5e4d" roughness={0.98} />
+      </instancedMesh>
+      <instancedMesh ref={segmentRef} args={[undefined, undefined, segments.length]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial color="#8a6a47" roughness={0.94} />
+      </instancedMesh>
+      <instancedMesh ref={stoneRef} args={[undefined, undefined, stones.length]}>
+        <dodecahedronGeometry args={[1, 0]} />
+        <meshStandardMaterial color="#5e6a72" roughness={0.98} />
+      </instancedMesh>
       <FinishLine />
     </group>
   );
