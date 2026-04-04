@@ -17,6 +17,7 @@ import {
   BAD_EVENT_CHANCE_MAX,
   BAD_EVENT_CHANCE_MIN,
   RAIN_SLIP_CHANCE,
+  RAIN_SLIP_STUN_MS,
   SKILL_EFFECTS,
   SKILL_INTERVAL_MAX,
   SKILL_INTERVAL_MIN,
@@ -199,15 +200,15 @@ function checkSkillEvent(
   finishedIds: string[],
   elapsedTime: number,
 ): InternalEventResult | null {
+  const activeRankings = rankings.filter((id) => !finishedIds.includes(id));
   const eligible = characters.filter(
     (c) => !finishedIds.includes(c.id) && c.status !== "stunned",
   );
   if (eligible.length === 0) return null;
 
   const caster = pickRandom(eligible);
-  const rankIndex = rankings.indexOf(caster.id);
-  const activeCount = characters.filter((c) => !finishedIds.includes(c.id)).length;
-  const { goodEventChance, badEventChance } = getRankChances(rankIndex, activeCount);
+  const rankIndex = activeRankings.indexOf(caster.id);
+  const { goodEventChance, badEventChance } = getRankChances(rankIndex, activeRankings.length);
 
   const roll = Math.random();
   let skillType: SkillType;
@@ -239,8 +240,8 @@ function checkSkillEvent(
     }
     case "ahead": {
       if (rankIndex <= 0) return null;
-      const tid = rankings[rankIndex - 1];
-      if (!tid || finishedIds.includes(tid)) return null;
+      const tid = activeRankings[rankIndex - 1];
+      if (!tid) return null;
       const target = findChar(characters, tid);
       if (!target || target.status === "stunned") return null;
       const stunned = applyStun(target, effect.durationMs, elapsedTime);
@@ -250,9 +251,9 @@ function checkSkillEvent(
       break;
     }
     case "behind": {
-      if (rankIndex >= rankings.length - 1) return null;
-      const tid = rankings[rankIndex + 1];
-      if (!tid || finishedIds.includes(tid)) return null;
+      if (rankIndex >= activeRankings.length - 1) return null;
+      const tid = activeRankings[rankIndex + 1];
+      if (!tid) return null;
       const target = findChar(characters, tid);
       if (!target || target.status === "stunned") return null;
       const stunned = applyStun(target, effect.durationMs, elapsedTime);
@@ -288,18 +289,17 @@ function checkUltimateEvent(
   finishedIds: string[],
   elapsedTime: number,
 ): (InternalEventResult & { casterId: string }) | null {
-  const activeCount = characters.filter((c) => !finishedIds.includes(c.id)).length;
-  if (activeCount < 2) return null;
+  const activeRankings = rankings.filter((id) => !finishedIds.includes(id));
+  if (activeRankings.length < 2) return null;
 
-  for (let i = rankings.length - 1; i >= 0; i--) {
-    const charId = rankings[i];
+  for (let i = activeRankings.length - 1; i >= 0; i--) {
+    const charId = activeRankings[i];
     if (charId === undefined) continue;
-    if (finishedIds.includes(charId)) continue;
 
     const char = findChar(characters, charId);
     if (!char || char.status === "stunned") continue;
 
-    const { ultimateChance } = getRankChances(i, activeCount);
+    const { ultimateChance } = getRankChances(i, activeRankings.length);
     if (Math.random() >= ultimateChance) continue;
 
     const ultimateType = pickRandom(ULTIMATE_POOL);
@@ -310,8 +310,8 @@ function checkUltimateEvent(
     switch (effect.target) {
       case "all_ahead": {
         for (let j = 0; j < i; j++) {
-          const tid = rankings[j];
-          if (tid === undefined || finishedIds.includes(tid)) continue;
+          const tid = activeRankings[j];
+          if (tid === undefined) continue;
           const target = findChar(updated, tid);
           if (!target) continue;
           let modified = applyStun(target, effect.durationMs ?? 2500, elapsedTime);
@@ -354,8 +354,8 @@ function checkUltimateEvent(
         break;
       }
       case "first_place": {
-        const firstId = rankings[0];
-        if (!firstId || firstId === charId || finishedIds.includes(firstId)) break;
+        const firstId = activeRankings[0];
+        if (!firstId || firstId === charId) break;
         const first = findChar(updated, firstId);
         if (!first) break;
         let modified = first;
@@ -436,7 +436,6 @@ function checkGlobalEvent(
   const effect = GLOBAL_EFFECTS[eventType];
   let updated = [...characters];
   const targetIds: string[] = [];
-  const RAIN_SLIP_STUN_MS = 800;
 
   switch (eventType) {
     case "rain": {
