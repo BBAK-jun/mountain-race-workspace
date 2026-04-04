@@ -13,6 +13,18 @@ function resolveBgmSrc(pathname: string): string {
   return BGM_LOBBY;
 }
 
+function useIsTouchDevice() {
+  const [isTouch, setIsTouch] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(pointer: coarse)");
+    setIsTouch(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsTouch(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return isTouch;
+}
+
 export function BGMPlayer() {
   const { pathname } = useLocation();
   const volume = useAudioStore((s) => s.volume);
@@ -22,8 +34,10 @@ export function BGMPlayer() {
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fadeTimerRef = useRef<number | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const [unlocked, setUnlocked] = useState(false);
   const [showSlider, setShowSlider] = useState(false);
+  const isTouch = useIsTouchDevice();
 
   const targetSrc = resolveBgmSrc(pathname);
 
@@ -68,6 +82,18 @@ export function BGMPlayer() {
       window.removeEventListener("touchstart", unlock);
     };
   }, [unlocked, getAudio, targetSrc]);
+
+  // Close slider when tapping outside on touch devices
+  useEffect(() => {
+    if (!isTouch || !showSlider) return;
+    const handleOutside = (e: PointerEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setShowSlider(false);
+      }
+    };
+    document.addEventListener("pointerdown", handleOutside);
+    return () => document.removeEventListener("pointerdown", handleOutside);
+  }, [isTouch, showSlider]);
 
   // Crossfade when the target BGM changes (only after unlock)
   useEffect(() => {
@@ -135,15 +161,24 @@ export function BGMPlayer() {
     audio.volume = isMuted ? 0 : volume;
   }, [volume, isMuted, unlocked]);
 
+  const handleButtonClick = () => {
+    if (isTouch) {
+      setShowSlider((prev) => !prev);
+    } else {
+      toggleMute();
+    }
+  };
+
   return (
     <div
+      ref={containerRef}
       className="fixed bottom-3 left-3 z-50 flex items-center gap-2"
-      onMouseEnter={() => setShowSlider(true)}
-      onMouseLeave={() => setShowSlider(false)}
+      onMouseEnter={() => !isTouch && setShowSlider(true)}
+      onMouseLeave={() => !isTouch && setShowSlider(false)}
     >
       <button
         type="button"
-        onClick={toggleMute}
+        onClick={handleButtonClick}
         className="flex h-9 w-9 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition hover:bg-black/70"
         aria-label={isMuted ? "음소거 해제" : "음소거"}
       >
@@ -153,19 +188,31 @@ export function BGMPlayer() {
       <div
         className={`overflow-hidden transition-all duration-200 ${showSlider ? "w-28 opacity-100" : "w-0 opacity-0"}`}
       >
-        <input
-          type="range"
-          min={0}
-          max={1}
-          step={0.01}
-          value={isMuted ? 0 : volume}
-          onChange={(e) => {
-            const v = Number(e.target.value);
-            setVolume(v);
-            if (v > 0 && isMuted) toggleMute();
-          }}
-          className="h-1 w-full cursor-pointer accent-white"
-        />
+        <div className="flex items-center gap-1.5">
+          {isTouch && (
+            <button
+              type="button"
+              onClick={toggleMute}
+              className="shrink-0 text-white/70 active:text-white"
+              aria-label={isMuted ? "음소거 해제" : "음소거"}
+            >
+              {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+            </button>
+          )}
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.01}
+            value={isMuted ? 0 : volume}
+            onChange={(e) => {
+              const v = Number(e.target.value);
+              setVolume(v);
+              if (v > 0 && isMuted) toggleMute();
+            }}
+            className="h-1 w-full cursor-pointer accent-white"
+          />
+        </div>
       </div>
     </div>
   );
