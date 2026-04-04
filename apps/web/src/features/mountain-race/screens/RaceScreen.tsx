@@ -18,11 +18,15 @@ function SceneContent() {
   const bubbleCharProgress = activeBubble
     ? (characters.find((c) => c.id === activeBubble.characterId)?.progress ?? null)
     : null;
+  const leaderId = rankings[0];
+  const leaderProgress = leaderId
+    ? (characters.find((c) => c.id === leaderId)?.progress ?? 0)
+    : 0;
 
   return (
     <>
       <Track />
-      <Environment activeGlobalEvent={activeGlobalEvent} />
+      <Environment activeGlobalEvent={activeGlobalEvent} leaderProgress={leaderProgress} />
       {characters.map((char) => (
         <Character key={char.id} character={char} isFinished={finishedIds.includes(char.id)} />
       ))}
