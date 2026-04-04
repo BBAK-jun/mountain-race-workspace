@@ -1,0 +1,15 @@
+---
+description: Use when editing Cursor-specific project files such as rules, skills, subagents, hooks, or MCP config
+globs:
+  - ".cursor/**/*"
+  - "apps/**/.cursor/**/*"
+---
+
+# Cursor Config Surface
+
+- Keep rules concise and scoped by directory or file pattern when possible.
+- Prefer nested rules for app-specific guidance instead of putting everything in root rules.
+- Skills should be workflow-oriented, not copies of the same always-on rules.
+- Subagents should have clear specialization and avoid overlapping ownership.
+- Hooks should be safe to run often and must not rewrite user code without clear intent.
+- MCP config should stay valid JSON and use project-relative paths when local servers are added.

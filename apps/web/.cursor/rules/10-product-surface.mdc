@@ -1,0 +1,13 @@
+---
+description: Product and UX rules for the mountain race web app
+globs:
+  - "src/**/*.{ts,tsx,css,html}"
+---
+
+# Product Surface
+
+- Build a spectator-first mountain climbing race game, not a generic dashboard.
+- Keep the core flow obvious: setup, start race, watch race, read result.
+- Leaderboard, player progress, and race events should stay scannable at a glance.
+- Make mobile usability a first-class constraint, then scale up for desktop.
+- Keep the frontend ready to consume backend data without turning route payloads into UI-only shapes too early.

@@ -1,0 +1,25 @@
+{
+  "name": "@mountain-race/api",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "files": [
+    "src",
+    "wrangler.jsonc"
+  ],
+  "scripts": {
+    "dev": "wrangler dev --port 8787",
+    "build": "wrangler deploy --dry-run",
+    "start": "wrangler dev --port 8787",
+    "typecheck": "tsc --noEmit",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "hono": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "catalog:",
+    "typescript": "catalog:",
+    "wrangler": "catalog:"
+  }
+}

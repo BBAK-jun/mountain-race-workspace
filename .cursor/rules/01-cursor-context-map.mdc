@@ -1,0 +1,13 @@
+---
+description: How Cursor should split responsibilities across rules, skills, subagents, hooks, and MCP in this repository
+alwaysApply: true
+---
+
+# Cursor Context Map
+
+- Put short, always-on constraints in rules.
+- Put specialized multi-step workflows in `.cursor/skills`.
+- Use `.cursor/agents` only for parallel specialist work with a narrow responsibility.
+- Keep hooks lightweight; use them for reminders or guardrails, not destructive automation.
+- Keep `.cursor/mcp.json` for real external systems only. Do not add placeholder remote servers that the project does not use.
+- Avoid duplicating the same guidance across `AGENTS.md`, rules, and skills.

@@ -1,0 +1,31 @@
+{
+  "name": "mountain-race-workspace",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.25.0",
+  "engines": {
+    "node": ">=24.0.0 <26",
+    "pnpm": ">=10.25.0"
+  },
+  "scripts": {
+    "dev": "pnpm dev:web",
+    "dev:web": "pnpm --filter @mountain-race/web dev",
+    "dev:api": "pnpm --filter @mountain-race/api dev",
+    "dev:all": "pnpm --parallel --stream --filter @mountain-race/api --filter @mountain-race/web dev",
+    "build": "pnpm -r build",
+    "build:web": "pnpm --filter @mountain-race/web build",
+    "build:api": "pnpm --filter @mountain-race/api build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "biome lint .",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "check": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm build",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "catalog:",
+    "husky": "catalog:",
+    "prettier": "catalog:",
+    "typescript": "catalog:"
+  }
+}

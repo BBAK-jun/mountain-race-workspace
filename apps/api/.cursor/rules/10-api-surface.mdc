@@ -1,0 +1,13 @@
+---
+description: Backend rules for the mountain race API app
+globs:
+  - "src/**/*.ts"
+---
+
+# API Surface
+
+- Keep the API small, explicit, and easy for the web client to consume.
+- Prefer typed route payloads and stable response shapes.
+- Use backend routes for data, presets, orchestration, or persistence, not for UI formatting.
+- Keep local development friction low: the default Worker should boot without extra infrastructure.
+- Prefer Worker-compatible Web APIs over Node-only runtime assumptions.
