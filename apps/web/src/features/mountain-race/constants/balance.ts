@@ -62,6 +62,10 @@ export const SLOWMO_THRESHOLD = 0.02;
 export const SLOWMO_PROGRESS_MIN = 0.7;
 export const SLOWMO_TIMESCALE = 0.3;
 
+// ── Rain slip stun ────────────────────────────────────────────────────────
+
+export const RAIN_SLIP_STUN_MS = 800;
+
 // ── Countdown ──────────────────────────────────────────────────────────────
 
 export const COUNTDOWN_SECONDS = 3;

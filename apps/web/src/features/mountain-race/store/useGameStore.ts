@@ -7,7 +7,9 @@ import {
   JITTER_RANGE,
   MAX_PLAYERS,
   MIN_PLAYERS,
+  VOLCANIC_ASH_SPEED_MULT,
 } from "../constants/balance";
+import { initEventScheduler, processEvents, resetEventScheduler } from "../systems/EventSystem";
 import type {
   ActiveBubble,
   CameraMode,
@@ -178,6 +180,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       stunEndTime: 0,
       stats: { hitCount: 0, setbackTotal: 0, ultimateUsed: 0, rankChanges: 0 },
     }));
+    initEventScheduler(0);
     set({
       isRacing: true,
       countdown: 0,
@@ -201,6 +204,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   resetGame: () => {
     idCounter = 0;
+    resetEventScheduler();
     set(getInitialState());
   },
 
@@ -209,33 +213,65 @@ export const useGameStore = create<GameState>((set, get) => ({
     if (!state.isRacing || state.isPaused) return;
 
     const elapsedTime = state.elapsedTime + deltaTime;
+    const ashActive = state.activeGlobalEvent === "volcanic_ash";
 
-    const characters = state.characters.map((c) => {
+    // 1. Status recovery + movement
+    const movedCharacters = state.characters.map((c) => {
+      if (state.finishedIds.includes(c.id)) return c;
+
       if (c.status === "stunned") {
         if (elapsedTime >= c.stunEndTime) {
-          return { ...c, status: "running" as const };
+          return { ...c, status: "running" as const, speed: c.baseSpeed, stunEndTime: 0 };
         }
         return c;
       }
 
+      let char = c;
+      if (c.status !== "running" && c.stunEndTime > 0 && elapsedTime >= c.stunEndTime) {
+        char = { ...c, status: "running" as const, speed: c.baseSpeed, stunEndTime: 0 };
+      }
+
+      const ashMult = ashActive ? VOLCANIC_ASH_SPEED_MULT : 1;
       const jitter = 1 + (Math.random() - 0.5) * JITTER_RANGE;
-      const progress = Math.min(c.progress + c.speed * deltaTime * jitter, 1);
-      return { ...c, progress };
+      const progress = Math.min(char.progress + char.speed * deltaTime * jitter * ashMult, 1);
+      return { ...char, progress };
     });
 
-    const rankings = computeRankings(characters);
-
-    const newlyFinished = characters
+    // 2. Lock newly finished characters before event processing
+    const newlyFinished = movedCharacters
       .filter((c) => c.progress >= FINISH_LINE && !state.finishedIds.includes(c.id))
       .map((c) => c.id);
     const finishedIds = [...state.finishedIds, ...newlyFinished];
 
-    const isAllFinished = finishedIds.length === characters.length;
-    set({
-      characters,
+    // 3. Ranking
+    const rankings = computeRankings(movedCharacters);
+
+    // 4. Event system — finished characters are protected from setback/stun
+    const eventResult = processEvents({
+      characters: movedCharacters,
       rankings,
       finishedIds,
       elapsedTime,
+      activeGlobalEvent: state.activeGlobalEvent,
+      globalEventEndTime: state.globalEventEndTime,
+      ultimateCount: state.ultimateCount,
+    });
+
+    // 5. Final state
+    const finalCharacters = eventResult.characters;
+    const finalRankings = computeRankings(finalCharacters);
+
+    const isAllFinished = finishedIds.length === finalCharacters.length;
+    set({
+      characters: finalCharacters,
+      rankings: finalRankings,
+      finishedIds,
+      elapsedTime,
+      events: [...state.events, ...eventResult.newEvents],
+      eventLogs: [...state.eventLogs, ...eventResult.newLogs],
+      activeGlobalEvent: eventResult.activeGlobalEvent,
+      globalEventEndTime: eventResult.globalEventEndTime,
+      ultimateCount: eventResult.ultimateCount,
       ...(isAllFinished ? { isRacing: false, hasResult: true } : {}),
     });
   },
