@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import type { GlobalEventType } from "@/features/mountain-race/types";
 
 interface EnvironmentProps {

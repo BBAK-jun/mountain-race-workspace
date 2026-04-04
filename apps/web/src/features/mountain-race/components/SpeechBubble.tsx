@@ -19,6 +19,7 @@ export function SpeechBubble({ activeBubble, characterProgress }: SpeechBubblePr
       <Html center distanceFactor={12} style={{ pointerEvents: "none" }}>
         <div
           style={{
+            position: "relative",
             background: "rgba(255, 255, 255, 0.92)",
             borderRadius: "10px",
             padding: "6px 12px",
