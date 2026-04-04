@@ -120,43 +120,35 @@ export function SetupScreen() {
   const getFaceFallback = (index: number) => FACE_FALLBACK[index % FACE_FALLBACK.length] ?? "🙂";
 
   return (
-    <main className="route-shell mx-auto w-full max-w-6xl py-6 md:py-10">
+    <main className="route-shell mx-auto w-full max-w-3xl py-6 md:py-10">
       <section className="rounded-3xl border border-white/50 bg-white/80 p-5 shadow-xl backdrop-blur md:p-8">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold tracking-[0.12em] text-blue-600 uppercase">Setup</p>
-            <h1 className="mt-2 text-2xl font-black tracking-tight text-zinc-900 md:text-4xl">
-              플레이어 설정
-            </h1>
-            <p className="mt-2 text-sm text-zinc-600 md:text-base">
-              인원은 {MIN_PLAYERS}~{MAX_PLAYERS}명까지 설정할 수 있습니다.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-zinc-200 bg-zinc-50/80 p-3 text-sm text-zinc-600 md:min-w-64">
-            <p className="font-semibold text-zinc-900">맵 선택 (MVP)</p>
-            <select
-              value="basic-mountain"
-              disabled
-              aria-label="맵 선택"
-              className="mt-2 w-full cursor-not-allowed rounded-lg border border-zinc-200 bg-white px-3 py-2 text-zinc-600"
-            >
-              <option value="basic-mountain">기본 산길 (단일 맵)</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-zinc-600">
-            현재 인원 <strong className="text-zinc-900">{characters.length}명</strong>
+        <header className="text-center">
+          <p className="text-3xl md:text-4xl">🏔️</p>
+          <h1 className="mt-1 text-2xl font-black tracking-tight text-zinc-900 md:text-3xl">
+            등산복 입고 뛰어
+          </h1>
+          <p className="mt-1 text-sm text-zinc-500">
+            {MIN_PLAYERS}~{MAX_PLAYERS}명 · 기본 산길
           </p>
+        </header>
+
+        <div className="mt-6 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+              {characters.length}명 참가
+            </span>
+            <span className="text-xs text-zinc-400">
+              {canStartRace ? "출발 준비 완료" : `최소 ${MIN_PLAYERS}명 필요`}
+            </span>
+          </div>
           <Button
             type="button"
             variant="outline"
+            size="sm"
             onClick={addCharacter}
             disabled={!canAddCharacter}
           >
-            캐릭터 추가
+            + 추가
           </Button>
         </div>
 
@@ -168,7 +160,7 @@ export function SetupScreen() {
             return (
               <li
                 key={character.id}
-                className="overflow-hidden rounded-2xl border border-zinc-200 bg-white/90 shadow-sm"
+                className="overflow-hidden rounded-2xl border border-zinc-200 bg-white/90 shadow-sm transition hover:shadow-md"
                 style={{ borderLeftWidth: "3px", borderLeftColor: character.color.jacket }}
               >
                 <div className="flex items-center justify-between gap-3 p-4 pb-0">
@@ -253,18 +245,25 @@ export function SetupScreen() {
           })}
         </ul>
 
-        <div className="mt-6 flex flex-wrap justify-end gap-3">
+        <div className="mt-8 flex flex-wrap justify-end gap-3">
           <Button
             type="button"
             variant="outline"
+            size="sm"
             onClick={() => {
               void navigate({ to: "/" });
             }}
           >
             로비로
           </Button>
-          <Button type="button" onClick={handleStartRace} disabled={!canStartRace}>
-            등산 시작
+          <Button
+            type="button"
+            size="lg"
+            onClick={handleStartRace}
+            disabled={!canStartRace}
+            className="bg-emerald-600 hover:bg-emerald-700"
+          >
+            🏃 등산 시작
           </Button>
         </div>
       </section>
