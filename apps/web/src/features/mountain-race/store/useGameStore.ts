@@ -9,6 +9,11 @@ import {
   MIN_PLAYERS,
   VOLCANIC_ASH_SPEED_MULT,
 } from "../constants/balance";
+import {
+  initDialogueScheduler,
+  processDialogues,
+  resetDialogueScheduler,
+} from "../systems/DialogueSystem";
 import { initEventScheduler, processEvents, resetEventScheduler } from "../systems/EventSystem";
 import type {
   ActiveBubble,
@@ -171,6 +176,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   // ── Race lifecycle ───────────────────────────────────────────────────────
 
   startRace: () => {
+    if (get().isRacing) return;
     const { characters } = get();
     const resetCharacters = characters.map((c) => ({
       ...c,
@@ -181,6 +187,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       stats: { hitCount: 0, setbackTotal: 0, ultimateUsed: 0, rankChanges: 0 },
     }));
     initEventScheduler(0);
+    initDialogueScheduler(0);
     set({
       isRacing: true,
       countdown: 0,
@@ -205,6 +212,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   resetGame: () => {
     idCounter = 0;
     resetEventScheduler();
+    resetDialogueScheduler();
     set(getInitialState());
   },
 
@@ -213,7 +221,10 @@ export const useGameStore = create<GameState>((set, get) => ({
     if (!state.isRacing || state.isPaused) return;
 
     const elapsedTime = state.elapsedTime + deltaTime;
-    const ashActive = state.activeGlobalEvent === "volcanic_ash";
+
+    const isGlobalEventActive =
+      state.activeGlobalEvent !== null && elapsedTime < state.globalEventEndTime;
+    const ashActive = isGlobalEventActive && state.activeGlobalEvent === "volcanic_ash";
 
     // 1. Status recovery + movement
     const movedCharacters = state.characters.map((c) => {
@@ -261,6 +272,16 @@ export const useGameStore = create<GameState>((set, get) => ({
     const finalCharacters = eventResult.characters;
     const finalRankings = computeRankings(finalCharacters);
 
+    // 5.5 Dialogue system
+    const dialogueResult = processDialogues({
+      characters: finalCharacters,
+      rankings: finalRankings,
+      finishedIds,
+      elapsedTime,
+      activeBubble: state.activeBubble,
+      newEvents: eventResult.newEvents,
+    });
+
     const isAllFinished = finishedIds.length === finalCharacters.length;
     set({
       characters: finalCharacters,
@@ -272,6 +293,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       activeGlobalEvent: eventResult.activeGlobalEvent,
       globalEventEndTime: eventResult.globalEventEndTime,
       ultimateCount: eventResult.ultimateCount,
+      activeBubble: dialogueResult.activeBubble,
       ...(isAllFinished ? { isRacing: false, hasResult: true } : {}),
     });
   },
