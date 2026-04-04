@@ -19,7 +19,7 @@ function FreeOrbitControls() {
 
   useEffect(() => {
     const controls = controlsRef.current;
-    if (!controls || !cameraTarget) return;
+    if (!controls) return;
 
     const ok = getTargetTrackPosition(characters, rankings, cameraTarget, _focusPos);
     if (!ok) return;

@@ -36,6 +36,8 @@ export function CameraControls() {
   }, [setCameraMode, setCameraTarget]);
 
   useEffect(() => {
+    if (!isRacing) return;
+
     function onKeyDown(e: KeyboardEvent) {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
@@ -54,7 +56,7 @@ export function CameraControls() {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [focusCharacter, returnToAuto]);
+  }, [isRacing, focusCharacter, returnToAuto]);
 
   if (!isRacing) return null;
 
