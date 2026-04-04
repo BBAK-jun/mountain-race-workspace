@@ -2,6 +2,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Canvas } from "@react-three/fiber";
 import { useMemo } from "react";
 import { resetRouteGuardSnapshot } from "@/features/mountain-race/app";
+import { FINISH_LINE } from "@/features/mountain-race/constants/balance";
 import { useGameStore } from "@/features/mountain-race/store/useGameStore";
 import type { Character, GameEvent } from "@/features/mountain-race/types";
 import { ResultScene } from "./ResultScene";
@@ -208,7 +209,7 @@ export function ResultScreen() {
                       {character.name}
                     </p>
                     <p className="mt-0.5 text-xs tabular-nums text-white/60">
-                      {(character.progress * 100).toFixed(1)}% 완주
+                      {(Math.min(character.progress / FINISH_LINE, 1) * 100).toFixed(1)}% 완주
                     </p>
                     <div className="mt-2 flex justify-center gap-3 text-[0.6rem] text-white/50">
                       <span>피격 {character.stats.hitCount}</span>
@@ -242,7 +243,7 @@ export function ResultScreen() {
                         {character.name}
                       </span>
                       <span className="text-xs tabular-nums text-white/40">
-                        {(character.progress * 100).toFixed(1)}%
+                        {(Math.min(character.progress / FINISH_LINE, 1) * 100).toFixed(1)}%
                       </span>
                       <span className="text-[0.6rem] text-white/30">
                         피격 {character.stats.hitCount} · 역전 {character.stats.rankChanges}
