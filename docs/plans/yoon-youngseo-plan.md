@@ -12,6 +12,7 @@
 
 - `Track.tsx` 구현 및 머지 완료 (`feat/scene-track`, PR #5)
 - `Character.tsx` 구현 및 머지 완료 (`feat/scene-character`, PR #9)
+- `Environment.tsx`, `SpeechBubble.tsx` 구현 및 머지 완료 (`feat/scene-env-bubble`, PR #10)
 - `CatmullRomCurve3` 기반 트랙 곡선/샘플링 유틸 반영
 - 결승선 앵커 구조 반영
 - CI 타입체크 이슈 대응 완료:
@@ -19,12 +20,15 @@
 - PR #9 리뷰 반영 완료:
   - `slowed`/`sliding` 상태 애니메이션 강도 스케일링
   - 바운스 상향 편향 제거(대칭 진동)
+- PR #10 리뷰 반영 완료:
+  - `SpeechBubble` 버블 컨테이너 기준점 보강(`position: relative`)
+  - `Environment` 미사용 import 정리
 
 현재 기준 다음 우선순위:
 
-1. `RaceScreen.tsx`에 `Track` + `Character` 실조합
-2. `Environment.tsx` 초기 버전 구성 및 성능 예산 맞춤
-3. `cameraMode/cameraTarget` 기반 `CameraSystem` 동작 고정
+1. `RaceScreen.tsx`에서 `Track` + `Character` + `Environment` + `SpeechBubble` 통합
+2. `cameraMode/cameraTarget` 기반 `CameraSystem` 동작 고정
+3. 씬 통합 후 퍼포먼스(모바일) 튜닝 및 지오메트리 예산 점검
 
 ---
 

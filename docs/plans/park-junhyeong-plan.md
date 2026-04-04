@@ -10,13 +10,14 @@
 - [x] 정도은 Phase 2(PR #6) 머지 완료
 - [x] 윤영서 PR #5 머지 완료 (`Track.tsx`, `r3f-jsx.d.ts`)
 - [x] 윤영서 PR #9 머지 완료 (`Character.tsx`)
+- [x] 윤영서 PR #10 머지 완료 (`Environment.tsx`, `SpeechBubble.tsx`)
 
 지금부터의 우선순위:
 
-1. Phase 1 통합: `routes/race.tsx`에 `Track` + `Character` + overlay 실제 컴포넌트 연결
+1. Phase 1 통합: `routes/race.tsx`에 `Track` + `Character` + `Environment` + `SpeechBubble` + overlay 실제 컴포넌트 연결
 2. store 계약 반영: 임시 route guard 상태 접근을 실제 `useGameStore` selector 기반으로 전환
 3. 비인게임 화면 연결: `Landing/Setup/Result` 실제 액션 wiring(`startRace`, `finishRace`, `resetGame`) 반영
-4. RaceScreen/CameraSystem 연동 시 route 전환 타이밍 점검
+4. RaceScreen/CameraSystem/EventSystem 연동 시 route 전환 타이밍 점검
 5. 통합 충돌 선제 점검: route entry/import path/styles 충돌 확인
 
 역할:
@@ -192,6 +193,7 @@ apps/web/src/features/mountain-race/
 - gameplay 계약(Phase 2) 머지 반영 완료
 - scene PR(#5) 머지 반영 완료
 - scene PR(#9) 머지 반영 완료
+- scene PR(#10) 머지 반영 완료
 - 다음 단계는 store 기반 guard 전환 + race route 실컴포넌트 조합 + 결과 전환 플로우 확정
 
 ---

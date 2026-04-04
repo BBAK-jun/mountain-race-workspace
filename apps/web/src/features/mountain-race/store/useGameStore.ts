@@ -237,28 +237,29 @@ export const useGameStore = create<GameState>((set, get) => ({
       return { ...char, progress };
     });
 
-    // 2. Ranking
+    // 2. Lock newly finished characters before event processing
+    const newlyFinished = movedCharacters
+      .filter((c) => c.progress >= FINISH_LINE && !state.finishedIds.includes(c.id))
+      .map((c) => c.id);
+    const finishedIds = [...state.finishedIds, ...newlyFinished];
+
+    // 3. Ranking
     const rankings = computeRankings(movedCharacters);
 
-    // 3. Event system
+    // 4. Event system — finished characters are protected from setback/stun
     const eventResult = processEvents({
       characters: movedCharacters,
       rankings,
-      finishedIds: state.finishedIds,
+      finishedIds,
       elapsedTime,
       activeGlobalEvent: state.activeGlobalEvent,
       globalEventEndTime: state.globalEventEndTime,
       ultimateCount: state.ultimateCount,
     });
 
-    // 4. Final state
+    // 5. Final state
     const finalCharacters = eventResult.characters;
     const finalRankings = computeRankings(finalCharacters);
-
-    const newlyFinished = finalCharacters
-      .filter((c) => c.progress >= FINISH_LINE && !state.finishedIds.includes(c.id))
-      .map((c) => c.id);
-    const finishedIds = [...state.finishedIds, ...newlyFinished];
 
     const isAllFinished = finishedIds.length === finalCharacters.length;
     set({

@@ -28,18 +28,20 @@
 - 머지 완료: `codex/gameplay-race-ui` (정도은, Phase 0-1, Phase 2)
 - 머지 완료: `feat/scene-track` (윤영서, Phase 1-track)
 - 머지 완료: `feat/scene-character` (윤영서, Phase 2-character)
+- 머지 완료: `feat/scene-env-bubble` (윤영서, Phase 3-env-bubble)
 - 반영 범위:
   - `types/index.ts`, `store/useGameStore.ts`
   - `constants/balance.ts`, `constants/index.ts`
   - `data/dialogues.ts`, `data/eventMessages.ts`, `data/index.ts`
   - `components/Track.tsx`, `r3f-jsx.d.ts`
   - `components/Character.tsx`
+  - `components/Environment.tsx`, `components/SpeechBubble.tsx`
 - 리뷰 반영 완료:
   - `tick` 자동 종료 연결
   - `stunned` 복구 분기
   - `startRace` 라운드 초기화
   - store 하드코딩 상수의 `balance` 기반 참조 통일
-- 다음 통합 포인트: `routes/race.tsx`에서 `Track` + `Character` + overlay 실조합, route guard store 전환, setup/result 액션 wiring, EventSystem 연결
+- 다음 통합 포인트: `routes/race.tsx`에서 `Track` + `Character` + `Environment` + `SpeechBubble` + overlay 실조합, route guard store 전환, setup/result 액션 wiring, EventSystem 연결
 
 ---
 
