@@ -86,9 +86,18 @@ export function SetupScreen() {
         return next;
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "이미지 업로드에 실패했습니다.";
+      const message = error instanceof Error ? error.message : "업로드 실패";
       setUploadErrors((prev) => ({ ...prev, [characterId]: message }));
     }
+  };
+
+  const handleFaceRemove = (characterId: string) => {
+    updateCharacter(characterId, { faceImage: null });
+    setUploadErrors((prev) => {
+      const next = { ...prev };
+      delete next[characterId];
+      return next;
+    });
   };
 
   const handleRemoveCharacter = (characterId: string) => {
@@ -147,7 +156,7 @@ export function SetupScreen() {
         <ul className="mt-4 grid gap-4 md:grid-cols-2">
           {characters.map((character, index) => {
             const uploadError = uploadErrors[character.id];
-            const displayFace = character.faceImage;
+            const hasFace = isDataImage(character.faceImage);
 
             return (
               <li
@@ -192,23 +201,22 @@ export function SetupScreen() {
                   />
                 </label>
 
-                <div className="mt-3 rounded-xl border border-zinc-200 bg-zinc-50/70 p-3">
-                  <p className="text-xs font-semibold text-zinc-600 uppercase">얼굴 미리보기</p>
-                  <div className="mt-2 flex items-center gap-3">
-                    <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border border-zinc-200 bg-white text-2xl">
-                      {isDataImage(displayFace) ? (
-                        <img
-                          src={displayFace ?? ""}
-                          alt={`${character.name} 얼굴`}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <span>{getFaceFallback(index)}</span>
-                      )}
-                    </div>
-                    <label className="text-sm text-zinc-600">
+                <div className="mt-3 flex items-center gap-3">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border border-zinc-200 bg-white text-2xl">
+                    {hasFace ? (
+                      <img
+                        src={character.faceImage ?? ""}
+                        alt={`${character.name} 얼굴`}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <span>{getFaceFallback(index)}</span>
+                    )}
+                  </div>
+                  <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                    <label className="cursor-pointer text-sm text-zinc-600">
                       <span className="mb-1 block font-medium text-zinc-800">
-                        얼굴 이미지 업로드
+                        {hasFace ? "변경" : "얼굴 업로드"}
                       </span>
                       <input
                         type="file"
@@ -218,12 +226,22 @@ export function SetupScreen() {
                           void handleFaceUpload(character.id, file);
                           event.currentTarget.value = "";
                         }}
-                        className="block text-xs text-zinc-600 file:mr-2 file:rounded-md file:border-0 file:bg-zinc-900 file:px-2 file:py-1 file:text-xs file:font-semibold file:text-white hover:file:bg-zinc-700"
+                        className="block w-full text-xs text-zinc-600 file:mr-2 file:cursor-pointer file:rounded-md file:border-0 file:bg-zinc-900 file:px-2 file:py-1 file:text-xs file:font-semibold file:text-white hover:file:bg-zinc-700"
                       />
                     </label>
+                    {hasFace ? (
+                      <button
+                        type="button"
+                        onClick={() => handleFaceRemove(character.id)}
+                        className="self-start rounded px-1.5 py-0.5 text-xs text-red-400 transition hover:bg-red-50 hover:text-red-600"
+                        aria-label="얼굴 이미지 삭제"
+                      >
+                        삭제
+                      </button>
+                    ) : null}
                   </div>
-                  {uploadError ? <p className="mt-2 text-xs text-red-600">{uploadError}</p> : null}
                 </div>
+                {uploadError ? <p className="mt-2 text-xs text-red-500">{uploadError}</p> : null}
               </li>
             );
           })}
