@@ -22,8 +22,12 @@ export function ResultScreen() {
       <p>최종 순위와 완주 결과입니다.</p>
       <ol className="grid gap-2 sm:max-w-md">
         {rankedCharacters.map((character, index) => (
-          <li key={character.id} className="rounded-xl border border-zinc-200 bg-white/80 px-3 py-2">
-            <strong>{index + 1}위</strong> - {character.name} ({Math.round(character.progress * 100)}%)
+          <li
+            key={character.id}
+            className="rounded-xl border border-zinc-200 bg-white/80 px-3 py-2"
+          >
+            <strong>{index + 1}위</strong> - {character.name} (
+            {Math.round(character.progress * 100)}%)
           </li>
         ))}
       </ol>
