@@ -11,17 +11,21 @@
 - [x] 윤영서 PR #5 머지 완료 (`Track.tsx`, `r3f-jsx.d.ts`)
 - [x] 윤영서 PR #9 머지 완료 (`Character.tsx`)
 - [x] 윤영서 PR #10 머지 완료 (`Environment.tsx`, `SpeechBubble.tsx`)
+- [x] 윤영서 PR #11 머지 완료 (`CameraSystem`, `40dceb8`)
+- [x] 윤영서 PR #14 머지 완료 (`RaceScreen` scene graph 조합, `e2b9e67`)
+- [x] 윤영서 PR #15 머지 완료 (`RaceScreen` fullscreen `100dvh`, `0d3aac4`)
 - [x] 여찬규 PR #12 머지 완료 (`7554d56`)
+- [x] 정도은 PR #13 머지 완료 (`EventSystem`, `1725c40`)
   - `4673da4`: `SetupScreen`/`ResultScreen`/`LandingScreen`의 `useGameStore` 액션 wiring 반영
   - `8a2281f`: route guard(sessionStorage) 동기화 복구(`markSetupComplete`, `resetRouteGuardSnapshot`)
   - `.gitignore`에 `.omc/` 무시 규칙 추가
 
 지금부터의 우선순위:
 
-1. Phase 1 통합: `routes/race.tsx`에 `Track` + `Character` + `Environment` + `SpeechBubble` + overlay 실제 컴포넌트 연결
-2. race 종료/결과 전환 플로우 검증: `hasResult` 전환 시점과 route redirect 일관성 검증
-3. 비인게임 화면 연결 후속 점검: `Landing/Setup/Result` 액션 wiring(`startRace`, `finishRace`, `resetGame`) 동작 확인
-4. RaceScreen/CameraSystem/EventSystem 연동 시 route 전환 타이밍 점검
+1. 통합 후속: `InGameOverlaySlot` placeholder를 `HUD` + `EventAlert` + `EventLog` 실컴포넌트로 교체
+2. race 종료/결과 전환 플로우 검증: store 기준 종료 상태(`hasResult`)와 route redirect 일관성 검증
+3. `/race` guard source 정리: store/session snapshot 경로 중 단일 진실원본으로 통일
+4. 통합 회귀 점검: 2인/8인에서 scene + overlay 동시 렌더와 이벤트/로그 표시 일치 확인
 5. 통합 충돌 선제 점검: route entry/import path/styles 충돌 확인
 
 블로커 상태 메모:
@@ -203,8 +207,12 @@ apps/web/src/features/mountain-race/
 - scene PR(#5) 머지 반영 완료
 - scene PR(#9) 머지 반영 완료
 - scene PR(#10) 머지 반영 완료
+- scene PR(#11) 머지 반영 완료
+- scene PR(#14) 머지 반영 완료
+- scene PR(#15) 머지 반영 완료 (`100dvh` fullscreen 보정)
+- gameplay PR(#13) 머지 반영 완료
 - non-race PR(#12) 머지 반영 완료 및 guard 동기화 복구 확인
-- 다음 단계는 race route 실컴포넌트 조합 + 결과 전환 플로우 확정 + EventSystem 연계 안정화
+- 다음 단계는 overlay 실컴포넌트 연결 + 결과 전환 플로우 확정 + EventSystem/DialogueSystem/HUD 일관성 안정화
 
 ---
 

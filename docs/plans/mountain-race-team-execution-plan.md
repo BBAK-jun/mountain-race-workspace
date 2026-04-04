@@ -29,6 +29,10 @@
 - 머지 완료: `feat/scene-track` (윤영서, Phase 1-track)
 - 머지 완료: `feat/scene-character` (윤영서, Phase 2-character)
 - 머지 완료: `feat/scene-env-bubble` (윤영서, Phase 3-env-bubble)
+- 머지 완료: `feat(web): Phase 3 - EventSystem 스케줄링/확률/효과 구현` (PR #13, `1725c40`)
+- 머지 완료: `feat(web): Phase 4 - CameraSystem 모드 전환 구현` (PR #11, `40dceb8`)
+- 머지 완료: `feat(web): compose RaceScreen with full scene graph` (PR #14, `e2b9e67`)
+- 머지 완료: `fix(web): Phase 6 - 통합 전 검증 수정` (PR #15, `0d3aac4`)
 - 반영 범위:
   - `types/index.ts`, `store/useGameStore.ts`
   - `constants/balance.ts`, `constants/index.ts`
@@ -47,8 +51,12 @@
   - `SetupScreen`/`ResultScreen`/`LandingScreen`의 gameplay store 액션 wiring + route guard 동기화까지 반영
 - 통합 이슈 상태:
   - 기존 블로커였던 setup store/guard source 이원화 이슈는 `8a2281f`로 해소됨
-  - 현재 단계의 우선순위는 race route 실조합(`Track` + `Character` + `Environment` + `SpeechBubble` + overlay)과 EventSystem 연동 안정화
-- 다음 통합 포인트: `routes/race.tsx`에서 scene + overlay 실조합 고정, race 종료 시점과 result 전환 타이밍 검증, EventSystem/DialogueSystem/HUD 표시 일관성 검증
+  - `RaceScreen` fullscreen 검증 수정(`100dvh`)까지 main 반영 완료
+  - 현재 `routes/race.tsx`는 scene 슬롯 + overlay 슬롯 구조까지 고정됐고, overlay는 placeholder 상태
+- 다음 통합 포인트:
+  - `InGameOverlaySlot`에 `HUD`/`EventAlert`/`EventLog` 실컴포넌트 연결
+  - race 종료 시점과 `/result` 전환 트리거를 store 단일 소스로 정리
+  - EventSystem/DialogueSystem/HUD 표시 타이밍 일관성 검증 (2인/8인)
 
 ---
 

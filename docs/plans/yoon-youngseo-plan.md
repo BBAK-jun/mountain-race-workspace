@@ -13,6 +13,9 @@
 - `Track.tsx` 구현 및 머지 완료 (`feat/scene-track`, PR #5)
 - `Character.tsx` 구현 및 머지 완료 (`feat/scene-character`, PR #9)
 - `Environment.tsx`, `SpeechBubble.tsx` 구현 및 머지 완료 (`feat/scene-env-bubble`, PR #10)
+- `CameraSystem` 모드 전환 구현 및 머지 완료 (PR #11, `40dceb8`)
+- `RaceScreen` full scene graph 조합 및 머지 완료 (PR #14, `e2b9e67`)
+- `RaceScreen` fullscreen 레이아웃 보정(`100dvh`) 및 머지 완료 (PR #15, `0d3aac4`)
 - `CatmullRomCurve3` 기반 트랙 곡선/샘플링 유틸 반영
 - 결승선 앵커 구조 반영
 - CI 타입체크 이슈 대응 완료:
@@ -26,9 +29,9 @@
 
 현재 기준 다음 우선순위:
 
-1. `RaceScreen.tsx`에서 `Track` + `Character` + `Environment` + `SpeechBubble` 통합
-2. `cameraMode/cameraTarget` 기반 `CameraSystem` 동작 고정
-3. 씬 통합 후 퍼포먼스(모바일) 튜닝 및 지오메트리 예산 점검
+1. scene + overlay 동시 표시 상황에서 카메라 전환과 가독성 회귀 점검
+2. 2인/8인 시나리오 기준 모바일 퍼포먼스 튜닝 및 지오메트리 예산 점검
+3. route shell/scene slot 구조에서 레이아웃 경계(패딩/뷰포트) 회귀 방지 점검
 
 ---
 
