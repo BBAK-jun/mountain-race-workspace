@@ -1,19 +1,7 @@
-import { Hono } from "hono";
+export { RaceRoom } from "./infrastructure/durableObject/RaceRoom";
 
-const app = new Hono();
+import { createApiApp } from "./app";
 
-app.get("/", (c) => {
-  return c.json({
-    name: "mountain-race-api",
-    runtime: "cloudflare-workers",
-    status: "starter",
-  });
-});
-
-app.get("/health", (c) => {
-  return c.json({
-    status: "ok",
-  });
-});
-
+const app = createApiApp();
 export default app;
+export type { AppType } from "./app";

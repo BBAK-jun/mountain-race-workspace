@@ -1,15 +1,38 @@
+import { useConnectionStore } from "@/features/mountain-race/store/useConnectionStore";
 import { useGameStore } from "@/features/mountain-race/store/useGameStore";
 import { Canvas } from "@react-three/fiber";
-import { Link } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useCallback, useEffect, useState } from "react";
 import { LandingScene } from "./LandingScene";
 
 export function LandingScreen() {
   const resetGame = useGameStore((s) => s.resetGame);
+  const createRoom = useConnectionStore((s) => s.createRoom);
+  const joinRoom = useConnectionStore((s) => s.joinRoom);
+  const navigate = useNavigate();
+
+  const [mode, setMode] = useState<"initial" | "multiplayer">("initial");
+  const [joinCode, setJoinCode] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [showJoin, setShowJoin] = useState(false);
 
   useEffect(() => {
     resetGame();
   }, [resetGame]);
+
+  const handleCreate = useCallback(async () => {
+    setCreating(true);
+    const code = await createRoom();
+    setCreating(false);
+    if (code) void navigate({ to: "/lobby", search: { code } });
+  }, [createRoom, navigate]);
+
+  const handleJoin = useCallback(() => {
+    const code = joinCode.trim().toUpperCase();
+    if (code.length < 4) return;
+    joinRoom(code);
+    void navigate({ to: "/lobby", search: { code } });
+  }, [joinCode, joinRoom, navigate]);
 
   return (
     <main
@@ -69,14 +92,84 @@ export function LandingScreen() {
         </p>
 
         {/* CTA */}
-        <div className="mt-8 flex flex-col items-center gap-3 md:mt-10">
-          <Link
-            to="/setup"
-            className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-xl bg-white px-8 text-base font-bold text-zinc-900 shadow-lg transition-all duration-200 hover:scale-[1.03] hover:shadow-xl active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent md:h-14 md:px-10 md:text-lg"
-          >
-            <span className="relative z-10">게임 시작</span>
-            <span className="absolute inset-0 -z-0 bg-gradient-to-r from-emerald-100 via-white to-sky-100 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-          </Link>
+        <div className="mt-8 flex flex-col items-center gap-4 md:mt-10">
+          {mode === "initial" ? (
+            <div className="flex w-full max-w-xs flex-col gap-3 sm:flex-row sm:max-w-none sm:justify-center">
+              <button
+                type="button"
+                onClick={() => setMode("multiplayer")}
+                className="inline-flex h-13 items-center justify-center rounded-xl bg-emerald-500 px-10 text-base font-bold text-white shadow-lg transition-all duration-200 hover:scale-[1.03] hover:bg-emerald-400 hover:shadow-xl active:scale-[0.98] md:h-14 md:px-12 md:text-lg"
+              >
+                다같이 참여하기
+              </button>
+
+              <Link
+                to="/setup"
+                className="group relative inline-flex h-13 items-center justify-center overflow-hidden rounded-xl bg-white px-10 text-base font-bold text-zinc-900 shadow-lg transition-all duration-200 hover:scale-[1.03] hover:shadow-xl active:scale-[0.98] md:h-14 md:px-12 md:text-lg"
+              >
+                <span className="relative z-10">혼자 진행하기</span>
+                <span className="absolute inset-0 -z-0 bg-gradient-to-r from-emerald-100 via-white to-sky-100 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className="flex w-full max-w-xs flex-col gap-3 sm:flex-row sm:max-w-none sm:justify-center">
+                <button
+                  type="button"
+                  onClick={() => void handleCreate()}
+                  disabled={creating}
+                  className="inline-flex h-13 items-center justify-center rounded-xl bg-emerald-500 px-10 text-base font-bold text-white shadow-lg transition-all duration-200 hover:scale-[1.03] hover:bg-emerald-400 hover:shadow-xl active:scale-[0.98] disabled:opacity-60 md:h-14 md:px-12 md:text-lg"
+                >
+                  {creating ? "생성 중…" : "방 만들기"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowJoin((v) => !v)}
+                  className="inline-flex h-13 items-center justify-center rounded-xl border-2 border-white px-10 text-base font-bold text-white shadow-lg transition-all duration-200 hover:scale-[1.03] hover:bg-white/10 active:scale-[0.98] md:h-14 md:px-12 md:text-lg"
+                >
+                  방 참가
+                </button>
+              </div>
+
+              {showJoin && (
+                <div className="flex w-full max-w-xs items-center gap-2">
+                  <input
+                    type="text"
+                    value={joinCode}
+                    onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                    placeholder="방 코드 입력"
+                    maxLength={8}
+                    className="h-12 flex-1 rounded-xl border border-white/20 bg-white/10 px-4 text-center font-mono text-lg font-bold tracking-[0.2em] text-white placeholder:text-white/30 backdrop-blur-sm outline-none transition focus:border-emerald-400/50 focus:ring-1 focus:ring-emerald-400/30"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleJoin();
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleJoin}
+                    disabled={joinCode.trim().length < 4}
+                    className="h-12 rounded-xl bg-emerald-500 px-5 text-base font-bold text-white shadow transition hover:bg-emerald-400 active:scale-[0.98] disabled:opacity-40"
+                  >
+                    참가
+                  </button>
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("initial");
+                  setShowJoin(false);
+                }}
+                className="text-sm font-medium text-white/60 transition hover:text-white"
+                style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}
+              >
+                ← 뒤로
+              </button>
+            </>
+          )}
+
           <span
             className="text-xs tracking-wide text-white/70 md:text-sm"
             style={{ textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}

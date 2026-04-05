@@ -1,0 +1,32 @@
+{
+  "name": "@mountain-race/game-logic",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./data/dialogues": {
+      "types": "./src/data/dialogues.ts",
+      "import": "./src/data/dialogues.ts",
+      "default": "./src/data/dialogues.ts"
+    },
+    "./data/eventMessages": {
+      "types": "./src/data/eventMessages.ts",
+      "import": "./src/data/eventMessages.ts",
+      "default": "./src/data/eventMessages.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mountain-race/types": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

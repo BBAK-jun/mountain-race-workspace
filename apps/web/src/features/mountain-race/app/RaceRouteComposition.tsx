@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { InGameOverlaySlot, RaceSceneSlot } from "@/features/mountain-race/components";
 import { COUNTDOWN_SECONDS } from "@/features/mountain-race/constants/balance";
-import { useAudioStore, useGameStore } from "@/features/mountain-race/store";
+import { useAudioStore, useConnectionStore, useGameStore } from "@/features/mountain-race/store";
 
 // ── Web Audio beep (no external files needed) ──────────────────────────────
 
@@ -73,13 +73,78 @@ function CountdownOverlay({ phase }: { phase: number }) {
 // ── Main composition ───────────────────────────────────────────────────────
 
 export function RaceRouteComposition() {
+  const isMultiplayer = useConnectionStore((s) => s.status === "connected");
+
+  return (
+    <main className="relative h-dvh w-full overflow-hidden p-0">
+      <RaceSceneSlot />
+      <InGameOverlaySlot />
+      {isMultiplayer ? <MultiplayerCountdown /> : <LocalRaceLoop />}
+    </main>
+  );
+}
+
+// ── Multiplayer: server drives countdown + game ticks ─────────────────────
+
+function MultiplayerCountdown() {
+  const serverPhase = useConnectionStore((s) => s.phase);
+  const myPlayerId = useConnectionStore((s) => s.playerId);
+  const setCameraTarget = useGameStore((s) => s.setCameraTarget);
+  const [countdownPhase, setCountdownPhase] = useState(COUNTDOWN_SECONDS);
+
+  useEffect(() => {
+    useGameStore.setState({ characters: [], rankings: [], events: [], eventLogs: [] });
+  }, []);
+
+  useEffect(() => {
+    if (myPlayerId) setCameraTarget(myPlayerId);
+  }, [myPlayerId, setCameraTarget]);
+
+  useEffect(() => {
+    if (serverPhase !== "countdown") return;
+    playCountdownBeep(BEEP_FREQ_TICK, BEEP_DUR_TICK);
+    setCountdownPhase(COUNTDOWN_SECONDS);
+
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    for (let i = 1; i <= COUNTDOWN_SECONDS; i++) {
+      timers.push(
+        setTimeout(() => {
+          const next = COUNTDOWN_SECONDS - i;
+          setCountdownPhase(next);
+          playCountdownBeep(
+            next > 0 ? BEEP_FREQ_TICK : BEEP_FREQ_GO,
+            next > 0 ? BEEP_DUR_TICK : BEEP_DUR_GO,
+          );
+        }, i * 1000),
+      );
+    }
+    return () => timers.forEach(clearTimeout);
+  }, [serverPhase]);
+
+  useEffect(() => {
+    if (countdownPhase !== 0) return;
+    const timer = setTimeout(() => setCountdownPhase(-1), GO_DISPLAY_MS);
+    return () => clearTimeout(timer);
+  }, [countdownPhase]);
+
+  if (serverPhase === "racing" || serverPhase === "result") {
+    return null;
+  }
+  if (countdownPhase >= 0) {
+    return <CountdownOverlay phase={countdownPhase} />;
+  }
+  return null;
+}
+
+// ── Local mode: existing countdown + RAF tick loop ────────────────────────
+
+function LocalRaceLoop() {
   const startRace = useGameStore((s) => s.startRace);
   const tick = useGameStore((s) => s.tick);
   const isRacing = useGameStore((s) => s.isRacing);
   const [countdownPhase, setCountdownPhase] = useState(COUNTDOWN_SECONDS);
   const raceStarted = useRef(false);
 
-  // Countdown sequence: 3 → 2 → 1 → 0 ("출발!")
   useEffect(() => {
     playCountdownBeep(BEEP_FREQ_TICK, BEEP_DUR_TICK);
 
@@ -100,14 +165,12 @@ export function RaceRouteComposition() {
     return () => timers.forEach(clearTimeout);
   }, []);
 
-  // Trigger race start when countdown reaches 0
   useEffect(() => {
     if (countdownPhase > 0 || raceStarted.current) return;
     raceStarted.current = true;
     startRace();
   }, [countdownPhase, startRace]);
 
-  // RAF game loop — independent of countdownPhase so the "출발!" hide doesn't kill it
   useEffect(() => {
     if (!isRacing) return;
 
@@ -129,18 +192,11 @@ export function RaceRouteComposition() {
     return () => window.cancelAnimationFrame(rafId);
   }, [isRacing, tick]);
 
-  // Auto-hide "출발!" after a short display
   useEffect(() => {
     if (countdownPhase !== 0) return;
     const timer = setTimeout(() => setCountdownPhase(-1), GO_DISPLAY_MS);
     return () => clearTimeout(timer);
   }, [countdownPhase]);
 
-  return (
-    <main className="relative h-dvh w-full overflow-hidden p-0">
-      <RaceSceneSlot />
-      <InGameOverlaySlot />
-      {countdownPhase >= 0 && <CountdownOverlay phase={countdownPhase} />}
-    </main>
-  );
+  return countdownPhase >= 0 ? <CountdownOverlay phase={countdownPhase} /> : null;
 }

@@ -1,14 +1,19 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { markResultReady } from "@/features/mountain-race/app";
-import { useGameStore } from "@/features/mountain-race/store";
+import { useConnectionStore, useGameStore } from "@/features/mountain-race/store";
 import { CameraControls } from "./CameraControls";
+import { EffectRevealOverlay } from "./EffectRevealOverlay";
 import { HUD } from "./HUD";
 import { EventAlert } from "./EventAlert";
 import { EventLog } from "./EventLog";
+import { HiddenEffectButton } from "./HiddenEffectButton";
 
 export function InGameOverlaySlot() {
-  const hasResult = useGameStore((s) => s.hasResult);
+  const localHasResult = useGameStore((s) => s.hasResult);
+  const isMultiplayer = useConnectionStore((s) => s.status === "connected");
+  const mpPhase = useConnectionStore((s) => s.phase);
+  const hasResult = isMultiplayer ? mpPhase === "result" || localHasResult : localHasResult;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,6 +28,8 @@ export function InGameOverlaySlot() {
       <EventAlert />
       <EventLog />
       <CameraControls />
+      {isMultiplayer && <HiddenEffectButton />}
+      {isMultiplayer && <EffectRevealOverlay />}
     </aside>
   );
 }

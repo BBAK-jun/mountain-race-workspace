@@ -8,7 +8,7 @@
     "pnpm": ">=10.25.0"
   },
   "scripts": {
-    "dev": "pnpm dev:web",
+    "dev": "pnpm dev:all",
     "dev:web": "pnpm --filter @mountain-race/web dev",
     "dev:api": "pnpm --filter @mountain-race/api dev",
     "dev:all": "pnpm --parallel --stream --filter @mountain-race/api --filter @mountain-race/web dev",

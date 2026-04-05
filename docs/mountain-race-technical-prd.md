@@ -499,3 +499,70 @@ export const BALANCE = {
 - B: `RaceScreen + Track + Character + CameraSystem`
 - C: `EventSystem + 확률 테이블 + 게임 루프`
 - D: `HUD + EventLog + ResultScreen + SpeechBubble`
+
+---
+
+## 14. 멀티플레이어 아키텍처
+
+> 상세 요구사항: `docs/multiplayer-hidden-effects-prd.md` 참조
+
+### 14.1 공유 패키지
+
+| 패키지                | NPM 이름                    | 역할                                                                    |
+| --------------------- | --------------------------- | ----------------------------------------------------------------------- |
+| `packages/types`      | `@mountain-race/types`      | 클라이언트·서버 공유 타입 계약 (방, 플레이어, 이벤트, WebSocket 메시지) |
+| `packages/game-logic` | `@mountain-race/game-logic` | 시뮬레이션 로직 (진행도 계산, 이벤트 판정, 밸런스 상수)                 |
+
+서버와 클라이언트 모두 동일한 타입과 게임 로직 패키지를 참조해 계약을 일치시킨다.
+
+### 14.2 API 클린 아키텍처
+
+```text
+apps/api/src/
+├── domain/          # 엔티티, 값 객체, 도메인 이벤트
+├── application/     # 유스케이스, 포트 인터페이스
+├── infrastructure/  # Durable Object, WebSocket, 외부 어댑터
+└── presentation/    # Hono HTTP 라우트, RPC 핸들러
+```
+
+각 레이어는 안쪽 방향으로만 의존한다. `presentation` → `application` → `domain` 순서이며, `infrastructure`는 `application` 포트를 구현한다.
+
+### 14.3 Durable Object + WebSocket Hibernation
+
+- `RaceRoom` Durable Object가 방 하나의 전체 수명을 관리한다.
+- WebSocket Hibernation API를 사용해 유휴 연결의 메모리 비용을 최소화한다.
+- 클라이언트는 HTTP로 방 생성/참가 후, WebSocket으로 업그레이드하여 실시간 상태를 수신한다.
+- Wrangler 바인딩: `RACE_ROOM` → `RaceRoom` 클래스
+
+### 14.4 Hono RPC 타입 안전 통신
+
+- `apps/api`에서 Hono RPC 라우트를 정의하고, 클라이언트가 `hc<AppType>()` 으로 타입 안전한 호출을 한다.
+- HTTP 라우트: 방 생성 (`POST /rooms`), 방 참가 (`POST /rooms/:code/join`), 헬스체크 (`GET /health`)
+- WebSocket: 게임 상태 브로드캐스트, 플레이어 액션 수신
+
+### 14.5 히든 이펙트 시스템
+
+```text
+이펙트 풀 → 랜덤 배정 → 조건 충족 시 자동 발동 → 결과 브로드캐스트
+```
+
+- 서버가 게임 시작 시 이펙트 풀에서 각 플레이어에게 히든 이펙트를 랜덤 배정한다.
+- 이펙트는 특정 조건(순위 변동, 진행률 임계치 등) 충족 시 자동 발동한다.
+- 발동 결과는 WebSocket으로 모든 클라이언트에 브로드캐스트된다.
+
+### 14.6 클라이언트 연결 스토어 + 서버 동기화
+
+- 클라이언트는 `connectionStore`로 WebSocket 연결 상태, 방 정보, 플레이어 목록을 관리한다.
+- 서버가 브로드캐스트하는 게임 상태를 받아 로컬 스토어를 갱신한다.
+- 로컬 폴백: 서버 연결 없이도 싱글 플레이어 시뮬레이션으로 동작 가능하다.
+
+### 14.7 라우트 흐름
+
+```text
+/ → /lobby?code=XXXX → /race → /result
+```
+
+- `/`: 랜딩 화면 — 방 생성 또는 코드 입력으로 참가
+- `/lobby?code=XXXX`: 로비 — 참가자 대기, 호스트가 게임 시작
+- `/race`: 레이스 — 서버 동기화 기반 실시간 경주
+- `/result`: 결과 — 최종 순위, 히든 이펙트 공개

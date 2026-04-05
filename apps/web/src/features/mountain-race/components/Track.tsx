@@ -101,19 +101,7 @@ function FinishLine() {
   );
 }
 
-interface TrailSegment {
-  position: [number, number, number];
-  rotation: [number, number, number];
-  scale: [number, number, number];
-}
-
-interface TrailStone {
-  position: [number, number, number];
-  rotation: [number, number, number];
-  scale: [number, number, number];
-}
-
-interface TrailRidge {
+interface TrailTransform {
   position: [number, number, number];
   rotation: [number, number, number];
   scale: [number, number, number];
@@ -121,14 +109,7 @@ interface TrailRidge {
 
 const _instanceObject = new Object3D();
 
-function applyInstanceTransforms(
-  mesh: InstancedMesh,
-  transforms: {
-    position: [number, number, number];
-    rotation: [number, number, number];
-    scale: [number, number, number];
-  }[],
-) {
+function applyInstanceTransforms(mesh: InstancedMesh, transforms: TrailTransform[]) {
   for (let i = 0; i < transforms.length; i++) {
     const transform = transforms[i];
     if (!transform) continue;
@@ -149,18 +130,45 @@ function applyInstanceTransforms(
   mesh.instanceMatrix.needsUpdate = true;
 }
 
+const STEP_CONFIG = {
+  slopeThreshold: 0.12,
+  stepEvery: 3,
+  plankWidth: 2.2,
+  plankHeight: 0.08,
+  plankDepth: 0.28,
+  yOffset: 0.14,
+} as const;
+
+const RAIL_CONFIG = {
+  slopeThreshold: 0.18,
+  postEvery: 8,
+  postHeight: 0.9,
+  postRadius: 0.035,
+  sideOffset: 1.35,
+  ropeRadius: 0.02,
+  ropeSegments: 8,
+} as const;
+
 export function Track() {
   const segmentRef = useRef<InstancedMesh>(null);
   const stoneRef = useRef<InstancedMesh>(null);
   const ridgeRef = useRef<InstancedMesh>(null);
+  const stepRef = useRef<InstancedMesh>(null);
+  const railPostRef = useRef<InstancedMesh>(null);
+  const ropeRef = useRef<InstancedMesh>(null);
 
-  const { segments, stones, ridges } = useMemo(() => {
+  const { segments, stones, ridges, steps, railPosts, ropes } = useMemo(() => {
     const sampled = trackCurve.getSpacedPoints(TRAIL_CONFIG.sampleCount);
-    const outputSegments: TrailSegment[] = [];
-    const outputStones: TrailStone[] = [];
-    const outputRidges: TrailRidge[] = [];
+    const outputSegments: TrailTransform[] = [];
+    const outputStones: TrailTransform[] = [];
+    const outputRidges: TrailTransform[] = [];
+    const outputSteps: TrailTransform[] = [];
+    const outputRailPosts: TrailTransform[] = [];
+    const outputRopes: TrailTransform[] = [];
     const up = new Vector3(0, 1, 0);
     const lastIndex = Math.max(sampled.length - 2, 1);
+
+    let prevRailPost: Vector3 | null = null;
 
     for (let i = 0; i < sampled.length - 1; i++) {
       const start = sampled[i];
@@ -176,6 +184,7 @@ export function Track() {
       const yaw = Math.atan2(dir.x, dir.z);
       const pitch = -Math.atan2(dir.y, Math.max(flat, 0.0001));
       const roll = Math.sin(i * TRAIL_CONFIG.rollFrequency) * TRAIL_CONFIG.rollAmount;
+      const slope = Math.abs(dir.y) / Math.max(length, 0.001);
 
       outputSegments.push({
         position: [mid.x, mid.y + TRAIL_CONFIG.centerYOffset, mid.z],
@@ -191,6 +200,46 @@ export function Track() {
         rotation: [pitch, yaw, roll * TRAIL_CONFIG.ridge.rollScale],
         scale: [ridgeWidth, ridgeHeight, length + TRAIL_CONFIG.ridge.lengthPad],
       });
+
+      if (slope > STEP_CONFIG.slopeThreshold && i % STEP_CONFIG.stepEvery === 0) {
+        outputSteps.push({
+          position: [mid.x, mid.y + STEP_CONFIG.yOffset, mid.z],
+          rotation: [0, yaw, 0],
+          scale: [STEP_CONFIG.plankWidth, STEP_CONFIG.plankHeight, STEP_CONFIG.plankDepth],
+        });
+      }
+
+      if (slope > RAIL_CONFIG.slopeThreshold && i % RAIL_CONFIG.postEvery === 0) {
+        const side = dir.clone().cross(up).normalize();
+        const railSide = i % 16 < 8 ? 1 : -1;
+        const postPos = mid.clone().add(side.multiplyScalar(railSide * RAIL_CONFIG.sideOffset));
+        postPos.y += RAIL_CONFIG.postHeight * 0.5 + TRAIL_CONFIG.centerYOffset;
+
+        outputRailPosts.push({
+          position: [postPos.x, postPos.y, postPos.z],
+          rotation: [0, yaw, 0],
+          scale: [1, 1, 1],
+        });
+
+        if (prevRailPost) {
+          const ropeMid = prevRailPost.clone().add(postPos).multiplyScalar(0.5);
+          const ropeDist = prevRailPost.distanceTo(postPos);
+          const ropeDir = postPos.clone().sub(prevRailPost);
+          const ropeYaw = Math.atan2(ropeDir.x, ropeDir.z);
+          const ropePitch = -Math.atan2(
+            ropeDir.y,
+            Math.max(Math.hypot(ropeDir.x, ropeDir.z), 0.001),
+          );
+          outputRopes.push({
+            position: [ropeMid.x, ropeMid.y, ropeMid.z],
+            rotation: [ropePitch, ropeYaw, 0],
+            scale: [1, 1, ropeDist],
+          });
+        }
+        prevRailPost = postPos;
+      } else if (slope <= RAIL_CONFIG.slopeThreshold) {
+        prevRailPost = null;
+      }
 
       if (i % TRAIL_CONFIG.stoneEvery === 0) {
         const side = dir.clone().cross(up).normalize();
@@ -212,29 +261,61 @@ export function Track() {
       }
     }
 
-    return { segments: outputSegments, stones: outputStones, ridges: outputRidges };
+    return {
+      segments: outputSegments,
+      stones: outputStones,
+      ridges: outputRidges,
+      steps: outputSteps,
+      railPosts: outputRailPosts,
+      ropes: outputRopes,
+    };
   }, []);
 
   useLayoutEffect(() => {
     if (segmentRef.current) applyInstanceTransforms(segmentRef.current, segments);
     if (stoneRef.current) applyInstanceTransforms(stoneRef.current, stones);
     if (ridgeRef.current) applyInstanceTransforms(ridgeRef.current, ridges);
-  }, [segments, stones, ridges]);
+    if (stepRef.current) applyInstanceTransforms(stepRef.current, steps);
+    if (railPostRef.current) applyInstanceTransforms(railPostRef.current, railPosts);
+    if (ropeRef.current) applyInstanceTransforms(ropeRef.current, ropes);
+  }, [segments, stones, ridges, steps, railPosts, ropes]);
 
   return (
     <group>
       <instancedMesh ref={ridgeRef} args={[undefined, undefined, ridges.length]}>
         <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color="#4f5e4d" roughness={0.98} />
+        <meshStandardMaterial color="#6a7e66" roughness={0.98} />
       </instancedMesh>
       <instancedMesh ref={segmentRef} args={[undefined, undefined, segments.length]}>
         <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color="#8a6a47" roughness={0.94} />
+        <meshStandardMaterial color="#a4845c" roughness={0.94} />
       </instancedMesh>
       <instancedMesh ref={stoneRef} args={[undefined, undefined, stones.length]}>
         <dodecahedronGeometry args={[1, 0]} />
-        <meshStandardMaterial color="#5e6a72" roughness={0.98} />
+        <meshStandardMaterial color="#8694a0" roughness={0.98} />
       </instancedMesh>
+      {steps.length > 0 && (
+        <instancedMesh ref={stepRef} args={[undefined, undefined, steps.length]}>
+          <boxGeometry args={[1, 1, 1]} />
+          <meshStandardMaterial color="#b08855" roughness={0.88} />
+        </instancedMesh>
+      )}
+      {railPosts.length > 0 && (
+        <instancedMesh ref={railPostRef} args={[undefined, undefined, railPosts.length]}>
+          <cylinderGeometry
+            args={[RAIL_CONFIG.postRadius, RAIL_CONFIG.postRadius * 1.2, RAIL_CONFIG.postHeight, 5]}
+          />
+          <meshStandardMaterial color="#8b6f47" roughness={0.9} />
+        </instancedMesh>
+      )}
+      {ropes.length > 0 && (
+        <instancedMesh ref={ropeRef} args={[undefined, undefined, ropes.length]}>
+          <cylinderGeometry
+            args={[RAIL_CONFIG.ropeRadius, RAIL_CONFIG.ropeRadius, 1, RAIL_CONFIG.ropeSegments]}
+          />
+          <meshStandardMaterial color="#c8a86e" roughness={0.85} />
+        </instancedMesh>
+      )}
       <FinishLine />
     </group>
   );
