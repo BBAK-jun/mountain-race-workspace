@@ -77,7 +77,7 @@ export function LobbyScreen() {
   const { roomCode, players, playerId, isHost, status, send, disconnect } = useConnectionStore();
 
   const me = players.find((p) => p.id === playerId);
-  const allReady = players.length >= 2 && players.every((p) => p.ready);
+  const allReady = players.length >= 2 && players.filter((p) => !p.isHost).every((p) => p.ready);
 
   const handleNameChange = useCallback(
     (name: string) => {

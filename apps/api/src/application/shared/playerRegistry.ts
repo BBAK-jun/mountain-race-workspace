@@ -91,6 +91,7 @@ export class PlayerRegistry {
 
   allReady(): boolean {
     for (const p of this.players.values()) {
+      if (p.isHost) continue;
       if (p.connected && !p.ready) return false;
     }
     return true;
