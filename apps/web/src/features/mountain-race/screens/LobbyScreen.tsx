@@ -178,27 +178,6 @@ export function LobbyScreen() {
             </p>
           )}
 
-          {isHost && (
-            <pre className="mt-2 max-h-32 w-full overflow-auto rounded-lg bg-black/40 p-2 text-left font-mono text-[0.6rem] text-white/50">
-              {JSON.stringify(
-                {
-                  allReady,
-                  playerCount: players.length,
-                  myId: playerId,
-                  hostId: players.find((p) => p.isHost)?.id,
-                  players: players.map((p) => ({
-                    id: p.id.slice(0, 8),
-                    host: p.isHost,
-                    ready: p.ready,
-                    conn: p.connected,
-                  })),
-                },
-                null,
-                1,
-              )}
-            </pre>
-          )}
-
           <button
             type="button"
             onClick={disconnect}
