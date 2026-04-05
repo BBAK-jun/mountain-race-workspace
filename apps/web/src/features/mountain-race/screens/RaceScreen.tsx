@@ -10,6 +10,7 @@ import { SpeechBubble } from "@/features/mountain-race/components/SpeechBubble";
 import { CameraSystem, getTargetTrackPosition } from "@/features/mountain-race/systems";
 
 const _focusPos = new Vector3();
+const PROGRESS_QUANTIZE_STEP = 0.005;
 
 function FreeOrbitControls() {
   const controlsRef = useRef<ElementRef<typeof OrbitControls>>(null);
@@ -61,9 +62,13 @@ function SceneContent() {
   const activeGlobalEvent = useGameStore((s) => s.activeGlobalEvent);
   const activeBubble = useGameStore((s) => s.activeBubble);
 
-  const bubbleCharProgress = activeBubble
+  const rawProgress = activeBubble
     ? (characters.find((c) => c.id === activeBubble.characterId)?.progress ?? null)
     : null;
+  const bubbleCharProgress =
+    rawProgress !== null
+      ? Math.round(rawProgress / PROGRESS_QUANTIZE_STEP) * PROGRESS_QUANTIZE_STEP
+      : null;
   const leaderId = rankings[0];
   const leaderProgress = leaderId ? (characters.find((c) => c.id === leaderId)?.progress ?? 0) : 0;
 

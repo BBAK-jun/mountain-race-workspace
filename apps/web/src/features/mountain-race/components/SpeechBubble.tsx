@@ -1,5 +1,5 @@
 import { Html } from "@react-three/drei";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, memo } from "react";
 import type { ActiveBubble } from "@/features/mountain-race/types";
 import { DIALOGUE_DISPLAY_TIME_MS } from "@/features/mountain-race/constants";
 import { getTrackPoint } from "./Track";
@@ -162,126 +162,146 @@ interface SpeechBubbleProps {
   characterProgress: number | null;
 }
 
-export function SpeechBubble({ activeBubble, characterProgress }: SpeechBubbleProps) {
-  const [visibleBubble, setVisibleBubble] = useState<ActiveBubble | null>(null);
-  const prevKeyRef = useRef<string | null>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+function bubbleKey(b: ActiveBubble | null): string | null {
+  return b ? `${b.characterId}-${b.endTime}` : null;
+}
 
-  useEffect(() => {
-    ensureKeyframes();
-  }, []);
+export const SpeechBubble = memo(
+  function SpeechBubble({ activeBubble, characterProgress }: SpeechBubbleProps) {
+    const [visibleBubble, setVisibleBubble] = useState<ActiveBubble | null>(null);
+    const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const activeKeyRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    if (!activeBubble) return;
+    useEffect(() => {
+      ensureKeyframes();
+    }, []);
 
-    const key = `${activeBubble.characterId}-${activeBubble.endTime}`;
-    if (prevKeyRef.current === key) return;
+    const incomingKey = bubbleKey(activeBubble);
 
-    prevKeyRef.current = key;
+    useEffect(() => {
+      if (incomingKey === activeKeyRef.current) return;
+      activeKeyRef.current = incomingKey;
 
-    if (timerRef.current) clearTimeout(timerRef.current);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
 
-    setVisibleBubble(null);
-    requestAnimationFrame(() => setVisibleBubble(activeBubble));
+      if (!activeBubble || !incomingKey) {
+        setVisibleBubble(null);
+        return;
+      }
 
-    timerRef.current = setTimeout(() => {
-      setVisibleBubble(null);
-      prevKeyRef.current = null;
-    }, ANIMATION_DURATION_MS + 50);
+      setVisibleBubble(activeBubble);
 
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, [activeBubble]);
+      timerRef.current = setTimeout(() => {
+        setVisibleBubble(null);
+        activeKeyRef.current = null;
+      }, ANIMATION_DURATION_MS + 50);
 
-  if (!visibleBubble || characterProgress === null) return null;
+      return () => {
+        if (timerRef.current) {
+          clearTimeout(timerRef.current);
+          timerRef.current = null;
+        }
+      };
+    }, [incomingKey, activeBubble]);
 
-  const anchorPos = getTrackPoint(characterProgress);
-  const dur = `${ANIMATION_DURATION_MS}ms`;
-  const dissolveDelay = ANIMATION_DURATION_MS * 0.33;
-  const wispDur = ANIMATION_DURATION_MS * 0.67;
+    if (!visibleBubble || characterProgress === null) return null;
 
-  return (
-    <group position={[anchorPos.x, anchorPos.y + BUBBLE_Y_OFFSET, anchorPos.z]}>
-      <Html center distanceFactor={12} zIndexRange={[1, 0]} style={{ pointerEvents: "none" }}>
-        <div
-          style={{
-            position: "relative",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            minWidth: "160px",
-            maxWidth: "300px",
-            userSelect: "none",
-          }}
-        >
-          {/* Ambient glow */}
+    const anchorPos = getTrackPoint(characterProgress);
+    const dur = `${ANIMATION_DURATION_MS}ms`;
+    const dissolveDelay = ANIMATION_DURATION_MS * 0.33;
+    const wispDur = ANIMATION_DURATION_MS * 0.67;
+    const animKey = bubbleKey(visibleBubble);
+
+    return (
+      <group position={[anchorPos.x, anchorPos.y + BUBBLE_Y_OFFSET, anchorPos.z]}>
+        <Html center distanceFactor={12} zIndexRange={[1, 0]} style={{ pointerEvents: "none" }}>
           <div
-            style={{
-              position: "absolute",
-              inset: "-28px",
-              borderRadius: "50%",
-              background:
-                "radial-gradient(ellipse at center, rgba(200,215,245,0.25) 0%, transparent 65%)",
-              animation: `glowLife ${dur} ease-in-out forwards`,
-              pointerEvents: "none",
-              willChange: "opacity, transform",
-            }}
-          />
-
-          {/* Smoke wisps */}
-          {WISPS.map((w) => (
-            <div
-              key={w.id}
-              style={{
-                position: "absolute",
-                left: w.left,
-                top: w.top,
-                width: `${w.size}px`,
-                height: `${w.size * 0.65}px`,
-                borderRadius: "50%",
-                background: `radial-gradient(ellipse, rgba(${w.rgb},0.5) 0%, transparent 65%)`,
-                pointerEvents: "none",
-                opacity: 0,
-                willChange: "opacity, transform",
-                ["--wx" as string]: "0px",
-                ["--wy" as string]: "0px",
-                ["--ex" as string]: `${w.ex}px`,
-                ["--ey" as string]: `${w.ey}px`,
-                ["--es" as string]: w.es,
-                ["--peak" as string]: w.peak,
-                animation: [
-                  `wisp ${wispDur}ms ease-out ${dissolveDelay + w.delay * 1000}ms forwards`,
-                  `wispMid ${wispDur}ms ease-in-out ${dissolveDelay + w.delay * 1000}ms forwards`,
-                ].join(", "),
-              }}
-            />
-          ))}
-
-          {/* Dialogue text */}
-          <span
+            key={animKey}
             style={{
               position: "relative",
-              zIndex: 1,
-              fontSize: "20px",
-              lineHeight: 1.45,
-              fontWeight: 800,
-              color: "#fff",
-              textShadow:
-                "0 1px 3px rgba(0,0,0,0.8), 0 0 8px rgba(0,0,0,0.5), 0 0 20px rgba(160,185,240,0.3)",
-              textAlign: "center",
-              whiteSpace: "normal",
-              wordBreak: "keep-all",
-              overflowWrap: "anywhere",
-              letterSpacing: "0.02em",
-              animation: `textLife ${dur} ease-in-out forwards`,
-              willChange: "opacity, transform",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              minWidth: "160px",
+              maxWidth: "300px",
+              userSelect: "none",
             }}
           >
-            {visibleBubble.text}
-          </span>
-        </div>
-      </Html>
-    </group>
-  );
-}
+            {/* Ambient glow */}
+            <div
+              style={{
+                position: "absolute",
+                inset: "-28px",
+                borderRadius: "50%",
+                background:
+                  "radial-gradient(ellipse at center, rgba(200,215,245,0.25) 0%, transparent 65%)",
+                animation: `glowLife ${dur} ease-in-out forwards`,
+                pointerEvents: "none",
+                willChange: "opacity, transform",
+              }}
+            />
+
+            {/* Smoke wisps */}
+            {WISPS.map((w) => (
+              <div
+                key={w.id}
+                style={{
+                  position: "absolute",
+                  left: w.left,
+                  top: w.top,
+                  width: `${w.size}px`,
+                  height: `${w.size * 0.65}px`,
+                  borderRadius: "50%",
+                  background: `radial-gradient(ellipse, rgba(${w.rgb},0.5) 0%, transparent 65%)`,
+                  pointerEvents: "none",
+                  opacity: 0,
+                  willChange: "opacity, transform",
+                  ["--wx" as string]: "0px",
+                  ["--wy" as string]: "0px",
+                  ["--ex" as string]: `${w.ex}px`,
+                  ["--ey" as string]: `${w.ey}px`,
+                  ["--es" as string]: w.es,
+                  ["--peak" as string]: w.peak,
+                  animation: [
+                    `wisp ${wispDur}ms ease-out ${dissolveDelay + w.delay * 1000}ms forwards`,
+                    `wispMid ${wispDur}ms ease-in-out ${dissolveDelay + w.delay * 1000}ms forwards`,
+                  ].join(", "),
+                }}
+              />
+            ))}
+
+            {/* Dialogue text */}
+            <span
+              style={{
+                position: "relative",
+                zIndex: 1,
+                fontSize: "20px",
+                lineHeight: 1.45,
+                fontWeight: 800,
+                color: "#fff",
+                textShadow:
+                  "0 1px 3px rgba(0,0,0,0.8), 0 0 8px rgba(0,0,0,0.5), 0 0 20px rgba(160,185,240,0.3)",
+                textAlign: "center",
+                whiteSpace: "normal",
+                wordBreak: "keep-all",
+                overflowWrap: "anywhere",
+                letterSpacing: "0.02em",
+                animation: `textLife ${dur} ease-in-out forwards`,
+                willChange: "opacity, transform",
+              }}
+            >
+              {visibleBubble.text}
+            </span>
+          </div>
+        </Html>
+      </group>
+    );
+  },
+  (prev, next) =>
+    prev.activeBubble?.characterId === next.activeBubble?.characterId &&
+    prev.activeBubble?.endTime === next.activeBubble?.endTime &&
+    prev.characterProgress === next.characterProgress,
+);

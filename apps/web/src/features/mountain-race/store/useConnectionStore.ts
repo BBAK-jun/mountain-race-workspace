@@ -178,10 +178,16 @@ function handleServerMessage(msg: ServerMessage, set: SetState, get: GetState): 
       });
       break;
 
-    case "gameTick":
+    case "gameTick": {
       if (get().phase !== "racing") {
         set({ phase: "racing" });
       }
+      const prev = useGameStore.getState().activeBubble;
+      const next = msg.activeBubble;
+      const stableBubble =
+        prev && next && prev.characterId === next.characterId && prev.endTime === next.endTime
+          ? prev
+          : next;
       useGameStore.setState({
         characters: msg.characters,
         rankings: msg.rankings,
@@ -190,11 +196,12 @@ function handleServerMessage(msg: ServerMessage, set: SetState, get: GetState): 
         activeGlobalEvent: msg.activeGlobalEvent,
         events: msg.events,
         eventLogs: msg.eventLogs,
-        activeBubble: msg.activeBubble,
+        activeBubble: stableBubble,
         isRacing: true,
         hasResult: false,
       });
       break;
+    }
 
     default:
       break;
