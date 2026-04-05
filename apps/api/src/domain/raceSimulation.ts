@@ -83,6 +83,7 @@ export class RaceSimulation {
 
     this.rankings = this.characters.map((c) => c.id);
     this.finishedIds = [];
+    this.newlyFinishedIds = [];
     this.firstFinishTime = null;
     this.elapsedTime = 0;
     this.events = [];

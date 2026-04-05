@@ -396,7 +396,10 @@ function resolveDialogue(
         characters.length,
         elapsedTime,
       );
-      if (bubble) return { activeBubble: bubble };
+      if (bubble) {
+        advanceSchedule(elapsedTime);
+        return { activeBubble: bubble };
+      }
     }
   }
 
