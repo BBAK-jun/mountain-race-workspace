@@ -63,6 +63,12 @@ export const SLOWMO_THRESHOLD = 0.02;
 export const SLOWMO_PROGRESS_MIN = 0.7;
 export const SLOWMO_TIMESCALE = 0.3;
 
+export const CAMERA_FINISH_APPROACH = 0.92;
+export const CAMERA_SHAKE_DURATION_SEC = 0.5;
+export const CAMERA_EVENT_ZOOM_DURATION_SEC = 2.0;
+export const CAMERA_FINISH_SHAKE_DURATION_SEC = 0.8;
+export const CAMERA_FINISH_REACTION_LIMIT = 3;
+
 // ── Rain slip stun ────────────────────────────────────────────────────────
 
 export const RAIN_SLIP_STUN_MS = 800;

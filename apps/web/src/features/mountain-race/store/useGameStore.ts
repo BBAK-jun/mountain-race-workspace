@@ -1,5 +1,10 @@
 import { create } from "zustand";
 import {
+  CAMERA_EVENT_ZOOM_DURATION_SEC,
+  CAMERA_FINISH_APPROACH,
+  CAMERA_FINISH_REACTION_LIMIT,
+  CAMERA_FINISH_SHAKE_DURATION_SEC,
+  CAMERA_SHAKE_DURATION_SEC,
   COUNTDOWN_SECONDS,
   FINISH_LINE,
   GAME_SPEED,
@@ -83,6 +88,105 @@ function getColorPreset(index: number): ColorPreset {
 let idCounter = 0;
 let lastRankChangeCheckTime = 0;
 const RANK_CHANGE_CHECK_INTERVAL = 0.5;
+
+// ── Camera auto-transition scheduler ──────────────────────────────────────
+
+const autoCameraState = {
+  endTime: 0,
+  nextMode: "follow" as CameraMode,
+  finishReactionCount: 0,
+};
+
+function resetAutoCameraState(): void {
+  autoCameraState.endTime = 0;
+  autoCameraState.nextMode = "follow";
+  autoCameraState.finishReactionCount = 0;
+}
+
+interface AutoCameraResult {
+  cameraMode: CameraMode;
+  cameraTarget: string | null;
+}
+
+interface AutoCameraInput {
+  currentMode: CameraMode;
+  elapsedTime: number;
+  newEvents: readonly GameEvent[];
+  rankings: string[];
+  finishedIds: string[];
+  characters: readonly Character[];
+  newlyFinishedIds: readonly string[];
+}
+
+function resolveAutoCamera(input: AutoCameraInput): AutoCameraResult | null {
+  const {
+    currentMode,
+    elapsedTime,
+    newEvents,
+    rankings,
+    finishedIds,
+    characters,
+    newlyFinishedIds,
+  } = input;
+
+  if (currentMode === "free") return null;
+
+  // Scheduled transition: shake -> event_zoom -> follow
+  if (autoCameraState.endTime > 0 && elapsedTime >= autoCameraState.endTime) {
+    if (autoCameraState.nextMode !== "follow") {
+      const nextEnd =
+        autoCameraState.nextMode === "event_zoom" ? CAMERA_EVENT_ZOOM_DURATION_SEC : 1;
+      autoCameraState.endTime = elapsedTime + nextEnd;
+      const mode = autoCameraState.nextMode;
+      autoCameraState.nextMode = "follow";
+      return { cameraMode: mode, cameraTarget: null };
+    }
+    autoCameraState.endTime = 0;
+    return { cameraMode: "follow", cameraTarget: null };
+  }
+
+  // Already in a timed mode -- don't interrupt
+  if (autoCameraState.endTime > 0 && elapsedTime < autoCameraState.endTime) return null;
+
+  // Finisher reaction -- shake on each of the top N finishers
+  if (
+    newlyFinishedIds.length > 0 &&
+    autoCameraState.finishReactionCount < CAMERA_FINISH_REACTION_LIMIT
+  ) {
+    autoCameraState.finishReactionCount += newlyFinishedIds.length;
+    const shakeDuration =
+      CAMERA_FINISH_SHAKE_DURATION_SEC / Math.max(autoCameraState.finishReactionCount, 1);
+    autoCameraState.endTime = elapsedTime + shakeDuration;
+    autoCameraState.nextMode = "follow";
+    return { cameraMode: "shake", cameraTarget: newlyFinishedIds[0] ?? null };
+  }
+
+  // Ultimate or global event -- shake briefly then zoom
+  const bigEvent = newEvents.find((e) => e.category === "ultimate" || e.category === "global");
+  if (bigEvent) {
+    autoCameraState.endTime = elapsedTime + CAMERA_SHAKE_DURATION_SEC;
+    autoCameraState.nextMode = "event_zoom";
+    const targetId =
+      bigEvent.category === "ultimate" && bigEvent.casterId
+        ? bigEvent.casterId
+        : (bigEvent.targetIds[0] ?? null);
+    return { cameraMode: "shake", cameraTarget: targetId };
+  }
+
+  // Leader approaching finish line -- sticky until first finish
+  const leaderId = rankings[0];
+  if (leaderId && !finishedIds.includes(leaderId)) {
+    const leader = characters.find((c) => c.id === leaderId);
+    if (leader && leader.progress >= CAMERA_FINISH_APPROACH) {
+      if (currentMode !== "finish") {
+        return { cameraMode: "finish", cameraTarget: null };
+      }
+      return null;
+    }
+  }
+
+  return null;
+}
 function nextId(): string {
   idCounter += 1;
   return `char_${idCounter}`;
@@ -220,6 +324,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     initEventScheduler(0);
     initDialogueScheduler(0);
     lastRankChangeCheckTime = 0;
+    resetAutoCameraState();
     set({
       isRacing: true,
       countdown: 0,
@@ -233,6 +338,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       globalEventEndTime: 0,
       ultimateCount: 0,
       activeBubble: null,
+      cameraMode: "follow",
+      cameraTarget: null,
       characters: resetCharacters,
       rankings: computeRankings(resetCharacters),
     });
@@ -250,6 +357,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   resetGame: () => {
     idCounter = 0;
     lastRankChangeCheckTime = 0;
+    resetAutoCameraState();
     resetEventScheduler();
     resetDialogueScheduler();
     set(getInitialState());
@@ -347,7 +455,18 @@ export const useGameStore = create<GameState>((set, get) => ({
       newEvents: eventResult.newEvents,
     });
 
-    // 6. Race end condition: all finished OR grace period expired
+    // 6. Camera auto-transition
+    const cameraUpdate = resolveAutoCamera({
+      currentMode: state.cameraMode,
+      elapsedTime,
+      newEvents: eventResult.newEvents,
+      rankings: computeRankings(finalCharacters),
+      finishedIds,
+      characters: finalCharacters,
+      newlyFinishedIds,
+    });
+
+    // 7. Race end condition: all finished OR grace period expired
     const isAllFinished = finishedIds.length === finalCharacters.length;
     const gracePeriodSec = RACE_END_GRACE_PERIOD_MS / 1000;
     const isGracePeriodOver =
@@ -370,6 +489,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       globalEventEndTime: eventResult.globalEventEndTime,
       ultimateCount: eventResult.ultimateCount,
       activeBubble: dialogueResult.activeBubble,
+      ...(cameraUpdate
+        ? { cameraMode: cameraUpdate.cameraMode, cameraTarget: cameraUpdate.cameraTarget }
+        : {}),
       ...(shouldEndRace ? { isRacing: false, hasResult: true } : {}),
     });
   },
