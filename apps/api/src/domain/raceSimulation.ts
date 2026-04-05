@@ -18,6 +18,7 @@ import {
   processDialogues,
   processEvents,
 } from "@mountain-race/game-logic";
+import { HiddenEffectManager } from "./hiddenEffectManager";
 
 const BROADCAST_INTERVAL_S = 0.05;
 
@@ -52,6 +53,7 @@ export class RaceSimulation {
   private activeBubble: ActiveBubble | null = null;
   private lastBroadcastAt = 0;
   private lastTickWallTime = 0;
+  readonly effects = new HiddenEffectManager();
 
   get isFinished(): boolean {
     return this._finished;
@@ -94,6 +96,7 @@ export class RaceSimulation {
 
     initEventScheduler(0);
     initDialogueScheduler(0);
+    this.effects.assignEffects(this.characters.map((c) => c.id));
   }
 
   tick(): void {
@@ -110,6 +113,26 @@ export class RaceSimulation {
     this.runEventSystem();
     this.runDialogueSystem();
     this.checkRaceEnd();
+  }
+
+  activateEffect(playerId: string): {
+    assignment: HiddenEffectAssignment;
+    targetName: string | undefined;
+  } | null {
+    if (!this.effects.canActivate(playerId)) return null;
+
+    const assignment = this.effects.activate(playerId, this.elapsedTime);
+    if (!assignment) return null;
+
+    const result = this.effects.applyEffect(
+      assignment,
+      this.characters,
+      this.rankings,
+      this.elapsedTime,
+    );
+    this.characters = result.characters;
+
+    return { assignment, targetName: result.targetName };
   }
 
   markBroadcasted(): void {
@@ -141,7 +164,7 @@ export class RaceSimulation {
     return {
       rankings: finalRankings,
       characters: this.characters,
-      hiddenEffects: [], // Phase 4에서 채움
+      hiddenEffects: this.effects.allAssignments(),
     };
   }
 

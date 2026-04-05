@@ -97,7 +97,8 @@ export class RaceRoom extends DurableObject implements Broadcaster {
         break;
 
       case "activateEffect":
-        // Phase 4에서 구현 예정
+        if (this.registry.phase !== "racing") break;
+        this.handleActivateEffect(playerId);
         break;
     }
   }
@@ -156,7 +157,23 @@ export class RaceRoom extends DurableObject implements Broadcaster {
 
     this.registry.phase = "racing";
     this.simulation.init(this.registry.connectedPlayers);
+    this.broadcast({ type: "hasHiddenEffect", hasEffect: true });
     this.ctx.storage.setAlarm(Date.now() + SIM_TICK_MS);
+  }
+
+  // ── Hidden effect activation ─────────────────────────────────────────
+
+  private handleActivateEffect(playerId: string): void {
+    const result = this.simulation.activateEffect(playerId);
+    if (!result) return;
+
+    const reveal: ServerMessage = {
+      type: "effectReveal",
+      playerId,
+      effect: result.assignment.effect,
+      ...(result.targetName !== undefined ? { targetName: result.targetName } : {}),
+    };
+    this.broadcast(reveal);
   }
 
   // ── Race tick ──────────────────────────────────────────────────────────
