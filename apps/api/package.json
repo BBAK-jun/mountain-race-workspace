@@ -15,6 +15,8 @@
     "deploy": "wrangler deploy"
   },
   "dependencies": {
+    "@mountain-race/game-logic": "workspace:*",
+    "@mountain-race/types": "workspace:*",
     "hono": "catalog:"
   },
   "devDependencies": {
