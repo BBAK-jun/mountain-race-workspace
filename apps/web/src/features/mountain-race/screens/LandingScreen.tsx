@@ -105,7 +105,7 @@ export function LandingScreen() {
             <button
               type="button"
               onClick={() => setShowJoin((v) => !v)}
-              className="inline-flex h-13 items-center justify-center rounded-xl border-2 border-white/40 px-10 text-base font-bold text-white shadow-lg transition-all duration-200 hover:scale-[1.03] hover:border-white/60 hover:bg-white/10 active:scale-[0.98] md:h-14 md:px-12 md:text-lg"
+              className="inline-flex h-13 items-center justify-center rounded-xl border-2 border-white px-10 text-base font-bold text-white shadow-lg transition-all duration-200 hover:scale-[1.03] hover:bg-white/10 active:scale-[0.98] md:h-14 md:px-12 md:text-lg"
             >
               방 참가
             </button>
@@ -137,7 +137,7 @@ export function LandingScreen() {
 
           <Link
             to="/setup"
-            className="text-sm font-medium text-white/50 underline decoration-white/20 underline-offset-4 transition hover:text-white/80 hover:decoration-white/40 md:text-base"
+            className="text-sm font-medium text-white underline decoration-white/40 underline-offset-4 transition hover:decoration-white/70 md:text-base"
           >
             로컬 플레이
           </Link>
