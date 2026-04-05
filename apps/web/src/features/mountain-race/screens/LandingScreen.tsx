@@ -91,22 +91,21 @@ export function LandingScreen() {
         </p>
 
         {/* CTA */}
-        <div className="mt-8 flex flex-col items-center gap-3 md:mt-10">
+        <div className="mt-8 flex flex-col items-center gap-4 md:mt-10">
           <div className="flex w-full max-w-xs flex-col gap-3 sm:flex-row sm:max-w-none sm:justify-center">
             <button
               type="button"
               onClick={() => void handleCreate()}
               disabled={creating}
-              className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-xl bg-white px-8 text-base font-bold text-zinc-900 shadow-lg transition-all duration-200 hover:scale-[1.03] hover:shadow-xl active:scale-[0.98] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent md:h-14 md:px-10 md:text-lg"
+              className="inline-flex h-13 items-center justify-center rounded-xl bg-emerald-500 px-10 text-base font-bold text-white shadow-lg transition-all duration-200 hover:scale-[1.03] hover:bg-emerald-400 hover:shadow-xl active:scale-[0.98] disabled:opacity-60 md:h-14 md:px-12 md:text-lg"
             >
-              <span className="relative z-10">{creating ? "생성 중…" : "방 만들기"}</span>
-              <span className="absolute inset-0 -z-0 bg-gradient-to-r from-emerald-100 via-white to-sky-100 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              {creating ? "생성 중…" : "방 만들기"}
             </button>
 
             <button
               type="button"
               onClick={() => setShowJoin((v) => !v)}
-              className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-xl border-2 border-white/30 bg-white/10 px-8 text-base font-bold text-white shadow-lg backdrop-blur-sm transition-all duration-200 hover:scale-[1.03] hover:border-white/50 hover:bg-white/20 hover:shadow-xl active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent md:h-14 md:px-10 md:text-lg"
+              className="inline-flex h-13 items-center justify-center rounded-xl border-2 border-white px-10 text-base font-bold text-white shadow-lg transition-all duration-200 hover:scale-[1.03] hover:bg-white/10 active:scale-[0.98] md:h-14 md:px-12 md:text-lg"
             >
               방 참가
             </button>
@@ -136,12 +135,18 @@ export function LandingScreen() {
             </div>
           )}
 
-          <Link
-            to="/setup"
-            className="inline-flex h-10 items-center justify-center rounded-lg px-6 text-sm font-medium text-white/60 transition hover:text-white/90"
+          <button
+            type="button"
+            className="inline-flex h-13 items-center justify-center rounded-xl border-2 border-white px-10 text-base font-bold text-white shadow-lg transition-all duration-200 hover:scale-[1.03] hover:bg-white/10 active:scale-[0.98] md:h-14 md:px-12 md:text-lg"
           >
-            로컬 플레이
-          </Link>
+            <Link
+              to="/setup"
+              className="text-sm font-bold text-white underline decoration-white/50 underline-offset-4 transition hover:decoration-white md:text-base"
+              style={{ textShadow: "0 1px 6px rgba(0,0,0,0.6)" }}
+            >
+              로컬 플레이
+            </Link>
+          </button>
 
           <span
             className="text-xs tracking-wide text-white/70 md:text-sm"
