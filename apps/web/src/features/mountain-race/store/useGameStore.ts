@@ -432,6 +432,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       characters: finalCharacters,
       rankings: computeRankings(finalCharacters),
       finishedIds,
+      newlyFinishedIds,
       elapsedTime,
       activeBubble: state.activeBubble,
       newEvents: eventResult.newEvents,

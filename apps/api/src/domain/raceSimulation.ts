@@ -51,6 +51,7 @@ export class RaceSimulation {
   private globalEventEndTime = 0;
   private ultimateCount = 0;
   private activeBubble: ActiveBubble | null = null;
+  private newlyFinishedIds: string[] = [];
   private lastBroadcastAt = 0;
   private lastTickWallTime = 0;
   readonly effects = new HiddenEffectManager();
@@ -202,6 +203,7 @@ export class RaceSimulation {
       .filter((c) => c.progress >= FINISH_LINE && !this.finishedIds.includes(c.id))
       .sort((a, b) => b.progress - a.progress);
     const newIds = newlyFinished.map((c) => c.id);
+    this.newlyFinishedIds = newIds;
     this.finishedIds = [...this.finishedIds, ...newIds];
 
     if (this.firstFinishTime === null && newIds.length > 0) {
@@ -246,6 +248,7 @@ export class RaceSimulation {
       characters: this.characters,
       rankings: this.rankings,
       finishedIds: this.finishedIds,
+      newlyFinishedIds: this.newlyFinishedIds,
       elapsedTime: this.elapsedTime,
       activeBubble: this.activeBubble,
       newEvents: this.events.slice(-5),
