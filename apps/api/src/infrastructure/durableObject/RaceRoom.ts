@@ -1,8 +1,14 @@
 import { DurableObject } from "cloudflare:workers";
 import type { ClientMessage, ServerMessage } from "@mountain-race/types";
 import { COUNTDOWN_SECONDS } from "@mountain-race/game-logic";
-import { PlayerRegistry } from "./simulation/PlayerRegistry";
-import { RaceSimulation } from "./simulation/RaceSimulation";
+import { PlayerRegistry } from "../../application/shared/playerRegistry";
+import { RaceSimulation } from "../../domain/raceSimulation";
+import type { Broadcaster } from "../../application/ports";
+import {
+  handleSetCharacter,
+  handleSetReady,
+  handlePlayerDisconnect,
+} from "../../application/room/useCases";
 
 interface SessionAttachment {
   playerId: string;
@@ -11,7 +17,7 @@ interface SessionAttachment {
 const ROOM_TTL_MS = 5 * 60 * 1000;
 const SIM_TICK_MS = 16;
 
-export class RaceRoom extends DurableObject {
+export class RaceRoom extends DurableObject implements Broadcaster {
   private registry = new PlayerRegistry();
   private simulation = new RaceSimulation();
   private countdownRemaining = 0;
@@ -72,25 +78,15 @@ export class RaceRoom extends DurableObject {
       return;
     }
 
+    const deps = { registry: this.registry, broadcaster: this as Broadcaster };
+
     switch (msg.type) {
       case "setCharacter":
-        player.name = msg.name;
-        player.faceImage = msg.faceImage;
-        player.color = msg.color;
-        this.broadcast({
-          type: "playerUpdated",
-          playerId: player.id,
-          changes: { name: player.name, faceImage: player.faceImage, color: player.color },
-        });
+        handleSetCharacter(deps, player, msg);
         break;
 
       case "setReady":
-        player.ready = msg.ready;
-        this.broadcast({
-          type: "playerUpdated",
-          playerId: player.id,
-          changes: { ready: player.ready },
-        });
+        handleSetReady(deps, player, msg);
         break;
 
       case "startRace":
@@ -116,20 +112,7 @@ export class RaceRoom extends DurableObject {
     const playerId = this.playerIdFrom(ws);
     if (!playerId) return;
 
-    const player = this.registry.get(playerId);
-    if (!player) return;
-
-    this.registry.disconnect(playerId);
-    this.broadcast({ type: "playerLeft", playerId });
-
-    if (player.isHost) {
-      const newHost = this.registry.transferHost();
-      if (newHost) {
-        this.broadcast({ type: "playerUpdated", playerId: newHost.id, changes: { isHost: true } });
-      }
-    }
-
-    if (this.registry.phase === "waiting") this.registry.clearIfEmpty();
+    handlePlayerDisconnect({ registry: this.registry, broadcaster: this as Broadcaster }, playerId);
     this.scheduleRoomTTL();
   }
 
@@ -224,9 +207,9 @@ export class RaceRoom extends DurableObject {
     });
   }
 
-  // ── Messaging ──────────────────────────────────────────────────────────
+  // ── Messaging (Broadcaster interface) ─────────────────────────────────
 
-  private broadcast(msg: ServerMessage): void {
+  broadcast(msg: ServerMessage): void {
     const data = JSON.stringify(msg);
     for (const ws of this.ctx.getWebSockets()) {
       try {
@@ -237,7 +220,7 @@ export class RaceRoom extends DurableObject {
     }
   }
 
-  private sendTo(ws: WebSocket, msg: ServerMessage): void {
+  sendTo(ws: WebSocket, msg: ServerMessage): void {
     try {
       ws.send(JSON.stringify(msg));
     } catch {
