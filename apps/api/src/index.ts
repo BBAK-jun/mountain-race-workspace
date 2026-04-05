@@ -1,29 +1,7 @@
-import { Hono } from "hono";
-import { roomRoutes } from "./routes/room";
+export { RaceRoom } from "./infrastructure/durableObject/RaceRoom";
 
-export { RaceRoom } from "./RaceRoom";
+import { createApiApp } from "./app";
 
-type Env = {
-  Bindings: {
-    RACE_ROOM: DurableObjectNamespace;
-  };
-};
-
-const app = new Hono<Env>();
-
-app.get("/", (c) => {
-  return c.json({
-    name: "mountain-race-api",
-    runtime: "cloudflare-workers",
-    status: "multiplayer",
-  });
-});
-
-app.get("/health", (c) => {
-  return c.json({ status: "ok" });
-});
-
-const routes = app.route("/rooms", roomRoutes);
-
+const app = createApiApp();
 export default app;
-export type AppType = typeof routes;
+export type { AppType } from "./app";
