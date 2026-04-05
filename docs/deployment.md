@@ -2,10 +2,8 @@
 
 이 레포는 프런트와 백엔드를 분리 배포하는 전략으로 맞춰져 있다.
 
-현재 상태는 웹 TanStack Router 스타터와 최소 Hono Worker 스타터만 있는 초기 템플릿이다. 따라서 아래 설정은 바로 실서비스를 위한 완성본이 아니라, 배포 구조를 먼저 고정해둔 템플릿으로 이해하면 된다.
-
 - 클라이언트: Cloudflare Pages 정적 호스팅
-- 서버: Cloudflare Workers
+- 서버: Cloudflare Workers (Durable Objects + WebSocket)
 
 ## 1. Cloudflare Pages
 
@@ -47,18 +45,35 @@ pnpm --filter @mountain-race/web pages:dev
 
 서버 설정은 [apps/api/wrangler.jsonc](./apps/api/wrangler.jsonc), [apps/api/src/index.ts](./apps/api/src/index.ts), [.github/workflows/deploy-api-cloudflare.yml](./.github/workflows/deploy-api-cloudflare.yml)에 있다.
 
-현재는 실제 API 전체가 아니라 최소 Hono Worker 스타터만 떠 있도록 만들어져 있다.
-
 핵심 전략:
 
 - Hono 앱을 Cloudflare Worker 엔트리로 export
+- RaceRoom Durable Object로 방별 게임 상태를 관리
+- WebSocket Hibernation API로 실시간 통신 처리
+- Hono RPC로 타입 안전한 HTTP 라우트 제공
 - Wrangler로 로컬 개발과 배포를 일원화
-- 기본 엔드포인트 `/`와 `/health` 유지
 - GitHub Actions에서 `wrangler deploy` 실행
 
-`wrangler.jsonc`는 monorepo 안의 `apps/api`를 Worker 프로젝트로 정의한다. 실제 API 구현을 추가한 뒤 custom domain, KV, D1, Durable Object 같은 바인딩을 확장하면 된다.
+### Durable Objects 바인딩
 
-- 필요한 GitHub Secrets:
+`wrangler.jsonc`에서 `RACE_ROOM` 바인딩으로 RaceRoom Durable Object를 연결한다. 새 DO 클래스를 추가하거나 변경할 때는 migration 설정이 필요하다.
+
+```jsonc
+{
+  "durable_objects": {
+    "bindings": [{ "name": "RACE_ROOM", "class_name": "RaceRoom" }],
+  },
+  "migrations": [{ "tag": "v1", "new_classes": ["RaceRoom"] }],
+}
+```
+
+### Staging 배포
+
+- 스테이징 워크플로우: [.github/workflows/deploy-api-staging.yml](./.github/workflows/deploy-api-staging.yml)
+- 스테이징 환경은 별도 Worker 이름(`mountain-race-api-staging`)으로 배포된다.
+- PR 브랜치 push 시 자동 실행되거나 수동 트리거할 수 있다.
+
+필요한 GitHub Secrets:
 
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
@@ -71,19 +86,23 @@ pnpm --filter @mountain-race/web pages:dev
 
 - Hono Cloudflare Workers: [Cloudflare Workers](https://hono.dev/getting-started/cloudflare-workers)
 - Cloudflare Workers Wrangler configuration: [Configuration](https://developers.cloudflare.com/workers/wrangler/configuration/)
+- Cloudflare Durable Objects: [Durable Objects](https://developers.cloudflare.com/durable-objects/)
 - Cloudflare Wrangler GitHub Action: [cloudflare/wrangler-action](https://github.com/cloudflare/wrangler-action)
 
 ## 3. 실제 연결 흐름
 
-1. Cloudflare Workers가 `mountain-race-api` Hono Worker를 배포한다.
+1. Cloudflare Workers가 `mountain-race-api` Hono Worker + RaceRoom Durable Object를 배포한다.
 2. Cloudflare Pages가 웹 TanStack Router 정적 빌드를 배포한다.
-3. 실제 구현을 추가한 뒤 웹 빌드 시 `VITE_API_URL`을 Worker URL로 주입한다.
-4. 실제 구현을 추가한 뒤 Worker 바인딩과 라우트를 확장한다.
+3. 웹 빌드 시 `VITE_API_URL`을 Worker URL로 주입한다 (Pages Preview 환경에서도 동일).
+4. 클라이언트가 HTTP로 방 생성/참가 → WebSocket으로 실시간 게임 상태를 수신한다.
+5. Worker가 HTTP 요청을 받으면 Hono 라우트를 처리하고, WebSocket 업그레이드 요청은 Durable Object로 전달한다.
 
 ## 4. 첫 배포 체크리스트
 
 1. Cloudflare에서 Worker 이름과 account를 준비한다.
 2. GitHub에 `CLOUDFLARE_API_TOKEN`과 `CLOUDFLARE_ACCOUNT_ID`를 넣는다.
 3. GitHub Variable `PUBLIC_API_URL`을 실제 Worker URL로 넣는다.
-4. API는 `main`에 push 해서 Worker 배포 워크플로우를 실행한다.
-5. 웹 구현이 생기면 `main`에 push 해서 Pages 배포 워크플로우를 실행한다.
+4. `wrangler.jsonc`에 Durable Object migration이 설정되어 있는지 확인한다.
+5. API를 `main`에 push 해서 Worker 배포 워크플로우를 실행한다 (첫 배포 시 DO migration이 자동 적용된다).
+6. Pages Preview 환경에서 `VITE_API_URL`이 스테이징 Worker URL을 가리키는지 확인한다.
+7. 웹을 `main`에 push 해서 Pages 배포 워크플로우를 실행한다.

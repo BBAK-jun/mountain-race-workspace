@@ -16,6 +16,9 @@
 - Frontend lives in `apps/web`.
 - Backend lives in `apps/api`.
 - Reusable packages should live under `packages/*`.
+- `packages/types` holds shared type contracts (`@mountain-race/types`).
+- `packages/game-logic` holds shared simulation logic (`@mountain-race/game-logic`).
+- Backend follows clean architecture: `apps/api/src/{domain,application,infrastructure,presentation}`.
 - Passive, always-on agent context lives in this `AGENTS.md` and `.cursor/rules/*`.
 - App-specific passive context can live in nested rule directories such as `apps/web/.cursor/rules/*`.
 - Active, on-demand agent workflows live under `.cursor/skills/*`.
