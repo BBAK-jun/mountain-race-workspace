@@ -3,8 +3,9 @@ import { Canvas } from "@react-three/fiber";
 import { useMemo } from "react";
 import { resetRouteGuardSnapshot } from "@/features/mountain-race/app";
 import { FINISH_LINE } from "@/features/mountain-race/constants/balance";
+import { useConnectionStore } from "@/features/mountain-race/store/useConnectionStore";
 import { useGameStore } from "@/features/mountain-race/store/useGameStore";
-import type { Character, GameEvent } from "@/features/mountain-race/types";
+import type { Character, GameEvent, HiddenEffectAssignment } from "@/features/mountain-race/types";
 import { ResultScene } from "./ResultScene";
 
 const RANK_MEDALS = ["🥇", "🥈", "🥉"] as const;
@@ -52,6 +53,7 @@ export function ResultScreen() {
   const rankings = useGameStore((s) => s.rankings);
   const events = useGameStore((s) => s.events);
   const resetGame = useGameStore((s) => s.resetGame);
+  const raceHiddenEffects = useConnectionStore((s) => s.raceHiddenEffects);
 
   const rankedCharacters = useMemo(() => {
     const charMap = new Map(characters.map((c) => [c.id, c]));
@@ -285,10 +287,15 @@ export function ResultScreen() {
             </div>
           ) : null}
 
+          {/* hidden effects */}
+          {raceHiddenEffects.length > 0 && (
+            <HiddenEffectsSection effects={raceHiddenEffects} characters={characters} />
+          )}
+
           {/* action buttons */}
           <div
             className="mr-result-stagger flex items-center justify-center gap-3"
-            style={{ animationDelay: "600ms" }}
+            style={{ animationDelay: "750ms" }}
           >
             <button
               type="button"
@@ -309,5 +316,81 @@ export function ResultScreen() {
         </div>
       </div>
     </main>
+  );
+}
+
+// ── Hidden Effects Section ──────────────────────────────────────────────────
+
+function getUnusedLabel(
+  assignment: HiddenEffectAssignment,
+): { text: string; className: string } | null {
+  if (assignment.activated) return null;
+  switch (assignment.effect.category) {
+    case "good":
+      return { text: "아깝다!", className: "bg-yellow-500/80 text-yellow-950" };
+    case "bad":
+      return { text: "현명한 선택!", className: "bg-emerald-500/80 text-emerald-950" };
+    case "wildcard":
+      return { text: "모험을 두려워하다니...", className: "bg-purple-500/80 text-purple-950" };
+  }
+}
+
+function HiddenEffectsSection({
+  effects,
+  characters,
+}: {
+  effects: HiddenEffectAssignment[];
+  characters: Character[];
+}) {
+  const charMap = new Map(characters.map((c) => [c.id, c]));
+
+  return (
+    <div className="mr-result-stagger mb-6" style={{ animationDelay: "600ms" }}>
+      <p
+        className="mb-2 text-center text-xs font-semibold tracking-wide text-white/50 uppercase"
+        style={{ textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}
+      >
+        🎲 숨겨진 효과
+      </p>
+      <div className="grid gap-2 sm:grid-cols-2">
+        {effects.map((a) => {
+          const char = charMap.get(a.playerId);
+          const unusedLabel = getUnusedLabel(a);
+          return (
+            <div
+              key={a.playerId}
+              className="flex items-center gap-3 rounded-xl border border-white/15 bg-black/25 px-3.5 py-3 backdrop-blur-md"
+            >
+              <span className="text-2xl">{a.effect.emoji}</span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-bold text-white/90">
+                  {char?.name ?? a.playerId}
+                </p>
+                <p className="text-[0.65rem] font-semibold text-white/60">{a.effect.name}</p>
+                <p className="text-[0.6rem] text-white/40">{a.effect.description}</p>
+              </div>
+              {a.activated ? (
+                <span className="shrink-0 rounded-full bg-red-500/80 px-2 py-0.5 text-[0.6rem] font-bold text-white">
+                  발동!
+                </span>
+              ) : (
+                <div className="flex shrink-0 flex-col items-end gap-0.5">
+                  <span className="rounded-full bg-white/15 px-2 py-0.5 text-[0.6rem] font-bold text-white/60">
+                    미사용
+                  </span>
+                  {unusedLabel && (
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[0.55rem] font-bold ${unusedLabel.className}`}
+                    >
+                      {unusedLabel.text}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
