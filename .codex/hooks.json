@@ -1,0 +1,41 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node --experimental-strip-types \"$(git rev-parse --show-toplevel)/scripts/codex-hooks/session-start.mts\"",
+            "statusMessage": "Loading Mountain Race Codex context",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node --experimental-strip-types \"$(git rev-parse --show-toplevel)/scripts/codex-hooks/user-prompt-submit.mts\"",
+            "statusMessage": "Tracking Codex turn state",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node --experimental-strip-types \"$(git rev-parse --show-toplevel)/scripts/codex-hooks/stop.mts\"",
+            "statusMessage": "Writing deterministic Codex checkpoint",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
