@@ -3,4 +3,18 @@
   "name": "mountain-race-api",
   "main": "src/index.ts",
   "compatibility_date": "2026-04-02",
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "RACE_ROOM",
+        "class_name": "RaceRoom",
+      },
+    ],
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_classes": ["RaceRoom"],
+    },
+  ],
 }
