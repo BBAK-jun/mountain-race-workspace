@@ -38,7 +38,7 @@
 <!-- docs-harness:docs-freshness-summary:start -->
 
 - current 14개 / stale 0개 / generated 1개 / manual 2개
-- working tree warning 0개 / in-progress 7개
+- working tree warning 0개 / in-progress 1개
 - DRI는 하네스가 계산하고, review 기준과 manual watch override는 `docs/docs-registry.json`이 관리한다.
 - stale 문서 없음
 - working tree 경고 없음
