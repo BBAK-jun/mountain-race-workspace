@@ -1,4 +1,5 @@
 import { useConnectionStore } from "@/features/mountain-race/store/useConnectionStore";
+import { useNavigate } from "@tanstack/react-router";
 import { useCallback, useRef, useState } from "react";
 
 function CopyButton({ text }: { text: string }) {
@@ -75,6 +76,7 @@ function PlayerRow({
 
 export function LobbyScreen() {
   const { roomCode, players, playerId, isHost, status, send, disconnect } = useConnectionStore();
+  const navigate = useNavigate();
 
   const me = players.find((p) => p.id === playerId);
   const allReady = players.length >= 2 && players.filter((p) => !p.isHost).every((p) => p.ready);
@@ -180,7 +182,10 @@ export function LobbyScreen() {
 
           <button
             type="button"
-            onClick={disconnect}
+            onClick={() => {
+              disconnect();
+              void navigate({ to: "/" });
+            }}
             className="h-10 w-full rounded-xl border border-white/10 text-sm font-medium text-white/50 transition hover:border-white/20 hover:text-white/70"
           >
             나가기

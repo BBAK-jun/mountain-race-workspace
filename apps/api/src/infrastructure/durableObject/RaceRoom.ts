@@ -112,13 +112,7 @@ export class RaceRoom extends DurableObject implements Broadcaster {
     }
   }
 
-  async webSocketClose(
-    ws: WebSocket,
-    code: number,
-    reason: string,
-    _wasClean: boolean,
-  ): Promise<void> {
-    ws.close(code, reason);
+  async webSocketClose(ws: WebSocket): Promise<void> {
     const playerId = this.playerIdFrom(ws);
     if (!playerId) return;
 

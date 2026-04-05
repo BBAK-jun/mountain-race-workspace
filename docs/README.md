@@ -9,6 +9,7 @@
 3. [mountain-race-technical-prd.md](./mountain-race-technical-prd.md)
 4. [plans/README.md](./plans/README.md)
 5. [deployment.md](./deployment.md)
+6. [multiplayer-hidden-effects-prd.md](./multiplayer-hidden-effects-prd.md)
 
 ## 문서 역할
 
@@ -17,6 +18,7 @@
 - `mountain-race-technical-prd.md`: `apps/web` 기준 상태 구조, 시스템 설계, 게임 루프, 화면 구현 방식의 기술 기준이다.
 - `plans/README.md`: 실제 4인 병렬 실행 계획과 개인별 작업 문서 모음이다.
 - `deployment.md`: Cloudflare Pages + Cloudflare Workers 배포 기준이다.
+- `multiplayer-hidden-effects-prd.md`: 멀티플레이어 + 히든 이펙트 기능의 제품 요구사항이다.
 
 ## 바로 개발 시작할 때
 
