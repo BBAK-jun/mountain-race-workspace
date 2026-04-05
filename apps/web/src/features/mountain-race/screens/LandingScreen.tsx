@@ -105,9 +105,10 @@ export function LandingScreen() {
 
               <Link
                 to="/setup"
-                className="inline-flex h-13 items-center justify-center rounded-xl border-2 border-white px-10 text-base font-bold text-white shadow-lg transition-all duration-200 hover:scale-[1.03] hover:bg-white/10 active:scale-[0.98] md:h-14 md:px-12 md:text-lg"
+                className="group relative inline-flex h-13 items-center justify-center overflow-hidden rounded-xl bg-white px-10 text-base font-bold text-zinc-900 shadow-lg transition-all duration-200 hover:scale-[1.03] hover:shadow-xl active:scale-[0.98] md:h-14 md:px-12 md:text-lg"
               >
-                혼자 진행하기
+                <span className="relative z-10">혼자 진행하기</span>
+                <span className="absolute inset-0 -z-0 bg-gradient-to-r from-emerald-100 via-white to-sky-100 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               </Link>
             </div>
           ) : (
