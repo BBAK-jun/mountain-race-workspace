@@ -135,6 +135,10 @@ export class RaceSimulation {
     return { assignment, targetName: result.targetName };
   }
 
+  pushEventLog(log: EventLog): void {
+    this.eventLogs.push(log);
+  }
+
   markBroadcasted(): void {
     this.lastBroadcastAt = this.elapsedTime;
   }
@@ -186,7 +190,12 @@ export class RaceSimulation {
       }
 
       let char = c;
-      if (c.status !== "running" && c.stunEndTime > 0 && this.elapsedTime >= c.stunEndTime) {
+      if (
+        c.status !== "running" &&
+        c.status !== "shielded" &&
+        c.stunEndTime > 0 &&
+        this.elapsedTime >= c.stunEndTime
+      ) {
         char = { ...c, status: "running" as const, speed: c.baseSpeed, stunEndTime: 0 };
       }
 

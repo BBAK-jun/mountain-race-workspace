@@ -15,7 +15,7 @@ export interface ColorPreset {
 
 // ── Character ──────────────────────────────────────────────────────────────
 
-export type CharacterStatus = "running" | "stunned" | "boosted" | "slowed" | "sliding";
+export type CharacterStatus = "running" | "stunned" | "boosted" | "slowed" | "sliding" | "shielded";
 
 export interface CharacterStats {
   hitCount: number;
