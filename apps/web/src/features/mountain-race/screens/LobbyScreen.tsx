@@ -1,6 +1,7 @@
 import { useConnectionStore } from "@/features/mountain-race/store/useConnectionStore";
 import { useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -39,6 +40,7 @@ function PlayerRow({
   onNameChange?: ((v: string) => void) | undefined;
 }) {
   const [localName, setLocalName] = useState(name);
+  const debouncedName = useDebouncedValue(localName, 500);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -46,6 +48,12 @@ function PlayerRow({
       setLocalName(name);
     }
   }, [name]);
+
+  useEffect(() => {
+    if (debouncedName !== name) {
+      onNameChange?.(debouncedName);
+    }
+  }, [debouncedName, name, onNameChange]);
 
   return (
     <div className="flex items-center gap-3 rounded-xl bg-white/5 px-4 py-3 backdrop-blur-sm">
@@ -61,12 +69,11 @@ function PlayerRow({
           value={localName}
           maxLength={12}
           onChange={(e) => setLocalName(e.target.value)}
-          onBlur={() => onNameChange?.(localName)}
+          onBlur={() => {
+            if (localName !== name) onNameChange?.(localName);
+          }}
           onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              onNameChange?.(localName);
-              inputRef.current?.blur();
-            }
+            if (e.key === "Enter") inputRef.current?.blur();
           }}
           className="min-w-0 flex-1 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-sm font-medium text-white outline-none transition focus:border-emerald-400/50 focus:ring-1 focus:ring-emerald-400/30"
         />
