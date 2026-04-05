@@ -104,7 +104,7 @@ export function RaceScreen() {
     >
       <Canvas
         camera={{ position: [0, 10, 20], fov: 60 }}
-        style={{ position: "absolute", inset: 0 }}
+        style={{ position: "absolute", inset: 0, background: "#c5ddf0" }}
       >
         <SceneContent />
       </Canvas>
