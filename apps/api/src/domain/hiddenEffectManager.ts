@@ -5,7 +5,7 @@ import type {
   HiddenEffectCategory,
   HiddenEffectType,
 } from "@mountain-race/types";
-import { GAME_SPEED } from "@mountain-race/game-logic";
+import { getEffectHandler } from "./effects";
 
 // ── Effect pool ──────────────────────────────────────────────────────────
 
@@ -100,116 +100,14 @@ export class HiddenEffectManager {
     rankings: string[],
     elapsedTime: number,
   ): { characters: Character[]; targetName?: string } {
-    const charIndex = characters.findIndex((c) => c.id === assignment.playerId);
-    if (charIndex === -1) return { characters };
+    const casterIndex = characters.findIndex((c) => c.id === assignment.playerId);
+    if (casterIndex === -1) return { characters };
 
-    const char = characters[charIndex];
-    if (!char) return { characters };
-    let updated = [...characters];
+    const caster = characters[casterIndex];
+    if (!caster) return { characters };
 
-    switch (assignment.effect.type) {
-      case "booster":
-        updated[charIndex] = {
-          ...char,
-          status: "boosted",
-          speed: char.baseSpeed * 2.5,
-          stunEndTime: elapsedTime + 2,
-        };
-        break;
-
-      case "wind_ride":
-        updated[charIndex] = {
-          ...char,
-          status: "boosted",
-          speed: char.baseSpeed * 1.8,
-          stunEndTime: elapsedTime + 1.5,
-        };
-        break;
-
-      case "shield":
-        // shield 상태를 표현하기 위해 stats에 기록 (hitCount를 -1로 마킹)
-        // 실제 shield 로직은 EventSystem에서 hitCount < 0 일 때 방어 후 0으로 복구
-        updated[charIndex] = {
-          ...char,
-          stats: { ...char.stats, hitCount: char.stats.hitCount - 1 },
-        };
-        break;
-
-      case "self_trip":
-        updated[charIndex] = {
-          ...char,
-          status: "stunned",
-          speed: 0,
-          stunEndTime: elapsedTime + 1.2,
-          stats: { ...char.stats, hitCount: char.stats.hitCount + 1 },
-        };
-        break;
-
-      case "ankle_weight":
-        updated[charIndex] = {
-          ...char,
-          status: "slowed",
-          speed: char.baseSpeed * 0.7,
-          stunEndTime: elapsedTime + 3,
-        };
-        break;
-
-      case "magnet": {
-        const rankIndex = rankings.indexOf(assignment.playerId);
-        const secondPlaceId = rankings[1];
-        if (rankIndex > 0 && secondPlaceId) {
-          const second = updated.find((c) => c.id === secondPlaceId);
-          if (second) {
-            const pullback = Math.abs(char.progress - second.progress) * 0.5;
-            updated[charIndex] = {
-              ...char,
-              progress: Math.max(0, char.progress - pullback),
-              stats: { ...char.stats, setbackTotal: char.stats.setbackTotal + pullback },
-            };
-          }
-        }
-        break;
-      }
-
-      case "mystery_swap": {
-        let closestIdx = -1;
-        let closestDist = Number.POSITIVE_INFINITY;
-        for (let i = 0; i < updated.length; i++) {
-          const other = updated[i];
-          if (!other) continue;
-          if (other.id === char.id) continue;
-          const dist = Math.abs(other.progress - char.progress);
-          if (dist < closestDist) {
-            closestDist = dist;
-            closestIdx = i;
-          }
-        }
-        if (closestIdx !== -1) {
-          const target = updated[closestIdx];
-          if (!target) break;
-          const myProgress = char.progress;
-          updated[charIndex] = { ...char, progress: target.progress };
-          updated[closestIdx] = { ...target, progress: myProgress };
-          return { characters: updated, targetName: target.name };
-        }
-        break;
-      }
-
-      case "earthquake":
-        updated = updated.map((c) => {
-          if (c.finishTime !== null) return c;
-          return {
-            ...c,
-            status: "stunned" as const,
-            speed: 0,
-            stunEndTime: elapsedTime + 0.8,
-            stats: { ...c.stats, hitCount: c.stats.hitCount + 1 },
-          };
-        });
-        break;
-    }
-
-    return { characters: updated };
+    const handler = getEffectHandler(assignment.effect.type);
+    return handler.apply({ casterIndex, caster, characters, rankings, elapsedTime });
   }
 
   allAssignments(): HiddenEffectAssignment[] {
