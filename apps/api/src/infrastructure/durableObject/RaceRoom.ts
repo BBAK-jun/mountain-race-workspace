@@ -193,10 +193,11 @@ export class RaceRoom extends DurableObject implements Broadcaster {
     const playerName = player?.name ?? playerId;
     const { emoji, name: effectName } = result.assignment.effect;
 
+    const snap = this.simulation.snapshot();
     this.simulation.pushEventLog({
       id: `eff_${Date.now()}`,
       text: `🎲 ${playerName}의 비밀 효과 발동! → ${emoji} ${effectName}!`,
-      timestamp: Date.now(),
+      timestamp: snap.elapsedTime,
     });
 
     const reveal: ServerMessage = {

@@ -13,8 +13,10 @@ export function createRoomHandlers() {
 
         const stateRes = await stub.fetch(new Request("https://do/state"));
         if (stateRes.ok) {
-          const state = (await stateRes.json()) as { players?: unknown[] };
-          if (state.players && (state.players as unknown[]).length > 0) continue;
+          const state = (await stateRes.json()) as { players?: unknown[]; phase?: string };
+          const hasPlayers = state.players && (state.players as unknown[]).length > 0;
+          const isActive = state.phase && state.phase !== "waiting";
+          if (hasPlayers || isActive) continue;
         }
 
         const res = await stub.fetch(

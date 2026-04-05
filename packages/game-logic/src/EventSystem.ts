@@ -170,6 +170,9 @@ function applySliding(char: Character, durationMs: number, elapsedTime: number):
 }
 
 function applySetback(char: Character, amount: number): Character {
+  if (char.status === "shielded") {
+    return { ...char, status: "running" };
+  }
   const newProgress = Math.max(0, char.progress - amount);
   return {
     ...char,

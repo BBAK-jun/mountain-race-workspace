@@ -105,15 +105,14 @@ export function ResultScreen() {
     return cards;
   }, [mvpMostHit, mvpLastUltimate, mvpComeback]);
 
-  const connectionStatus = useConnectionStore((s) => s.status);
   const roomCode = useConnectionStore((s) => s.roomCode);
-  const isMultiplayer = connectionStatus === "connected" && roomCode;
+  const isMultiplayer = Boolean(roomCode);
 
   const handleGoSetup = () => {
     resetGame();
     resetRouteGuardSnapshot();
     if (isMultiplayer) {
-      void navigate({ to: "/lobby", search: { code: roomCode } });
+      void navigate({ to: "/lobby", search: { code: roomCode ?? undefined } });
     } else {
       void navigate({ to: "/setup" });
     }
