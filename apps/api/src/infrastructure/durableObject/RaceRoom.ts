@@ -10,8 +10,11 @@ import {
   handlePlayerDisconnect,
 } from "../../application/room/useCases";
 
+import type { Player } from "@mountain-race/types";
+
 interface SessionAttachment {
   playerId: string;
+  player: Player;
 }
 
 const ROOM_TTL_MS = 5 * 60 * 1000;
@@ -55,10 +58,14 @@ export class RaceRoom extends DurableObject implements Broadcaster {
     const player = this.registry.addPlayer();
 
     this.ctx.acceptWebSocket(server);
-    server.serializeAttachment({ playerId: player.id } satisfies SessionAttachment);
+    server.serializeAttachment({ playerId: player.id, player } satisfies SessionAttachment);
 
     this.broadcast({ type: "playerJoined", player });
-    this.sendTo(server, { type: "roomState", state: this.registry.roomState() });
+    this.sendTo(server, {
+      type: "roomState",
+      state: this.registry.roomState(),
+      yourPlayerId: player.id,
+    });
     this.scheduleRoomTTL();
 
     return new Response(null, { status: 101, webSocket: client });
@@ -83,10 +90,12 @@ export class RaceRoom extends DurableObject implements Broadcaster {
     switch (msg.type) {
       case "setCharacter":
         handleSetCharacter(deps, player, msg);
+        ws.serializeAttachment({ playerId: player.id, player } satisfies SessionAttachment);
         break;
 
       case "setReady":
         handleSetReady(deps, player, msg);
+        ws.serializeAttachment({ playerId: player.id, player } satisfies SessionAttachment);
         break;
 
       case "startRace":
@@ -254,10 +263,14 @@ export class RaceRoom extends DurableObject implements Broadcaster {
 
   private restoreHibernatedSessions(): void {
     for (const ws of this.ctx.getWebSockets()) {
-      const id = this.playerIdFrom(ws);
-      if (id) {
-        const player = this.registry.get(id);
-        if (player) player.connected = true;
+      const attachment = ws.deserializeAttachment() as SessionAttachment | null;
+      if (!attachment) continue;
+
+      const existing = this.registry.get(attachment.playerId);
+      if (existing) {
+        existing.connected = true;
+      } else if (attachment.player) {
+        this.registry.restorePlayer({ ...attachment.player, connected: true });
       }
     }
   }

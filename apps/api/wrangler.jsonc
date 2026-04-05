@@ -14,7 +14,7 @@
   "migrations": [
     {
       "tag": "v1",
-      "new_classes": ["RaceRoom"],
+      "new_sqlite_classes": ["RaceRoom"],
     },
   ],
 }

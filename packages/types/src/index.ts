@@ -191,7 +191,7 @@ export type ClientMessage =
   | { type: "activateEffect" };
 
 export type ServerMessage =
-  | { type: "roomState"; state: RoomState }
+  | { type: "roomState"; state: RoomState; yourPlayerId: string }
   | { type: "playerJoined"; player: Player }
   | { type: "playerLeft"; playerId: string }
   | { type: "playerUpdated"; playerId: string; changes: Partial<Player> }

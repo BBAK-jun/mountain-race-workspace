@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as ResultRouteImport } from './routes/result'
 import { Route as RaceRouteImport } from './routes/race'
+import { Route as LobbyRouteImport } from './routes/lobby'
 import { Route as IndexRouteImport } from './routes/index'
 
 const SetupRoute = SetupRouteImport.update({
@@ -29,6 +30,11 @@ const RaceRoute = RaceRouteImport.update({
   path: '/race',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LobbyRoute = LobbyRouteImport.update({
+  id: '/lobby',
+  path: '/lobby',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -37,12 +43,14 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/lobby': typeof LobbyRoute
   '/race': typeof RaceRoute
   '/result': typeof ResultRoute
   '/setup': typeof SetupRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/lobby': typeof LobbyRoute
   '/race': typeof RaceRoute
   '/result': typeof ResultRoute
   '/setup': typeof SetupRoute
@@ -50,20 +58,22 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/lobby': typeof LobbyRoute
   '/race': typeof RaceRoute
   '/result': typeof ResultRoute
   '/setup': typeof SetupRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/race' | '/result' | '/setup'
+  fullPaths: '/' | '/lobby' | '/race' | '/result' | '/setup'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/race' | '/result' | '/setup'
-  id: '__root__' | '/' | '/race' | '/result' | '/setup'
+  to: '/' | '/lobby' | '/race' | '/result' | '/setup'
+  id: '__root__' | '/' | '/lobby' | '/race' | '/result' | '/setup'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LobbyRoute: typeof LobbyRoute
   RaceRoute: typeof RaceRoute
   ResultRoute: typeof ResultRoute
   SetupRoute: typeof SetupRoute
@@ -92,6 +102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RaceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lobby': {
+      id: '/lobby'
+      path: '/lobby'
+      fullPath: '/lobby'
+      preLoaderRoute: typeof LobbyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -104,6 +121,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LobbyRoute: LobbyRoute,
   RaceRoute: RaceRoute,
   ResultRoute: ResultRoute,
   SetupRoute: SetupRoute,
