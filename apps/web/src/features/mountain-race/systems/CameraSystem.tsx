@@ -46,8 +46,9 @@ export function getTargetTrackPosition(
   rankings: string[],
   cameraTarget: string | null,
   out: Vector3,
+  finishedIds: string[] = [],
 ): boolean {
-  const target = resolveTarget(characters, rankings, cameraTarget);
+  const target = resolveTarget(characters, rankings, cameraTarget, finishedIds);
   if (!target) return false;
   getTrackPointTo(target.progress, out);
   return true;

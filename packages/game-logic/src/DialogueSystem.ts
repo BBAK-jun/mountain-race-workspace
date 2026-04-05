@@ -30,6 +30,7 @@ import {
   TARGET_EVENT_DIALOGUES,
   ULTIMATE_FALLBACK_DIALOGUES,
   ULTIMATE_SPECIFIC_DIALOGUES,
+  type FinishRank,
 } from "./data/dialogues";
 
 // ── Public interfaces ────────────────────────────────────────────────────────
@@ -94,7 +95,7 @@ const EVENT_CATEGORY_PRIORITY: Readonly<Record<string, number>> = {
 
 // ── Finish dialogue selection ────────────────────────────────────────────────
 
-function getFinishDialogueKey(rank: number, totalCharacters: number): string {
+function getFinishDialogueKey(rank: number, totalCharacters: number): FinishRank {
   if (rank === totalCharacters) return "last";
   if (rank === 1) return "first";
   if (rank === 2) return "second";
@@ -102,6 +103,7 @@ function getFinishDialogueKey(rank: number, totalCharacters: number): string {
   return "rest";
 }
 
+// Same-tick ties: only the first finisher (by unclamped progress) speaks.
 function pickFinishDialogue(
   newlyFinishedIds: readonly string[],
   finishedIds: string[],

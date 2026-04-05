@@ -19,9 +19,9 @@ function FreeOrbitControls() {
     const controls = controlsRef.current;
     if (!controls) return;
 
-    const { cameraTarget, characters, rankings } = useGameStore.getState();
+    const { cameraTarget, characters, rankings, finishedIds } = useGameStore.getState();
 
-    const ok = getTargetTrackPosition(characters, rankings, cameraTarget, _focusPos);
+    const ok = getTargetTrackPosition(characters, rankings, cameraTarget, _focusPos, finishedIds);
     if (!ok) return;
 
     const isFirstFrame = prevTargetRef.current === undefined;

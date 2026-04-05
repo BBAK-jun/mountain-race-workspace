@@ -149,10 +149,16 @@ function resolveAutoCamera(input: AutoCameraInput): AutoCameraResult | null {
     return { cameraMode: "follow", cameraTarget: null };
   }
 
-  // Already in a timed mode -- don't interrupt
+  // Already in a timed mode -- don't interrupt.
+  // If a new finisher arrives during an active shake/zoom, the reaction is deferred
+  // until the current sequence ends. finishReactionCount still accumulates so the
+  // total reaction budget is tracked correctly.
   if (autoCameraState.endTime > 0 && elapsedTime < autoCameraState.endTime) return null;
 
-  // Finisher reaction -- shake then zoom on finisher, then follow unfinished leader
+  // Finisher reaction -- shake then zoom on finisher, then follow unfinished leader.
+  // When multiple characters finish on the same tick, only the first (by unclamped
+  // progress) gets the camera reaction and dialogue. This is intentional: same-tick
+  // ties are rare and a single celebration keeps the pacing snappy.
   if (
     newlyFinishedIds.length > 0 &&
     autoCameraState.finishReactionCount < CAMERA_FINISH_REACTION_LIMIT
