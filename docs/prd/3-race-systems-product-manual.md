@@ -1,6 +1,8 @@
-# 🏔️ 등산복 입고 뛰어 — 기술 구현 PRD
+# Mountain Race 제품설명서 3. 레이스 시스템
 
-> 제품 PRD: `docs/mountain-race-product-prd.md` 참조
+이 문서는 코어 레이스를 구현하는 화면, 상태, 이벤트 시스템 기준을 정의한다.
+
+> 제품 기준: `docs/prd/1-core-race-product-manual.md` 참조
 >
 > 실제 구현 루트: `apps/web/src`
 
@@ -504,7 +506,7 @@ export const BALANCE = {
 
 ## 14. 멀티플레이어 아키텍처
 
-> 상세 요구사항: `docs/multiplayer-hidden-effects-prd.md` 참조
+> 확장 기능: `docs/prd/4-online-hidden-effects-product-manual.md` 참조
 
 ### 14.1 공유 패키지
 

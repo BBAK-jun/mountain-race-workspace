@@ -1,0 +1,11 @@
+# Project-specific Codex additions for Mountain Race Workspace.
+# Codex loads this as a project override when the repository is trusted.
+
+[features]
+codex_hooks = true
+
+[mcp_servers.shadcn]
+command = "pnpm"
+args = ["dlx", "shadcn@latest", "mcp"]
+enabled = true
+startup_timeout_sec = 30

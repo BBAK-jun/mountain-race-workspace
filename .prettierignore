@@ -4,3 +4,5 @@ coverage
 .omx
 pnpm-lock.yaml
 apps/web/src/routeTree.gen.ts
+.codex/config.toml
+.codex/agents

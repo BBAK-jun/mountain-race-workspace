@@ -1,12 +1,14 @@
-# 등산복 입고 뛰어 — 온라인 멀티플레이어 & 숨겨진 효과 PRD
+# Mountain Race 제품설명서 4. 온라인 멀티플레이와 숨겨진 효과
+
+이 문서는 온라인 멀티플레이와 숨겨진 효과 확장을 제품 기준으로 정의한다.
 
 > "각자 기기에서 접속해 캐릭터를 등록하고, 정체를 알 수 없는 비밀 효과를 쥔 채 레이스를 관전하는 온라인 파티 게임"
 
 기준 문서:
 
-- `docs/mountain-race-product-prd.md` (제품 PRD)
-- `docs/mountain-race-technical-prd.md` (기술 PRD)
-- `docs/mountain-race-mvp-guide.md` (MVP 가이드)
+- `docs/prd/1-core-race-product-manual.md` (코어 레이스 제품설명서)
+- `docs/prd/2-mvp-race-product-manual.md` (MVP 플레이 흐름 제품설명서)
+- `docs/prd/3-race-systems-product-manual.md` (레이스 시스템 제품설명서)
 
 ---
 
@@ -16,7 +18,7 @@
 | ---------- | --------------------------------------------------------------------------------------------------- |
 | 기능명     | 온라인 멀티플레이어 + 숨겨진 랜덤 효과                                                              |
 | 한 줄 요약 | 각자 기기에서 방에 접속해 캐릭터를 등록하고, 정체 모를 비밀 효과를 발동할지 말지 선택하는 관전 게임 |
-| 대상 Phase | 제품 PRD Phase 3 (실시간 멀티)                                                                      |
+| 대상 Phase | 제품설명서 타임라인 4 (실시간 멀티)                                                                 |
 | 인프라     | Cloudflare Workers + Durable Objects + WebSocket                                                    |
 | API 패턴   | Hono RPC (타입 세이프 클라이언트-서버 계약)                                                         |
 
@@ -383,7 +385,7 @@ const ws = client.rooms[":code"].ws.$ws({ param: { code: "ABCD" } });
 
 | Phase | 브랜치                     | 내용                                          |
 | ----- | -------------------------- | --------------------------------------------- |
-| 0     | `feat/multiplayer-base`    | 이 PRD + 워크스페이스 준비                    |
+| 0     | `feat/multiplayer-base`    | 이 제품설명서 + 워크스페이스 준비             |
 | 1     | `feat/mp-1-shared-package` | `packages/types` + `packages/game-logic` 추출 |
 | 2     | `feat/mp-2-durable-object` | RaceRoom DO + Hono RPC 라우트 + WebSocket     |
 | 3     | `feat/mp-3-server-sim`     | 서버 사이드 시뮬레이션 tick + 브로드캐스트    |

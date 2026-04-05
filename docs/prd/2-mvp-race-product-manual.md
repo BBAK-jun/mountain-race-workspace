@@ -1,6 +1,8 @@
-# Mountain Race MVP Development Guide
+# Mountain Race 제품설명서 2. MVP 플레이 흐름
 
-이 문서는 제품 PRD와 기술 PRD를 현재 레포 구조에 맞춰 바로 구현 가능한 작업 지침으로 변환한 가이드다.
+이 문서는 코어 레이스를 현재 레포에서 MVP로 구현하는 제품 기준을 정의한다.
+
+이 문서는 제품설명서 1과 3을 현재 레포 구조에 맞춰 바로 구현 가능한 작업 지침으로 변환한 가이드다.
 
 ---
 
@@ -20,10 +22,10 @@
 문서가 충돌하면 다음 순서를 따른다.
 
 1. 이 문서의 `MVP 고정 결정`
-2. `docs/mountain-race-product-prd.md`
-3. `docs/mountain-race-technical-prd.md`
+2. `docs/prd/1-core-race-product-manual.md`
+3. `docs/prd/3-race-systems-product-manual.md`
 
-제품 아이디어를 바꾸는 결정은 제품 PRD 기준으로 합의하고, 현재 레포에 어떻게 얹을지는 이 문서를 우선한다.
+제품 방향을 바꾸는 결정은 제품설명서 1을 기준으로 합의하고, 현재 레포에 어떻게 얹을지는 이 문서를 우선한다.
 
 ---
 
@@ -48,7 +50,7 @@
 
 ### 3.4 순위 기반 확률 매핑
 
-- 제품 PRD의 4단계 확률표는 `2~8명` 전체 인원에 대해 선형 보간으로 적용한다.
+- 제품설명서 1의 4단계 확률표는 `2~8명` 전체 인원에 대해 선형 보간으로 적용한다.
 - 즉, 현재 순위를 `0~1` 구간으로 정규화한 뒤 `좋은 이벤트`, `나쁜 이벤트`, `피살기` 확률을 계산한다.
 
 예시 구현:
@@ -158,7 +160,7 @@ apps/web/src/
 - `apps/web/src/routes/result.tsx`는 `ResultScreen`을 렌더링한다.
 - `apps/web/src/routes/__root.tsx`는 `<Outlet />` 중심의 최소 셸만 남기고 게임 화면 폭/높이를 제한하지 않는다.
 - 현재 `app-shell`, `topbar`, `page-shell`, `page-grid`, `panel` 중심 스타터 구조에는 게임 UI를 얹지 않는다.
-- PRD의 `src/*` 구조는 실제로는 `apps/web/src/features/mountain-race/*` 아래에 배치한다.
+- 제품설명서의 `src/*` 구조는 실제로는 `apps/web/src/features/mountain-race/*` 아래에 배치한다.
 - 공용 UI 컴포넌트는 기존 `apps/web/src/components/ui/*`를 그대로 사용한다.
 
 ---
@@ -349,8 +351,8 @@ apps/web/src/
 
 ## 10. 개발 중 자주 참고할 파일
 
-- 제품 기준: `docs/mountain-race-product-prd.md`
-- 시스템 기준: `docs/mountain-race-technical-prd.md`
+- 제품 기준: `docs/prd/1-core-race-product-manual.md`
+- 시스템 기준: `docs/prd/3-race-systems-product-manual.md`
 - 웹 앱 시작점: `apps/web/src/routes/index.tsx`
 - 웹 앱 현재 설명: `apps/web/README.md`
 

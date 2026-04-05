@@ -9,6 +9,7 @@ catalog:
   "@react-three/fiber": ^9.3.0
   "@tanstack/react-router": ^1.168.10
   "@tanstack/router-plugin": ^1.167.12
+  "@types/node": ^24.0.0
   "@types/react": ^19.2.14
   "@types/react-dom": ^19.2.3
   "@types/three": ^0.179.0

@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+pnpm docs:sync || {
+  echo "Commit blocked: docs harness failed."
+  exit 1
+}
+
+git add README.md docs/README.md docs/project-status.md apps/README.md apps/api/README.md apps/web/README.md || {
+  echo "Commit blocked: failed to stage generated docs."
+  exit 1
+}
