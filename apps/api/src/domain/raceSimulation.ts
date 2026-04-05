@@ -52,6 +52,7 @@ export class RaceSimulation {
   private ultimateCount = 0;
   private activeBubble: ActiveBubble | null = null;
   private newlyFinishedIds: string[] = [];
+  private currentTickEvents: GameEvent[] = [];
   private lastBroadcastAt = 0;
   private lastTickWallTime = 0;
   readonly effects = new HiddenEffectManager();
@@ -247,6 +248,7 @@ export class RaceSimulation {
     this.activeGlobalEvent = result.activeGlobalEvent;
     this.globalEventEndTime = result.globalEventEndTime;
     this.ultimateCount = result.ultimateCount;
+    this.currentTickEvents = result.newEvents;
 
     if (result.newEvents.length > 0) this.events.push(...result.newEvents);
     if (result.newLogs.length > 0) this.eventLogs.push(...result.newLogs);
@@ -260,7 +262,7 @@ export class RaceSimulation {
       newlyFinishedIds: this.newlyFinishedIds,
       elapsedTime: this.elapsedTime,
       activeBubble: this.activeBubble,
-      newEvents: this.events.slice(-5),
+      newEvents: this.currentTickEvents,
     });
     this.activeBubble = result.activeBubble;
   }
