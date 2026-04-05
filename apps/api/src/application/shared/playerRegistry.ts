@@ -51,6 +51,13 @@ export class PlayerRegistry {
     return this.players.get(id);
   }
 
+  restorePlayer(player: Player): void {
+    this.players.set(player.id, player);
+    if (player.isHost) {
+      this._hostId = player.id;
+    }
+  }
+
   addPlayer(): Player {
     const playerId = crypto.randomUUID();
     const colorIndex = this.players.size;

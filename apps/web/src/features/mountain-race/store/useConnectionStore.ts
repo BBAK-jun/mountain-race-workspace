@@ -111,18 +111,13 @@ function handleServerMessage(msg: ServerMessage, set: SetState, get: GetState): 
       set({
         players: msg.state.players,
         phase: msg.state.phase,
-        playerId: get().playerId ?? msg.state.players[msg.state.players.length - 1]?.id ?? null,
-        isHost:
-          msg.state.hostId ===
-          (get().playerId ?? msg.state.players[msg.state.players.length - 1]?.id),
+        playerId: msg.yourPlayerId,
+        isHost: msg.state.hostId === msg.yourPlayerId,
       });
       break;
 
     case "playerJoined":
       set({ players: [...get().players, msg.player] });
-      if (!get().playerId) {
-        set({ playerId: msg.player.id, isHost: msg.player.isHost });
-      }
       break;
 
     case "playerLeft":
