@@ -5,22 +5,32 @@ import { generateRoomCode, getDurableObjectStub } from "../shared";
 export function createRoomHandlers() {
   return {
     async createRoom(c: Context<Env>) {
-      const code = generateRoomCode();
-      const stub = getDurableObjectStub(c.env, code);
+      const MAX_ATTEMPTS = 5;
 
-      const res = await stub.fetch(
-        new Request("https://do/init", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ roomCode: code }),
-        }),
-      );
+      for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+        const code = generateRoomCode();
+        const stub = getDurableObjectStub(c.env, code);
 
-      if (!res.ok) {
-        return c.json({ error: "Failed to create room" }, 500);
+        const stateRes = await stub.fetch(new Request("https://do/state"));
+        if (stateRes.ok) {
+          const state = (await stateRes.json()) as { players?: unknown[] };
+          if (state.players && (state.players as unknown[]).length > 0) continue;
+        }
+
+        const res = await stub.fetch(
+          new Request("https://do/init", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ roomCode: code }),
+          }),
+        );
+
+        if (!res.ok) continue;
+
+        return c.json({ roomCode: code }, 201);
       }
 
-      return c.json({ roomCode: code }, 201);
+      return c.json({ error: "Failed to create room" }, 500);
     },
 
     async getRoom(c: Context<Env>) {

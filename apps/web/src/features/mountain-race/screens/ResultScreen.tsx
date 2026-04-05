@@ -105,10 +105,18 @@ export function ResultScreen() {
     return cards;
   }, [mvpMostHit, mvpLastUltimate, mvpComeback]);
 
+  const connectionStatus = useConnectionStore((s) => s.status);
+  const roomCode = useConnectionStore((s) => s.roomCode);
+  const isMultiplayer = connectionStatus === "connected" && roomCode;
+
   const handleGoSetup = () => {
     resetGame();
     resetRouteGuardSnapshot();
-    void navigate({ to: "/setup" });
+    if (isMultiplayer) {
+      void navigate({ to: "/lobby", search: { code: roomCode } });
+    } else {
+      void navigate({ to: "/setup" });
+    }
   };
 
   const handleGoLobby = () => {
@@ -370,9 +378,16 @@ function HiddenEffectsSection({
                 <p className="text-[0.6rem] text-white/40">{a.effect.description}</p>
               </div>
               {a.activated ? (
-                <span className="shrink-0 rounded-full bg-red-500/80 px-2 py-0.5 text-[0.6rem] font-bold text-white">
-                  발동!
-                </span>
+                <div className="flex shrink-0 flex-col items-end gap-0.5">
+                  <span className="rounded-full bg-red-500/80 px-2 py-0.5 text-[0.6rem] font-bold text-white">
+                    발동!
+                  </span>
+                  {a.activatedAt != null && (
+                    <span className="text-[0.55rem] tabular-nums text-white/50">
+                      {a.activatedAt.toFixed(1)}초에 발동
+                    </span>
+                  )}
+                </div>
               ) : (
                 <div className="flex shrink-0 flex-col items-end gap-0.5">
                   <span className="rounded-full bg-white/15 px-2 py-0.5 text-[0.6rem] font-bold text-white/60">

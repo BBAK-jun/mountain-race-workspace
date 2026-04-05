@@ -31,20 +31,21 @@ export const magnetEffect: EffectHandler = {
   apply({ casterIndex, caster, characters, rankings }: EffectContext): EffectResult {
     const updated = [...characters];
     const rankIndex = rankings.indexOf(caster.id);
-    const secondPlaceId = rankings[1];
 
-    if (rankIndex > 0 && secondPlaceId) {
-      const second = updated.find((c) => c.id === secondPlaceId);
-      if (second) {
-        const pullback = Math.abs(caster.progress - second.progress) * 0.5;
-        updated[casterIndex] = {
-          ...caster,
-          progress: Math.max(0, caster.progress - pullback),
-          stats: { ...caster.stats, setbackTotal: caster.stats.setbackTotal + pullback },
-        };
-      }
-    }
+    if (rankIndex <= 0) return { characters: updated };
 
+    const aheadId = rankings[rankIndex - 1];
+    if (!aheadId) return { characters: updated };
+
+    const ahead = updated.find((c) => c.id === aheadId);
+    if (!ahead) return { characters: updated };
+
+    const pullback = Math.abs(caster.progress - ahead.progress) * 0.5;
+    updated[casterIndex] = {
+      ...caster,
+      progress: Math.max(0, caster.progress - pullback),
+      stats: { ...caster.stats, setbackTotal: caster.stats.setbackTotal + pullback },
+    };
     return { characters: updated };
   },
 };

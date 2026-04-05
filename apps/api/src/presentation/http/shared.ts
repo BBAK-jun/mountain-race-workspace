@@ -11,7 +11,8 @@ export function getDurableObjectStub(env: Env["Bindings"], code: string) {
 
 export function generateRoomCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ";
-  let code = "";
+  const timePart = chars[Date.now() % chars.length];
+  let code = timePart ?? "";
   for (let i = 0; i < 4; i++) {
     code += chars[Math.floor(Math.random() * chars.length)];
   }

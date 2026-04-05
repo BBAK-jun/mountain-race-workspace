@@ -131,6 +131,9 @@ function replaceChar(characters: Character[], updated: Character): Character[] {
 // ── Status application ───────────────────────────────────────────────────────
 
 function applyStun(char: Character, durationMs: number, elapsedTime: number): Character {
+  if (char.status === "shielded") {
+    return { ...char, status: "running" };
+  }
   return {
     ...char,
     status: "stunned",
@@ -154,6 +157,9 @@ function applyBoost(
 }
 
 function applySliding(char: Character, durationMs: number, elapsedTime: number): Character {
+  if (char.status === "shielded") {
+    return { ...char, status: "running" };
+  }
   return {
     ...char,
     status: "sliding",

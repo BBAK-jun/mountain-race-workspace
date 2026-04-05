@@ -31,7 +31,7 @@ export const shieldEffect: EffectHandler = {
     const updated = [...characters];
     updated[casterIndex] = {
       ...caster,
-      stats: { ...caster.stats, hitCount: caster.stats.hitCount - 1 },
+      status: "shielded",
     };
     return { characters: updated };
   },
