@@ -135,13 +135,18 @@ export function LandingScreen() {
             </div>
           )}
 
-          <Link
-            to="/setup"
-            className="text-sm font-bold text-white underline decoration-white/50 underline-offset-4 transition hover:decoration-white md:text-base"
-            style={{ textShadow: "0 1px 6px rgba(0,0,0,0.6)" }}
+          <button
+            type="button"
+            className="inline-flex h-13 items-center justify-center rounded-xl border-2 border-white px-10 text-base font-bold text-white shadow-lg transition-all duration-200 hover:scale-[1.03] hover:bg-white/10 active:scale-[0.98] md:h-14 md:px-12 md:text-lg"
           >
-            로컬 플레이
-          </Link>
+            <Link
+              to="/setup"
+              className="text-sm font-bold text-white underline decoration-white/50 underline-offset-4 transition hover:decoration-white md:text-base"
+              style={{ textShadow: "0 1px 6px rgba(0,0,0,0.6)" }}
+            >
+              로컬 플레이
+            </Link>
+          </button>
 
           <span
             className="text-xs tracking-wide text-white/70 md:text-sm"
