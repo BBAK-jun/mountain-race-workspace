@@ -89,6 +89,16 @@ export class PlayerRegistry {
     return true;
   }
 
+  removePlayer(playerId: string): Player | undefined {
+    const player = this.players.get(playerId);
+    if (!player) return undefined;
+    this.players.delete(playerId);
+    if (player.isHost) {
+      this._hostId = null;
+    }
+    return player;
+  }
+
   allReady(): boolean {
     for (const p of this.players.values()) {
       if (p.isHost) continue;

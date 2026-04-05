@@ -39,10 +39,17 @@ export function handlePlayerDisconnect(deps: RoomUseCaseDeps, playerId: string):
   const player = deps.registry.get(playerId);
   if (!player) return;
 
-  deps.registry.disconnect(playerId);
+  const wasHost = player.isHost;
+
+  if (deps.registry.phase === "waiting") {
+    deps.registry.removePlayer(playerId);
+  } else {
+    deps.registry.disconnect(playerId);
+  }
+
   deps.broadcaster.broadcast({ type: "playerLeft", playerId });
 
-  if (player.isHost) {
+  if (wasHost) {
     const newHost = deps.registry.transferHost();
     if (newHost) {
       deps.broadcaster.broadcast({
@@ -52,6 +59,4 @@ export function handlePlayerDisconnect(deps: RoomUseCaseDeps, playerId: string):
       });
     }
   }
-
-  if (deps.registry.phase === "waiting") deps.registry.clearIfEmpty();
 }
