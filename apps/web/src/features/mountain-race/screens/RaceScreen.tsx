@@ -5,7 +5,7 @@ import { Vector3 } from "three";
 import { useGameStore } from "@/features/mountain-race/store";
 import { Track } from "@/features/mountain-race/components/Track";
 import { Character } from "@/features/mountain-race/components/Character";
-import { Environment } from "@/features/mountain-race/components/Environment";
+import { Environment } from "@/features/mountain-race/components/environment";
 import { SpeechBubble } from "@/features/mountain-race/components/SpeechBubble";
 import { CameraSystem, getTargetTrackPosition } from "@/features/mountain-race/systems";
 

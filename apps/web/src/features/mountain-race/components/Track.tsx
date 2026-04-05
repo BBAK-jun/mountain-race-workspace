@@ -1,18 +1,26 @@
 import { useLayoutEffect, useMemo, useRef } from "react";
-import { CatmullRomCurve3, Object3D, type InstancedMesh, Vector3 } from "three";
-import { FINISH_LINE } from "@/features/mountain-race/constants";
+import { Object3D, Vector3, type InstancedMesh } from "three";
+import {
+  trackCurve,
+  getTrackPoint,
+  getTrackPointTo,
+  getTrackTangent,
+  getTrackTangentTo,
+  getFinishLinePosition,
+  getFinishLinePositionTo,
+  FINISH_LINE_PROGRESS,
+} from "@/features/mountain-race/data/trackPath";
 
-const TRACK_POINTS = [
-  new Vector3(0, 0, 6),
-  new Vector3(6, 1.5, -10),
-  new Vector3(-5, 3.5, -24),
-  new Vector3(7.5, 6.5, -40),
-  new Vector3(-7, 9.5, -58),
-  new Vector3(6.5, 13, -78),
-  new Vector3(-6, 16.5, -100),
-  new Vector3(4, 20, -122),
-  new Vector3(0, 24, -142),
-];
+export {
+  trackCurve,
+  getTrackPoint,
+  getTrackPointTo,
+  getTrackTangent,
+  getTrackTangentTo,
+  getFinishLinePosition,
+  getFinishLinePositionTo,
+  FINISH_LINE_PROGRESS,
+};
 
 const TRAIL_CONFIG = {
   sampleCount: 200,
@@ -40,36 +48,8 @@ const TRAIL_CONFIG = {
 export const TRACK_SURFACE_Y_OFFSET = TRAIL_CONFIG.centerYOffset + TRAIL_CONFIG.thickness / 2;
 const _surfacePoint = new Vector3();
 
-export const trackCurve = new CatmullRomCurve3(TRACK_POINTS, false, "catmullrom", 0.3);
-
-export const FINISH_LINE_PROGRESS = FINISH_LINE;
-
-export function getTrackPoint(progress: number): Vector3 {
-  return trackCurve.getPointAt(Math.min(Math.max(progress, 0), 1));
-}
-
-export function getTrackPointTo(progress: number, out: Vector3): Vector3 {
-  return trackCurve.getPointAt(Math.min(Math.max(progress, 0), 1), out);
-}
-
 export function getTrackSurfaceY(progress: number): number {
   return getTrackPointTo(progress, _surfacePoint).y + TRACK_SURFACE_Y_OFFSET;
-}
-
-export function getTrackTangent(progress: number): Vector3 {
-  return trackCurve.getTangentAt(Math.min(Math.max(progress, 0), 1));
-}
-
-export function getTrackTangentTo(progress: number, out: Vector3): Vector3 {
-  return trackCurve.getTangentAt(Math.min(Math.max(progress, 0), 1), out);
-}
-
-export function getFinishLinePosition(): Vector3 {
-  return trackCurve.getPointAt(FINISH_LINE_PROGRESS);
-}
-
-export function getFinishLinePositionTo(out: Vector3): Vector3 {
-  return trackCurve.getPointAt(FINISH_LINE_PROGRESS, out);
 }
 
 function FinishLine() {
@@ -168,7 +148,8 @@ export function Track() {
     const up = new Vector3(0, 1, 0);
     const lastIndex = Math.max(sampled.length - 2, 1);
 
-    let prevRailPost: Vector3 | null = null;
+    let prevRailPostLeft: Vector3 | null = null;
+    let prevRailPostRight: Vector3 | null = null;
 
     for (let i = 0; i < sampled.length - 1; i++) {
       const start = sampled[i];
@@ -212,7 +193,9 @@ export function Track() {
       if (slope > RAIL_CONFIG.slopeThreshold && i % RAIL_CONFIG.postEvery === 0) {
         const side = dir.clone().cross(up).normalize();
         const railSide = i % 16 < 8 ? 1 : -1;
-        const postPos = mid.clone().add(side.multiplyScalar(railSide * RAIL_CONFIG.sideOffset));
+        const postPos = mid
+          .clone()
+          .add(side.clone().multiplyScalar(railSide * RAIL_CONFIG.sideOffset));
         postPos.y += RAIL_CONFIG.postHeight * 0.5 + TRAIL_CONFIG.centerYOffset;
 
         outputRailPosts.push({
@@ -221,10 +204,11 @@ export function Track() {
           scale: [1, 1, 1],
         });
 
-        if (prevRailPost) {
-          const ropeMid = prevRailPost.clone().add(postPos).multiplyScalar(0.5);
-          const ropeDist = prevRailPost.distanceTo(postPos);
-          const ropeDir = postPos.clone().sub(prevRailPost);
+        const prevPost = railSide === 1 ? prevRailPostLeft : prevRailPostRight;
+        if (prevPost) {
+          const ropeMid = prevPost.clone().add(postPos).multiplyScalar(0.5);
+          const ropeDist = prevPost.distanceTo(postPos);
+          const ropeDir = postPos.clone().sub(prevPost);
           const ropeYaw = Math.atan2(ropeDir.x, ropeDir.z);
           const ropePitch = -Math.atan2(
             ropeDir.y,
@@ -233,12 +217,17 @@ export function Track() {
           outputRopes.push({
             position: [ropeMid.x, ropeMid.y, ropeMid.z],
             rotation: [ropePitch, ropeYaw, 0],
-            scale: [1, 1, ropeDist],
+            scale: [1, ropeDist, 1],
           });
         }
-        prevRailPost = postPos;
+        if (railSide === 1) {
+          prevRailPostLeft = postPos;
+        } else {
+          prevRailPostRight = postPos;
+        }
       } else if (slope <= RAIL_CONFIG.slopeThreshold) {
-        prevRailPost = null;
+        prevRailPostLeft = null;
+        prevRailPostRight = null;
       }
 
       if (i % TRAIL_CONFIG.stoneEvery === 0) {
