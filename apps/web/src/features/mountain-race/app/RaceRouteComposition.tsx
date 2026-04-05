@@ -88,7 +88,13 @@ export function RaceRouteComposition() {
 
 function MultiplayerCountdown() {
   const serverPhase = useConnectionStore((s) => s.phase);
+  const myPlayerId = useConnectionStore((s) => s.playerId);
+  const setCameraTarget = useGameStore((s) => s.setCameraTarget);
   const [countdownPhase, setCountdownPhase] = useState(COUNTDOWN_SECONDS);
+
+  useEffect(() => {
+    if (myPlayerId) setCameraTarget(myPlayerId);
+  }, [myPlayerId, setCameraTarget]);
 
   useEffect(() => {
     if (serverPhase !== "countdown") return;
