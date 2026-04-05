@@ -23,14 +23,14 @@ export function LandingScreen() {
     setCreating(true);
     const code = await createRoom();
     setCreating(false);
-    if (code) void navigate({ to: "/lobby" });
+    if (code) void navigate({ to: "/lobby", search: { code } });
   }, [createRoom, navigate]);
 
   const handleJoin = useCallback(() => {
     const code = joinCode.trim().toUpperCase();
     if (code.length < 4) return;
     joinRoom(code);
-    void navigate({ to: "/lobby" });
+    void navigate({ to: "/lobby", search: { code } });
   }, [joinCode, joinRoom, navigate]);
 
   return (
