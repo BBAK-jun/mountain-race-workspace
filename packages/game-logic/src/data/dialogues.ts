@@ -99,12 +99,48 @@ export const CLOSE_RACE_DIALOGUES: readonly string[] = [
 
 // ── Finish dialogues ───────────────────────────────────────────────────────
 
-export const FINISH_DIALOGUES: Record<string, readonly string[]> = {
-  first: ["정상에서 기다렸습니다 ㅎ"],
-  second: ["아 1등 할 수 있었는데"],
-  third: ["나쁘지 않네"],
-  rest: ["다음엔 안 온다"],
-  last: ["산에서 뛰지 말라니까요"],
+export type FinishRank = "first" | "second" | "third" | "rest" | "last";
+
+export const FINISH_DIALOGUES: Record<FinishRank, readonly string[]> = {
+  first: [
+    "정상에서 기다렸습니다 ㅎ",
+    "여기 경치 좋네요~",
+    "1등이 제일 쉬웠어요",
+    "김밥 먼저 먹는다",
+    "올라오세요 여러분~",
+    "역시 체력은 거짓말 안 하지",
+  ],
+  second: [
+    "아 1등 할 수 있었는데",
+    "0.1초 차이 실화?",
+    "다음엔 진다 이긴다",
+    "아까 그 돌만 안 맞았으면",
+    "은메달도 메달이다",
+    "억울한데 할 말 없다",
+  ],
+  third: [
+    "나쁘지 않네",
+    "동메달이면 선방이지",
+    "중간은 간다",
+    "3등도 시상대 올라가죠?",
+    "이 정도면 잘한 거 아닌가",
+  ],
+  rest: [
+    "다음엔 안 온다",
+    "등산 접는다 진짜",
+    "다리가 후들후들",
+    "물 좀 주세요",
+    "택시 어디서 잡지",
+    "산악회비 환불 가능?",
+  ],
+  last: [
+    "산에서 뛰지 말라니까요",
+    "경치 구경하느라 늦었습니다",
+    "꼴등도 완주는 완주다",
+    "난 즐기러 왔어요",
+    "마지막이 제일 기억에 남는 법",
+    "다음엔 케이블카 탄다",
+  ],
 };
 
 // ── Skill caster dialogues ─────────────────────────────────────────────────
