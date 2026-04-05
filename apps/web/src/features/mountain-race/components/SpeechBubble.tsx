@@ -2,6 +2,7 @@ import { Html } from "@react-three/drei";
 import { useRef, useEffect, useState } from "react";
 import type { ActiveBubble } from "@/features/mountain-race/types";
 import { DIALOGUE_DISPLAY_TIME_MS } from "@/features/mountain-race/constants";
+import { useGameStore } from "@/features/mountain-race/store";
 import { getTrackPoint } from "./Track";
 
 const BUBBLE_Y_OFFSET = 3.0;
@@ -157,42 +158,68 @@ const WISPS: WispConfig[] = [
   },
 ];
 
-interface SpeechBubbleProps {
-  activeBubble: ActiveBubble | null;
-  characterProgress: number | null;
+const PROGRESS_QUANTIZE_STEP = 0.02;
+
+function deriveBubbleKey(b: ActiveBubble | null): string | null {
+  return b ? `${b.characterId}-${b.endTime}` : null;
 }
 
-export function SpeechBubble({ activeBubble, characterProgress }: SpeechBubbleProps) {
+function useBubbleSelector() {
+  const activeBubble = useGameStore((s) => s.activeBubble);
+  const bubbleKey = deriveBubbleKey(activeBubble);
+
+  const characterProgress = useGameStore((s) => {
+    const bubble = s.activeBubble;
+    if (!bubble) return null;
+    const raw = s.characters.find((c) => c.id === bubble.characterId)?.progress ?? null;
+    if (raw === null) return null;
+    return Math.round(raw / PROGRESS_QUANTIZE_STEP) * PROGRESS_QUANTIZE_STEP;
+  });
+
+  return { activeBubble, bubbleKey, characterProgress };
+}
+
+export function SpeechBubble() {
+  const { activeBubble, bubbleKey, characterProgress } = useBubbleSelector();
+
   const [visibleBubble, setVisibleBubble] = useState<ActiveBubble | null>(null);
-  const prevKeyRef = useRef<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const activeKeyRef = useRef<string | null>(null);
+  const activeBubbleRef = useRef<ActiveBubble | null>(null);
+  activeBubbleRef.current = activeBubble;
 
   useEffect(() => {
     ensureKeyframes();
   }, []);
 
   useEffect(() => {
-    if (!activeBubble) return;
+    if (bubbleKey === activeKeyRef.current) return;
+    activeKeyRef.current = bubbleKey;
 
-    const key = `${activeBubble.characterId}-${activeBubble.endTime}`;
-    if (prevKeyRef.current === key) return;
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
 
-    prevKeyRef.current = key;
+    if (!bubbleKey) {
+      setVisibleBubble(null);
+      return;
+    }
 
-    if (timerRef.current) clearTimeout(timerRef.current);
-
-    setVisibleBubble(null);
-    requestAnimationFrame(() => setVisibleBubble(activeBubble));
+    setVisibleBubble(activeBubbleRef.current);
 
     timerRef.current = setTimeout(() => {
       setVisibleBubble(null);
-      prevKeyRef.current = null;
+      activeKeyRef.current = null;
     }, ANIMATION_DURATION_MS + 50);
 
     return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
     };
-  }, [activeBubble]);
+  }, [bubbleKey]);
 
   if (!visibleBubble || characterProgress === null) return null;
 
@@ -205,6 +232,7 @@ export function SpeechBubble({ activeBubble, characterProgress }: SpeechBubblePr
     <group position={[anchorPos.x, anchorPos.y + BUBBLE_Y_OFFSET, anchorPos.z]}>
       <Html center distanceFactor={12} zIndexRange={[1, 0]} style={{ pointerEvents: "none" }}>
         <div
+          key={bubbleKey}
           style={{
             position: "relative",
             display: "flex",

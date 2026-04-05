@@ -59,11 +59,6 @@ function SceneContent() {
   const cameraMode = useGameStore((s) => s.cameraMode);
   const cameraTarget = useGameStore((s) => s.cameraTarget);
   const activeGlobalEvent = useGameStore((s) => s.activeGlobalEvent);
-  const activeBubble = useGameStore((s) => s.activeBubble);
-
-  const bubbleCharProgress = activeBubble
-    ? (characters.find((c) => c.id === activeBubble.characterId)?.progress ?? null)
-    : null;
   const leaderId = rankings[0];
   const leaderProgress = leaderId ? (characters.find((c) => c.id === leaderId)?.progress ?? 0) : 0;
 
@@ -79,7 +74,7 @@ function SceneContent() {
           index={i}
         />
       ))}
-      <SpeechBubble activeBubble={activeBubble} characterProgress={bubbleCharProgress} />
+      <SpeechBubble />
       <CameraSystem
         cameraMode={cameraMode}
         cameraTarget={cameraTarget}
