@@ -138,7 +138,7 @@ export function LandingScreen() {
 
           <Link
             to="/setup"
-            className="inline-flex h-10 items-center justify-center rounded-lg px-6 text-sm font-medium text-white/60 transition hover:text-white/90"
+            className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-xl border border-white/20 bg-white/5 px-8 text-base font-bold text-white/80 shadow-lg backdrop-blur-sm transition-all duration-200 hover:scale-[1.03] hover:border-white/40 hover:bg-white/10 hover:text-white active:scale-[0.98] md:h-14 md:px-10 md:text-lg"
           >
             로컬 플레이
           </Link>
