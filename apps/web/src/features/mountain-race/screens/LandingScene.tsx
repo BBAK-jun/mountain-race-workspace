@@ -1,5 +1,5 @@
 import { useFrame } from "@react-three/fiber";
-import { Environment } from "@/features/mountain-race/components/Environment";
+import { Environment } from "@/features/mountain-race/components/environment";
 import { Track } from "@/features/mountain-race/components/Track";
 
 function LandingCamera() {

@@ -33,9 +33,9 @@ export function LandingScreen() {
         className="pointer-events-none absolute inset-0 z-[5]"
         style={{
           background: [
-            "radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.4) 100%)",
-            "linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 35%, transparent 60%)",
-            "linear-gradient(to bottom, rgba(10,30,50,0.3) 0%, transparent 25%)",
+            "radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.2) 100%)",
+            "linear-gradient(to top, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.08) 35%, transparent 60%)",
+            "linear-gradient(to bottom, rgba(10,30,50,0.15) 0%, transparent 25%)",
           ].join(", "),
         }}
       />

@@ -5,7 +5,7 @@ import { Vector3 } from "three";
 import { useGameStore } from "@/features/mountain-race/store";
 import { Track } from "@/features/mountain-race/components/Track";
 import { Character } from "@/features/mountain-race/components/Character";
-import { Environment } from "@/features/mountain-race/components/Environment";
+import { Environment } from "@/features/mountain-race/components/environment";
 import { SpeechBubble } from "@/features/mountain-race/components/SpeechBubble";
 import { CameraSystem, getTargetTrackPosition } from "@/features/mountain-race/systems";
 
@@ -104,7 +104,7 @@ export function RaceScreen() {
     >
       <Canvas
         camera={{ position: [0, 10, 20], fov: 60 }}
-        style={{ position: "absolute", inset: 0 }}
+        style={{ position: "absolute", inset: 0, background: "#c5ddf0" }}
       >
         <SceneContent />
       </Canvas>
