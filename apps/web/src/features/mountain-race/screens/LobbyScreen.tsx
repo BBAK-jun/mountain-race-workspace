@@ -1,6 +1,6 @@
 import { useConnectionStore } from "@/features/mountain-race/store/useConnectionStore";
 import { useNavigate } from "@tanstack/react-router";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -38,7 +38,14 @@ function PlayerRow({
   isHost: boolean;
   onNameChange?: ((v: string) => void) | undefined;
 }) {
+  const [localName, setLocalName] = useState(name);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (document.activeElement !== inputRef.current) {
+      setLocalName(name);
+    }
+  }, [name]);
 
   return (
     <div className="flex items-center gap-3 rounded-xl bg-white/5 px-4 py-3 backdrop-blur-sm">
@@ -51,9 +58,16 @@ function PlayerRow({
         <input
           ref={inputRef}
           type="text"
-          value={name}
+          value={localName}
           maxLength={12}
-          onChange={(e) => onNameChange?.(e.target.value)}
+          onChange={(e) => setLocalName(e.target.value)}
+          onBlur={() => onNameChange?.(localName)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              onNameChange?.(localName);
+              inputRef.current?.blur();
+            }
+          }}
           className="min-w-0 flex-1 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-sm font-medium text-white outline-none transition focus:border-emerald-400/50 focus:ring-1 focus:ring-emerald-400/30"
         />
       ) : (
