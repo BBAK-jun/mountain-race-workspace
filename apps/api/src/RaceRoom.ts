@@ -1,12 +1,29 @@
 import { DurableObject } from "cloudflare:workers";
 import type {
+  ActiveBubble,
+  Character,
   ClientMessage,
   ColorPreset,
+  EventLog,
+  GameEvent,
+  GlobalEventType,
   Player,
   RoomPhase,
   RoomState,
   ServerMessage,
 } from "@mountain-race/types";
+import {
+  COUNTDOWN_SECONDS,
+  FINISH_LINE,
+  GAME_SPEED,
+  JITTER_RANGE,
+  RACE_END_GRACE_PERIOD_MS,
+  VOLCANIC_ASH_SPEED_MULT,
+  initEventScheduler,
+  initDialogueScheduler,
+  processEvents,
+  processDialogues,
+} from "@mountain-race/game-logic";
 
 interface SessionAttachment {
   playerId: string;
@@ -25,12 +42,32 @@ const COLOR_PRESETS: readonly ColorPreset[] = [
 
 const MAX_PLAYERS = 8;
 const ROOM_TTL_MS = 5 * 60 * 1000;
+const SIM_TICK_MS = 16;
+const BROADCAST_INTERVAL_MS = 50;
+const RANK_CHANGE_CHECK_INTERVAL = 0.5;
 
 export class RaceRoom extends DurableObject {
   private players: Map<string, Player> = new Map();
   private phase: RoomPhase = "waiting";
   private hostId: string | null = null;
   private roomCode: string | null = null;
+
+  // ── Simulation state ───────────────────────────────────────────────────
+  private characters: Character[] = [];
+  private rankings: string[] = [];
+  private finishedIds: string[] = [];
+  private firstFinishTime: number | null = null;
+  private elapsedTime = 0;
+  private events: GameEvent[] = [];
+  private eventLogs: EventLog[] = [];
+  private activeGlobalEvent: GlobalEventType | null = null;
+  private globalEventEndTime = 0;
+  private ultimateCount = 0;
+  private activeBubble: ActiveBubble | null = null;
+  private countdownRemaining = 0;
+  private lastBroadcastAt = 0;
+  private lastRankChangeCheckTime = 0;
+  private lastTickWallTime = 0;
 
   constructor(ctx: DurableObjectState, env: Record<string, unknown>) {
     super(ctx, env);
@@ -201,9 +238,233 @@ export class RaceRoom extends DurableObject {
   }
 
   override async alarm(): Promise<void> {
+    if (this.phase === "countdown") {
+      this.tickCountdown();
+      return;
+    }
+
+    if (this.phase === "racing") {
+      this.tickSimulation();
+      return;
+    }
+
     if (this.phase === "waiting" && this.connectedCount() === 0) {
       this.players.clear();
     }
+  }
+
+  // ── Countdown ──────────────────────────────────────────────────────────
+
+  private startCountdown(): void {
+    this.phase = "countdown";
+    this.countdownRemaining = COUNTDOWN_SECONDS;
+    this.broadcast({ type: "countdown", seconds: this.countdownRemaining });
+    this.ctx.storage.setAlarm(Date.now() + 1000);
+  }
+
+  private tickCountdown(): void {
+    this.countdownRemaining--;
+
+    if (this.countdownRemaining > 0) {
+      this.broadcast({ type: "countdown", seconds: this.countdownRemaining });
+      this.ctx.storage.setAlarm(Date.now() + 1000);
+      return;
+    }
+
+    this.initRace();
+  }
+
+  // ── Race init ──────────────────────────────────────────────────────────
+
+  private initRace(): void {
+    this.characters = [...this.players.values()].map((p) => ({
+      id: p.id,
+      name: p.name,
+      color: p.color,
+      faceImage: p.faceImage,
+      progress: 0,
+      speed: GAME_SPEED,
+      baseSpeed: GAME_SPEED,
+      status: "running" as const,
+      stunEndTime: 0,
+      stats: { hitCount: 0, setbackTotal: 0, ultimateUsed: 0, rankChanges: 0 },
+      finishTime: null,
+    }));
+
+    this.rankings = this.characters.map((c) => c.id);
+    this.finishedIds = [];
+    this.firstFinishTime = null;
+    this.elapsedTime = 0;
+    this.events = [];
+    this.eventLogs = [];
+    this.activeGlobalEvent = null;
+    this.globalEventEndTime = 0;
+    this.ultimateCount = 0;
+    this.activeBubble = null;
+    this.lastBroadcastAt = 0;
+    this.lastRankChangeCheckTime = 0;
+    this.lastTickWallTime = Date.now();
+
+    initEventScheduler(0);
+    initDialogueScheduler(0);
+
+    this.phase = "racing";
+    this.ctx.storage.setAlarm(Date.now() + SIM_TICK_MS);
+  }
+
+  // ── Simulation tick ────────────────────────────────────────────────────
+
+  private tickSimulation(): void {
+    const now = Date.now();
+    const wallDelta = (now - this.lastTickWallTime) / 1000;
+    this.lastTickWallTime = now;
+    const deltaTime = Math.min(wallDelta, 0.1);
+
+    this.elapsedTime += deltaTime;
+
+    const isGlobalActive =
+      this.activeGlobalEvent !== null && this.elapsedTime < this.globalEventEndTime;
+    const ashActive = isGlobalActive && this.activeGlobalEvent === "volcanic_ash";
+
+    // 1. Movement + status recovery
+    this.characters = this.characters.map((c) => {
+      if (this.finishedIds.includes(c.id)) return c;
+
+      if (c.status === "stunned") {
+        if (this.elapsedTime >= c.stunEndTime) {
+          return { ...c, status: "running" as const, speed: c.baseSpeed, stunEndTime: 0 };
+        }
+        return c;
+      }
+
+      let char = c;
+      if (c.status !== "running" && c.stunEndTime > 0 && this.elapsedTime >= c.stunEndTime) {
+        char = { ...c, status: "running" as const, speed: c.baseSpeed, stunEndTime: 0 };
+      }
+
+      const ashMult = ashActive ? VOLCANIC_ASH_SPEED_MULT : 1;
+      const jitter = 1 + (Math.random() - 0.5) * JITTER_RANGE;
+      const progress = char.progress + char.speed * deltaTime * jitter * ashMult;
+      return { ...char, progress };
+    });
+
+    // 2. Finish detection
+    const newlyFinished = this.characters
+      .filter((c) => c.progress >= FINISH_LINE && !this.finishedIds.includes(c.id))
+      .sort((a, b) => b.progress - a.progress);
+    const newlyFinishedIds = newlyFinished.map((c) => c.id);
+    this.finishedIds = [...this.finishedIds, ...newlyFinishedIds];
+
+    if (this.firstFinishTime === null && newlyFinishedIds.length > 0) {
+      this.firstFinishTime = this.elapsedTime;
+    }
+
+    this.characters = this.characters.map((c) => {
+      const clamped = Math.min(c.progress, 1);
+      if (newlyFinishedIds.includes(c.id)) {
+        return { ...c, progress: clamped, finishTime: this.elapsedTime };
+      }
+      return clamped !== c.progress ? { ...c, progress: clamped } : c;
+    });
+
+    // 3. Rankings
+    this.rankings = [...this.characters].sort((a, b) => b.progress - a.progress).map((c) => c.id);
+
+    // 3.5 Rank change tracking
+    if (this.elapsedTime - this.lastRankChangeCheckTime >= RANK_CHANGE_CHECK_INTERVAL) {
+      this.lastRankChangeCheckTime = this.elapsedTime;
+    }
+
+    // 4. Event system
+    const eventResult = processEvents({
+      characters: this.characters,
+      rankings: this.rankings,
+      finishedIds: this.finishedIds,
+      elapsedTime: this.elapsedTime,
+      activeGlobalEvent: this.activeGlobalEvent,
+      globalEventEndTime: this.globalEventEndTime,
+      ultimateCount: this.ultimateCount,
+    });
+
+    this.characters = eventResult.characters;
+    this.activeGlobalEvent = eventResult.activeGlobalEvent;
+    this.globalEventEndTime = eventResult.globalEventEndTime;
+    this.ultimateCount = eventResult.ultimateCount;
+
+    if (eventResult.newEvents.length > 0) {
+      this.events.push(...eventResult.newEvents);
+    }
+    if (eventResult.newLogs.length > 0) {
+      this.eventLogs.push(...eventResult.newLogs);
+    }
+
+    // 5. Dialogue system
+    const dialogueResult = processDialogues({
+      characters: this.characters,
+      rankings: this.rankings,
+      finishedIds: this.finishedIds,
+      elapsedTime: this.elapsedTime,
+      activeBubble: this.activeBubble,
+      newEvents: eventResult.newEvents,
+    });
+    this.activeBubble = dialogueResult.activeBubble;
+
+    // 6. Race end check
+    const isAllFinished = this.finishedIds.length === this.characters.length;
+    const graceSeconds = RACE_END_GRACE_PERIOD_MS / 1000;
+    const isGraceOver =
+      this.firstFinishTime !== null && this.elapsedTime - this.firstFinishTime >= graceSeconds;
+
+    if (isAllFinished || isGraceOver) {
+      this.endRace();
+      return;
+    }
+
+    // 7. Broadcast game state at throttled interval
+    if (this.elapsedTime - this.lastBroadcastAt >= BROADCAST_INTERVAL_MS / 1000) {
+      this.lastBroadcastAt = this.elapsedTime;
+      this.broadcastGameTick();
+    }
+
+    // Schedule next tick
+    this.ctx.storage.setAlarm(Date.now() + SIM_TICK_MS);
+  }
+
+  private broadcastGameTick(): void {
+    this.broadcast({
+      type: "gameTick",
+      characters: this.characters,
+      rankings: this.rankings,
+      finishedIds: this.finishedIds,
+      elapsedTime: this.elapsedTime,
+      activeGlobalEvent: this.activeGlobalEvent,
+      events: this.events,
+      eventLogs: this.eventLogs,
+      activeBubble: this.activeBubble,
+    });
+  }
+
+  private endRace(): void {
+    this.phase = "result";
+
+    const finalRankings = [
+      ...this.finishedIds,
+      ...this.characters
+        .filter((c) => !this.finishedIds.includes(c.id))
+        .sort((a, b) => b.progress - a.progress)
+        .map((c) => c.id),
+    ];
+
+    this.broadcastGameTick();
+
+    this.broadcast({
+      type: "raceResult",
+      rankings: finalRankings,
+      characters: this.characters,
+      hiddenEffects: [], // Phase 4에서 채움
+    });
+
+    this.resetTTL();
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────────
@@ -248,12 +509,6 @@ export class RaceRoom extends DurableObject {
     this.hostId = null;
   }
 
-  private startCountdown(): void {
-    this.phase = "countdown";
-    this.broadcast({ type: "countdown", seconds: 3 });
-    // Phase 3에서 alarm()을 이용한 실제 카운트다운 + 시뮬레이션 구현 예정
-  }
-
   private broadcast(msg: ServerMessage): void {
     const data = JSON.stringify(msg);
     for (const ws of this.ctx.getWebSockets()) {
@@ -274,6 +529,7 @@ export class RaceRoom extends DurableObject {
   }
 
   private resetTTL(): void {
+    if (this.phase === "racing" || this.phase === "countdown") return;
     this.ctx.storage.setAlarm(Date.now() + ROOM_TTL_MS);
   }
 }
