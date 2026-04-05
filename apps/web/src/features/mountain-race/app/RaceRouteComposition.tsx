@@ -93,10 +93,6 @@ function MultiplayerCountdown() {
   const [countdownPhase, setCountdownPhase] = useState(COUNTDOWN_SECONDS);
 
   useEffect(() => {
-    useGameStore.setState({ characters: [], rankings: [], events: [], eventLogs: [] });
-  }, []);
-
-  useEffect(() => {
     if (myPlayerId) setCameraTarget(myPlayerId);
   }, [myPlayerId, setCameraTarget]);
 
