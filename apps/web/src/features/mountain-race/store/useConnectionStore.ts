@@ -1,5 +1,13 @@
 import { create } from "zustand";
-import type { ClientMessage, Player, RoomState, ServerMessage } from "@mountain-race/types";
+import type {
+  ClientMessage,
+  HiddenEffect,
+  HiddenEffectAssignment,
+  Player,
+  RoomState,
+  ServerMessage,
+} from "@mountain-race/types";
+import { useGameStore } from "./useGameStore";
 
 type ConnectionStatus = "disconnected" | "connecting" | "connected" | "error";
 
@@ -12,6 +20,8 @@ interface ConnectionState {
   players: Player[];
   phase: RoomState["phase"] | null;
   hasHiddenEffect: boolean;
+  lastEffectReveal: { playerId: string; effect: HiddenEffect; targetName?: string } | null;
+  raceHiddenEffects: HiddenEffectAssignment[];
 
   createRoom: () => Promise<string | null>;
   joinRoom: (code: string) => void;
@@ -36,6 +46,8 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
   players: [],
   phase: null,
   hasHiddenEffect: false,
+  lastEffectReveal: null,
+  raceHiddenEffects: [],
 
   createRoom: async () => {
     try {
@@ -91,6 +103,8 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
       players: [],
       phase: null,
       hasHiddenEffect: false,
+      lastEffectReveal: null,
+      raceHiddenEffects: [],
     });
   },
 
@@ -144,14 +158,42 @@ function handleServerMessage(msg: ServerMessage, set: SetState, get: GetState): 
       set({ hasHiddenEffect: msg.hasEffect });
       break;
 
+    case "effectReveal": {
+      const reveal: ConnectionState["lastEffectReveal"] = {
+        playerId: msg.playerId,
+        effect: msg.effect,
+      };
+      if (msg.targetName !== undefined) reveal.targetName = msg.targetName;
+      set({ lastEffectReveal: reveal });
+      break;
+    }
+
     case "raceResult":
-      set({ phase: "result" });
+      set({ phase: "result", raceHiddenEffects: msg.hiddenEffects });
+      useGameStore.setState({
+        isRacing: false,
+        hasResult: true,
+        rankings: msg.rankings,
+        characters: msg.characters,
+      });
       break;
 
     case "gameTick":
       if (get().phase !== "racing") {
         set({ phase: "racing" });
       }
+      useGameStore.setState({
+        characters: msg.characters,
+        rankings: msg.rankings,
+        finishedIds: msg.finishedIds,
+        elapsedTime: msg.elapsedTime,
+        activeGlobalEvent: msg.activeGlobalEvent,
+        events: msg.events,
+        eventLogs: msg.eventLogs,
+        activeBubble: msg.activeBubble,
+        isRacing: true,
+        hasResult: false,
+      });
       break;
 
     default:
