@@ -3,6 +3,10 @@ import type { EffectContext, EffectHandler, EffectResult } from "./effectHandler
 export const selfTripEffect: EffectHandler = {
   apply({ casterIndex, caster, characters, elapsedTime }: EffectContext): EffectResult {
     const updated = [...characters];
+    if (caster.status === "shielded") {
+      updated[casterIndex] = { ...caster, status: "running" };
+      return { characters: updated };
+    }
     updated[casterIndex] = {
       ...caster,
       status: "stunned",
@@ -17,6 +21,10 @@ export const selfTripEffect: EffectHandler = {
 export const ankleWeightEffect: EffectHandler = {
   apply({ casterIndex, caster, characters, elapsedTime }: EffectContext): EffectResult {
     const updated = [...characters];
+    if (caster.status === "shielded") {
+      updated[casterIndex] = { ...caster, status: "running" };
+      return { characters: updated };
+    }
     updated[casterIndex] = {
       ...caster,
       status: "slowed",

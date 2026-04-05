@@ -106,7 +106,7 @@ export function ResultScreen() {
   }, [mvpMostHit, mvpLastUltimate, mvpComeback]);
 
   const roomCode = useConnectionStore((s) => s.roomCode);
-  const isMultiplayer = Boolean(roomCode);
+  const isMultiplayer = Boolean(roomCode) || raceHiddenEffects.length > 0;
 
   const handleGoSetup = () => {
     resetGame();

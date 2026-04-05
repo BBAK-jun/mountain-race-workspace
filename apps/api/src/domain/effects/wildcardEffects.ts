@@ -35,6 +35,9 @@ export const earthquakeEffect: EffectHandler = {
   apply({ characters, elapsedTime }: EffectContext): EffectResult {
     const updated = characters.map((c) => {
       if (c.finishTime !== null) return c;
+      if (c.status === "shielded") {
+        return { ...c, status: "running" as const };
+      }
       return {
         ...c,
         status: "stunned" as const,
