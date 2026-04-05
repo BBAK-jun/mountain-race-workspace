@@ -95,12 +95,14 @@ const autoCameraState = {
   endTime: 0,
   nextMode: "follow" as CameraMode,
   finishReactionCount: 0,
+  pendingTarget: null as string | null,
 };
 
 function resetAutoCameraState(): void {
   autoCameraState.endTime = 0;
   autoCameraState.nextMode = "follow";
   autoCameraState.finishReactionCount = 0;
+  autoCameraState.pendingTarget = null;
 }
 
 interface AutoCameraResult {
@@ -139,16 +141,18 @@ function resolveAutoCamera(input: AutoCameraInput): AutoCameraResult | null {
       autoCameraState.endTime = elapsedTime + nextEnd;
       const mode = autoCameraState.nextMode;
       autoCameraState.nextMode = "follow";
-      return { cameraMode: mode, cameraTarget: null };
+      const target = autoCameraState.pendingTarget;
+      return { cameraMode: mode, cameraTarget: target };
     }
     autoCameraState.endTime = 0;
+    autoCameraState.pendingTarget = null;
     return { cameraMode: "follow", cameraTarget: null };
   }
 
   // Already in a timed mode -- don't interrupt
   if (autoCameraState.endTime > 0 && elapsedTime < autoCameraState.endTime) return null;
 
-  // Finisher reaction -- shake on each of the top N finishers
+  // Finisher reaction -- shake then zoom on finisher, then follow unfinished leader
   if (
     newlyFinishedIds.length > 0 &&
     autoCameraState.finishReactionCount < CAMERA_FINISH_REACTION_LIMIT
@@ -157,7 +161,8 @@ function resolveAutoCamera(input: AutoCameraInput): AutoCameraResult | null {
     const shakeDuration =
       CAMERA_FINISH_SHAKE_DURATION_SEC / Math.max(autoCameraState.finishReactionCount, 1);
     autoCameraState.endTime = elapsedTime + shakeDuration;
-    autoCameraState.nextMode = "follow";
+    autoCameraState.nextMode = "event_zoom";
+    autoCameraState.pendingTarget = newlyFinishedIds[0] ?? null;
     return { cameraMode: "shake", cameraTarget: newlyFinishedIds[0] ?? null };
   }
 
@@ -450,6 +455,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       characters: finalCharacters,
       rankings: computeRankings(finalCharacters),
       finishedIds,
+      newlyFinishedIds,
       elapsedTime,
       activeBubble: state.activeBubble,
       newEvents: eventResult.newEvents,

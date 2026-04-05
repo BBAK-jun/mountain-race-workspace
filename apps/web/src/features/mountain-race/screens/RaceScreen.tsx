@@ -85,6 +85,7 @@ function SceneContent() {
         cameraTarget={cameraTarget}
         characters={characters}
         rankings={rankings}
+        finishedIds={finishedIds}
       />
       {cameraMode === "free" ? <FreeOrbitControls /> : null}
     </>

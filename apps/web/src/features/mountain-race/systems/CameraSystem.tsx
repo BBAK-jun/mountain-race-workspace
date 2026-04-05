@@ -38,6 +38,7 @@ interface CameraSystemProps {
   cameraTarget: string | null;
   characters: Character[];
   rankings: string[];
+  finishedIds: string[];
 }
 
 export function getTargetTrackPosition(
@@ -57,6 +58,7 @@ export function CameraSystem({
   cameraTarget,
   characters,
   rankings,
+  finishedIds,
 }: CameraSystemProps) {
   const { camera } = useThree();
   const smoothLookAt = useRef(new Vector3(0, 5, -10));
@@ -82,7 +84,7 @@ export function CameraSystem({
       _desired.set(_finishPos.x + cfg.side, _finishPos.y + cfg.height, _finishPos.z + cfg.distance);
       _lookTarget.copy(_finishPos);
     } else {
-      const target = resolveTarget(characters, rankings, cameraTarget);
+      const target = resolveTarget(characters, rankings, cameraTarget, finishedIds);
       if (!target) return;
 
       getTrackPointTo(target.progress, _pos);
@@ -131,10 +133,16 @@ function resolveTarget(
   characters: Character[],
   rankings: string[],
   cameraTarget: string | null,
+  finishedIds: string[] = [],
 ): Character | undefined {
   if (cameraTarget) {
     const found = characters.find((c) => c.id === cameraTarget);
     if (found) return found;
+  }
+  for (const id of rankings) {
+    if (!finishedIds.includes(id)) {
+      return characters.find((c) => c.id === id);
+    }
   }
   const leaderId = rankings[0];
   if (leaderId) {

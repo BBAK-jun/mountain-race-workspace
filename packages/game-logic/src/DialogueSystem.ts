@@ -18,6 +18,7 @@ import {
 import {
   CLOSE_RACE_DIALOGUES,
   COMEBACK_DIALOGUES,
+  FINISH_DIALOGUES,
   FIRST_PLACE_DIALOGUES,
   GLOBAL_EVENT_DIALOGUES,
   IDLE_DIALOGUES,
@@ -37,6 +38,7 @@ export interface DialogueTickInput {
   characters: Character[];
   rankings: string[];
   finishedIds: string[];
+  newlyFinishedIds: readonly string[];
   elapsedTime: number;
   activeBubble: ActiveBubble | null;
   newEvents: GameEvent[];
@@ -89,6 +91,38 @@ const EVENT_CATEGORY_PRIORITY: Readonly<Record<string, number>> = {
   skill: 2,
   target: 3,
 };
+
+// ── Finish dialogue selection ────────────────────────────────────────────────
+
+function getFinishDialogueKey(rank: number, totalCharacters: number): string {
+  if (rank === totalCharacters) return "last";
+  if (rank === 1) return "first";
+  if (rank === 2) return "second";
+  if (rank === 3) return "third";
+  return "rest";
+}
+
+function pickFinishDialogue(
+  newlyFinishedIds: readonly string[],
+  finishedIds: string[],
+  characters: readonly Character[],
+  elapsedTime: number,
+): ActiveBubble | null {
+  if (newlyFinishedIds.length === 0) return null;
+
+  const finisherId = newlyFinishedIds[0];
+  if (finisherId === undefined) return null;
+
+  const finisher = findChar(characters, finisherId);
+  if (!finisher) return null;
+
+  const rank = finishedIds.indexOf(finisherId) + 1;
+  const key = getFinishDialogueKey(rank, characters.length);
+  const pool = FINISH_DIALOGUES[key];
+  if (!pool || pool.length === 0) return null;
+
+  return makeBubble(finisher.id, pickRandom(pool), elapsedTime);
+}
 
 // ── Event dialogue selection ─────────────────────────────────────────────────
 
@@ -333,12 +367,21 @@ export function resetDialogueScheduler(): void {
 }
 
 export function processDialogues(input: DialogueTickInput): DialogueTickResult {
-  const { characters, rankings, finishedIds, elapsedTime, activeBubble, newEvents } = input;
+  const {
+    characters,
+    rankings,
+    finishedIds,
+    newlyFinishedIds,
+    elapsedTime,
+    activeBubble,
+    newEvents,
+  } = input;
 
   const result = resolveDialogue(
     characters,
     rankings,
     finishedIds,
+    newlyFinishedIds,
     elapsedTime,
     activeBubble,
     newEvents,
@@ -351,10 +394,19 @@ function resolveDialogue(
   characters: readonly Character[],
   rankings: string[],
   finishedIds: string[],
+  newlyFinishedIds: readonly string[],
   elapsedTime: number,
   activeBubble: ActiveBubble | null,
   newEvents: readonly GameEvent[],
 ): DialogueTickResult {
+  // 0. Finish dialogue -- always override on arrival
+  if (newlyFinishedIds.length > 0) {
+    const finishBubble = pickFinishDialogue(newlyFinishedIds, finishedIds, characters, elapsedTime);
+    if (finishBubble) {
+      return { activeBubble: finishBubble };
+    }
+  }
+
   // 1. Try event dialogue first (may override existing bubble for high-priority)
   if (newEvents.length > 0) {
     const hasHighPriority = newEvents.some(
