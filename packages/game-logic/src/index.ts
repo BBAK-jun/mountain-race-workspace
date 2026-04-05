@@ -40,4 +40,8 @@ export {
   ULTIMATE_EFFECTS,
   GLOBAL_EFFECTS,
   TARGET_EFFECTS,
-} from "@mountain-race/game-logic";
+} from "./balance";
+export { initEventScheduler, resetEventScheduler, processEvents } from "./EventSystem";
+export type { EventTickInput, EventTickResult } from "./EventSystem";
+export { initDialogueScheduler, resetDialogueScheduler, processDialogues } from "./DialogueSystem";
+export type { DialogueTickInput, DialogueTickResult } from "./DialogueSystem";

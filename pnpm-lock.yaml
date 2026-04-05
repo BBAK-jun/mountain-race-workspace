@@ -89,6 +89,12 @@ importers:
 
   apps/api:
     dependencies:
+      '@mountain-race/game-logic':
+        specifier: workspace:*
+        version: link:../../packages/game-logic
+      '@mountain-race/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       hono:
         specifier: 'catalog:'
         version: 4.12.10
@@ -108,6 +114,12 @@ importers:
       '@fontsource-variable/geist':
         specifier: ^5.2.8
         version: 5.2.8
+      '@mountain-race/game-logic':
+        specifier: workspace:*
+        version: link:../../packages/game-logic
+      '@mountain-race/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       '@react-three/drei':
         specifier: 'catalog:'
         version: 10.7.7(@react-three/fiber@9.5.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.179.1))(@types/react@19.2.14)(@types/three@0.179.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.179.1)
@@ -184,6 +196,22 @@ importers:
       wrangler:
         specifier: 'catalog:'
         version: 4.80.0(@cloudflare/workers-types@4.20260402.1)
+
+  packages/game-logic:
+    dependencies:
+      '@mountain-race/types':
+        specifier: workspace:*
+        version: link:../types
+    devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.2
+
+  packages/types:
+    devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.2
 
 packages:
 

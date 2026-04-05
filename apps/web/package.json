@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.8",
+    "@mountain-race/game-logic": "workspace:*",
+    "@mountain-race/types": "workspace:*",
     "@tailwindcss/vite": "^4.2.2",
     "@react-three/drei": "catalog:",
     "@react-three/fiber": "catalog:",
