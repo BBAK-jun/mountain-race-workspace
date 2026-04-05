@@ -33,6 +33,9 @@ function LobbyRoute() {
     if (phase === "countdown" || phase === "racing") {
       markSetupComplete();
       void navigate({ to: "/race" });
+    } else if (phase === "result") {
+      markSetupComplete();
+      void navigate({ to: "/result" });
     }
   }, [phase, navigate]);
 

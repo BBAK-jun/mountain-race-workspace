@@ -66,6 +66,25 @@ export class RaceRoom extends DurableObject implements Broadcaster {
       state: this.registry.roomState(),
       yourPlayerId: player.id,
     });
+
+    if (this.registry.phase === "racing" || this.registry.phase === "countdown") {
+      this.sendTo(server, { type: "hasHiddenEffect", hasEffect: true });
+      if (this.registry.phase === "racing") {
+        const snap = this.simulation.snapshot();
+        this.sendTo(server, {
+          type: "gameTick",
+          characters: snap.characters,
+          rankings: snap.rankings,
+          finishedIds: snap.finishedIds,
+          elapsedTime: snap.elapsedTime,
+          activeGlobalEvent: snap.activeGlobalEvent,
+          events: snap.events,
+          eventLogs: snap.eventLogs,
+          activeBubble: snap.activeBubble,
+        });
+      }
+    }
+
     this.scheduleRoomTTL();
 
     return new Response(null, { status: 101, webSocket: client });
