@@ -137,7 +137,8 @@ export function LandingScreen() {
 
           <Link
             to="/setup"
-            className="text-sm font-medium text-white underline decoration-white/40 underline-offset-4 transition hover:decoration-white/70 md:text-base"
+            className="text-sm font-bold text-white underline decoration-white/50 underline-offset-4 transition hover:decoration-white md:text-base"
+            style={{ textShadow: "0 1px 6px rgba(0,0,0,0.6)" }}
           >
             로컬 플레이
           </Link>
