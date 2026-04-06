@@ -1,17 +1,40 @@
 # Mountain Race Workspace
 
-Cursor와 VS Code에서 바로 열어 작업할 수 있도록 정리한 AI-native TypeScript `pnpm workspace` 초기 템플릿이다.
+Mountain Race 게임을 구현하기 위한 AI-native TypeScript `pnpm workspace` 모노레포다.
 
-현재 이 레포는 웹은 비워두고, API는 최소 Worker 스타터만 남겨둔 시작 상태다. 워크스페이스 구조, 배포 전략, CI, 에디터 설정, Cursor 설정, 앱 디렉토리 문서는 먼저 고정해두고 있다.
+현재 이 레포는 웹 클라이언트, 멀티플레이어 API, 공유 타입과 게임 로직, 팀 실행 문서, Cursor/Codex 작업 surface를 함께 관리한다.
+
+## Generated Snapshot
+
+<!-- docs-harness:readme-snapshot:start -->
+
+- 앱 상태: `apps/web`는 6개 route 파일과 41개 feature 파일을 가진 플레이어 클라이언트이고, `apps/api`는 20개 TypeScript 파일로 구성된 멀티플레이어 API다.
+- 공유 패키지: `@mountain-race/game-logic`, `@mountain-race/types`
+- 문서 상태: `14`개 Markdown 문서와 `4`개 GitHub workflow가 정리돼 있다.
+- AI surface: Cursor rules 4개 / Cursor skills 16개 / Cursor agents 5개 / Codex skills 16개 / Codex subagents 5개
+- 현재 웹 route: `(root layout)`, `/`, `/lobby`, `/race`, `/result`, `/setup`
+<!-- docs-harness:readme-snapshot:end -->
 
 ## Mountain Race Docs
 
-팀이 바로 구현을 시작할 수 있도록 게임 문서를 `docs/` 아래에 정리해두었다.
+문서 입구는 [docs/README.md](./docs/README.md)다. 현재 코드와 자동화 상태를 요약한 generated 문서는 [docs/project-status.md](./docs/project-status.md)다.
 
-- [docs/mountain-race-product-prd.md](./docs/mountain-race-product-prd.md)
-- [docs/mountain-race-mvp-guide.md](./docs/mountain-race-mvp-guide.md)
-- [docs/mountain-race-technical-prd.md](./docs/mountain-race-technical-prd.md)
-- [docs/README.md](./docs/README.md)
+<!-- docs-harness:readme-docs:start -->
+
+- [apps/api/README.md](apps/api/README.md): 이 디렉토리는 Cloudflare Workers에 배포하는 멀티플레이어 백엔드 앱이다.
+- [apps/web/README.md](apps/web/README.md): 이 디렉토리는 Cloudflare Pages에 배포하는 플레이어 프런트엔드 앱이다.
+- [docs/deployment.md](docs/deployment.md): 이 레포는 프런트와 백엔드를 분리 배포하는 전략으로 맞춰져 있다.
+- [docs/plans/mountain-race-team-execution-plan.md](docs/plans/mountain-race-team-execution-plan.md): 이 문서는 `Mountain Race` 구현을 특정 사람 기준 분업 문서가 아니라 workstream 기반 실행 계획으로 정리한다.
+- [docs/plans/README.md](docs/plans/README.md): 이 디렉토리는 `Mountain Race` 구현을 위한 공유 실행 기준만 담는다.
+- [docs/prd/1-core-race-product-manual.md](docs/prd/1-core-race-product-manual.md): 이 문서는 Mountain Race의 코어 레이스 경험과 기본 게임 규칙을 정의한다.
+- [docs/prd/2-mvp-race-product-manual.md](docs/prd/2-mvp-race-product-manual.md): 이 문서는 코어 레이스를 현재 레포에서 MVP로 구현하는 제품 기준을 정의한다.
+- [docs/prd/3-race-systems-product-manual.md](docs/prd/3-race-systems-product-manual.md): 이 문서는 코어 레이스를 구현하는 화면, 상태, 이벤트 시스템 기준을 정의한다.
+- [docs/prd/4-online-hidden-effects-product-manual.md](docs/prd/4-online-hidden-effects-product-manual.md): 이 문서는 온라인 멀티플레이와 숨겨진 효과 확장을 제품 기준으로 정의한다.
+- [docs/prd/README.md](docs/prd/README.md): 이 디렉토리는 Mountain Race 기능을 제품설명서 타임라인 순서로 관리한다.
+- [docs/project-harness.md](docs/project-harness.md): 이 문서는 Mountain Race Workspace의 문서 자동 갱신 하네스를 설명한다.
+- [docs/project-status.md](docs/project-status.md): Project Status 문서
+- [docs/README.md](docs/README.md): 이 디렉토리는 `Mountain Race` 구현에 필요한 기준 문서를 모아둔다.
+<!-- docs-harness:readme-docs:end -->
 
 ## 포함된 기본값
 
@@ -27,10 +50,14 @@ Cursor와 VS Code에서 바로 열어 작업할 수 있도록 정리한 AI-nativ
 - `.cursor/agents` 기반 Cursor subagents
 - `.cursor/hooks.json` 기반 Cursor hooks
 - `.cursor/mcp.json` 기반 project MCP 설정 자리
+- `.agents/skills` 기반 Codex skills
+- `.codex/agents` 기반 Codex subagents
+- `.codex/config.toml` 기반 project-scoped Codex 설정
 - `.cursorignore` 와 `.cursorindexingignore` 기반 AI 컨텍스트 축소
+- 문서 자동 동기화를 위한 docs harness
 - GitHub Actions CI
-- `apps/web` Cloudflare Pages용 TanStack Router 파일 기반 웹 앱 스타터
-- `apps/api` Cloudflare Workers용 Hono API 스타터
+- `apps/web` Cloudflare Pages용 플레이어 웹 앱
+- `apps/api` Cloudflare Workers용 멀티플레이어 API 앱
 
 ## 시작하기
 
@@ -40,7 +67,7 @@ pnpm dev:web
 pnpm dev:api
 ```
 
-웹은 빈 플레이스홀더 페이지를 `http://localhost:4173`에서 띄울 수 있다. API는 `http://localhost:8787`에서 최소 Hono Worker 엔드포인트를 띄울 수 있다.
+웹 클라이언트는 `http://localhost:4173`에서 랜딩, 로비, 셋업, 레이스, 결과 플로우를 띄울 수 있다. API는 `http://localhost:8787`에서 room HTTP 라우트와 Durable Object 기반 멀티플레이어 런타임을 띄울 수 있다.
 
 ## 주요 스크립트
 
@@ -50,6 +77,9 @@ pnpm dev:api
 pnpm dev:all
 pnpm lint
 pnpm typecheck
+pnpm docs:sync
+pnpm docs:check
+pnpm docs:audit
 pnpm format
 pnpm build
 pnpm check
@@ -64,7 +94,7 @@ pnpm check
 
 ## Deployment
 
-배포 전략도 같이 넣어뒀지만, 현재는 웹 TanStack Router 스타터와 최소 API 스타터를 기준으로 템플릿을 준비해둔 것이다.
+배포 전략은 현재 코드 상태를 기준으로 정리되어 있다.
 
 - 클라이언트: Cloudflare Pages 정적 호스팅
 - 서버: Cloudflare Workers
@@ -78,52 +108,25 @@ pnpm check
 - [.github/workflows/deploy-api-cloudflare.yml](./.github/workflows/deploy-api-cloudflare.yml)
 - [docs/deployment.md](./docs/deployment.md)
 
-앱 구현이 거의 없으므로:
+현재 기준으로:
 
-- Cloudflare Pages는 빈 플레이스홀더 정적 페이지를 배포할 수 있다.
-- Cloudflare Workers는 최소 Hono API 스타터를 배포할 수 있다.
-- 실제 서비스 배포 전에 각 앱 구현을 먼저 채워야 한다.
+- Cloudflare Pages는 실제 플레이어 클라이언트 빌드를 배포할 수 있다.
+- Cloudflare Workers는 room API와 Durable Object 기반 멀티플레이어 서버를 배포할 수 있다.
+- 세부 제품 동작과 문서 일치 여부는 `pnpm docs:sync`, `pnpm docs:audit`, `docs/project-status.md`로 같이 점검한다.
 
-## Cursor Layout
+## AI Surfaces
 
-Cursor 문서의 구분에 맞춰 컨텍스트를 계층화했다.
+Cursor와 Codex가 각자 읽는 surface를 함께 유지한다.
 
-- `AGENTS.md`: 레포 전체에 항상 적용되는 기본 운영 규칙
-- `.cursor/rules`: 프로젝트 전반 또는 특정 디렉토리에 자동 적용되는 규칙
-- `.cursor/skills`: 길고 전문화된 작업 절차를 필요할 때만 로드하는 스킬
-- `.cursor/agents`: 병렬 위임에 쓰는 전문 서브에이전트
-- `.cursor/hooks.json`: 세션 또는 작업 이벤트에 반응하는 훅
-- `.cursor/mcp.json`: 프로젝트 전용 MCP 서버 연결 지점
-- `.cursorignore`, `.cursorindexingignore`: Cursor가 굳이 읽지 않아도 되는 파일 제외
+<!-- docs-harness:readme-ai-surface:start -->
 
-## Cursor Skills
+- Cursor rules: `00-workspace-core.mdc`, `01-cursor-context-map.mdc`, `20-cursor-config-surface.mdc`, `90-release-checklist.mdc`
+- Cursor skills: `mountain-race-api-surface`, `mountain-race-gameplay-loop`, `mountain-race-release-check`, `mountain-race-ui-flow`, `pr-create`, `web-r3f-animation`, `web-r3f-fundamentals`, `web-r3f-geometry`, `web-r3f-interaction`, `web-r3f-lighting`, `web-r3f-loaders`, `web-r3f-materials`, `web-r3f-physics`, `web-r3f-postprocessing`, `web-r3f-shaders`, `web-r3f-textures`
+- Codex skills: `mountain-race-api-surface`, `mountain-race-gameplay-loop`, `mountain-race-release-check`, `mountain-race-ui-flow`, `pr-create`, `web-r3f-animation`, `web-r3f-fundamentals`, `web-r3f-geometry`, `web-r3f-interaction`, `web-r3f-lighting`, `web-r3f-loaders`, `web-r3f-materials`, `web-r3f-physics`, `web-r3f-postprocessing`, `web-r3f-shaders`, `web-r3f-textures`
+- Codex subagents: `api-builder`, `gameplay-architect`, `release-auditor`, `scene-optimizer`, `ui-builder`
+<!-- docs-harness:readme-ai-surface:end -->
 
-포함된 스킬:
-
-- `pr-create`: 현재 브랜치 diff를 PR 제목과 본문으로 정리하는 작업
-- `mountain-race-ui-flow`: 로비, HUD, 결과 화면, 반응형 UI 작업
-- `mountain-race-gameplay-loop`: 레이스 상태 전이, 순위 계산, 밸런싱 작업
-- `mountain-race-api-surface`: 백엔드 라우트, 계약, 서버 연결 작업
-- `mountain-race-release-check`: 머지 전 검증과 릴리즈 점검
-- `web-r3f-fundamentals`: Canvas, hooks, JSX scene graph, 기본 R3F 구조 작업
-- `web-r3f-animation`: `useFrame`, clip, spring 기반 애니메이션 작업
-- `web-r3f-interaction`: 포인터 이벤트, raycasting, controls, 선택 상호작용 작업
-- `web-r3f-loaders`: 모델, 텍스처, Suspense, preload 자산 로딩 작업
-- `web-r3f-textures`: PBR 텍스처 세트, env map, 필터링, 색공간 작업
-- `web-r3f-lighting`: 라이팅 리그, 그림자, 환경광 작업
-- `web-r3f-materials`: 재질 선택, PBR 튜닝, 시각 스타일링 작업
-- `web-r3f-geometry`: 기하 생성, BufferGeometry, 인스턴싱 작업
-- `web-r3f-postprocessing`: bloom, DOF, screen-space 효과 작업
-- `web-r3f-shaders`: GLSL, uniforms, `shaderMaterial` 작업
-- `web-r3f-physics`: `@react-three/rapier` 기반 물리 작업
-
-## Cursor Subagents
-
-- `ui-builder`: React UI와 CSS 작업 전담
-- `api-builder`: Hono 라우트와 계약 작업 전담
-- `gameplay-architect`: 게임 규칙과 상태 설계 전담
-- `scene-optimizer`: React Three Fiber 렌더링과 성능 점검 전담
-- `release-auditor`: 출고 전 검증과 위험 정리 전담
+문서 자동 갱신 하네스 설명은 [docs/project-harness.md](./docs/project-harness.md)를 본다.
 
 ## 구조
 
@@ -135,6 +138,9 @@ Cursor 문서의 구분에 맞춰 컨텍스트를 계층화했다.
 │   └── web/
 │       └── .cursor/rules/
 ├── docs/
+├── .agents/skills/
+├── .codex/agents/
+├── .codex/config.toml
 ├── .cursor/rules/
 ├── .cursor/skills/
 ├── .cursor/agents/

@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "documents": {
+    "README.md": {
+      "kind": "workspace-guide",
+      "lastReviewedAt": "2026-04-06",
+      "watchPaths": ["apps/web", "apps/api", "packages"]
+    },
+    "docs/README.md": {
+      "kind": "docs-index",
+      "lastReviewedAt": "2026-04-06",
+      "watchPaths": ["docs"]
+    },
+    "docs/project-harness.md": {
+      "kind": "automation-guide",
+      "lastReviewedAt": "2026-04-06"
+    },
+    "docs/project-status.md": {
+      "generator": "project-status",
+      "kind": "generated",
+      "generated": true
+    },
+    "docs/prd/README.md": {
+      "kind": "prd-index",
+      "lastReviewedAt": "2026-04-06",
+      "watchPaths": ["docs/prd"]
+    },
+    "apps/README.md": {
+      "kind": "apps-index",
+      "lastReviewedAt": "2026-04-05",
+      "watchPaths": ["apps/web", "apps/api", "packages"]
+    },
+    "apps/api/README.md": {
+      "kind": "api-guide",
+      "lastReviewedAt": "2026-04-05",
+      "watchPaths": ["packages/types", "packages/game-logic"]
+    },
+    "apps/web/README.md": {
+      "kind": "web-guide",
+      "lastReviewedAt": "2026-04-06",
+      "watchPaths": ["apps/web/src", "packages/types", "packages/game-logic"]
+    },
+    "docs/prd/1-core-race-product-manual.md": {
+      "kind": "product-manual",
+      "lastReviewedAt": "2026-04-06",
+      "watchPaths": [
+        "apps/web/src/routes",
+        "apps/web/src/features/mountain-race/screens",
+        "packages/types/src/index.ts"
+      ]
+    },
+    "docs/prd/2-mvp-race-product-manual.md": {
+      "kind": "product-manual",
+      "lastReviewedAt": "2026-04-06",
+      "ignoreWatchPaths": ["pnpm-workspace.yaml"]
+    },
+    "docs/prd/3-race-systems-product-manual.md": {
+      "kind": "product-manual",
+      "lastReviewedAt": "2026-04-06",
+      "watchPaths": ["apps/api/src/application", "apps/api/src/presentation/http"]
+    },
+    "docs/prd/4-online-hidden-effects-product-manual.md": {
+      "kind": "product-manual",
+      "lastReviewedAt": "2026-04-06",
+      "watchPaths": [
+        "apps/api/src/domain/effects",
+        "apps/api/src/domain/hiddenEffectManager.ts",
+        "apps/web/src/features/mountain-race/store",
+        "packages/types"
+      ]
+    },
+    "docs/deployment.md": {
+      "kind": "deployment-guide",
+      "lastReviewedAt": "2026-04-05"
+    },
+    "docs/plans/README.md": {
+      "kind": "plan-index",
+      "lastReviewedAt": "2026-04-06",
+      "watchPaths": ["docs/plans"]
+    },
+    "docs/plans/mountain-race-team-execution-plan.md": {
+      "kind": "team-plan",
+      "lastReviewedAt": "2026-04-06",
+      "ignoreWatchPaths": ["pnpm-workspace.yaml"],
+      "watchPaths": [
+        "docs/prd/1-core-race-product-manual.md",
+        "docs/prd/3-race-systems-product-manual.md"
+      ]
+    }
+  }
+}
